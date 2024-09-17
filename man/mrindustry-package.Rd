@@ -18,5 +18,10 @@ Useful links:
 \author{
 \strong{Maintainer}: Falk Benke \email{benke@pik-potsdam.de}
 
+Authors:
+\itemize{
+  \item Jakob Dürrwächter \email{jakobdu@pik-potsdam.de}
+}
+
 }
 \keyword{internal}

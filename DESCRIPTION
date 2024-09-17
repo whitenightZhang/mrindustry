@@ -1,14 +1,18 @@
 Type: Package
 Package: mrindustry
 Title: input data generation for the REMIND industry module
-Version: 0.0.2
+Version: 0.0.3
 Date: 2024-09-17
-Authors@R:
-    person("Falk", "Benke", , "benke@pik-potsdam.de", role = c("aut", "cre"))
+Authors@R: c(
+    person(given = "Falk", family = "Benke", email = "benke@pik-potsdam.de", role = c("aut", "cre")),
+    person(given = "Jakob", family = "Dürrwächter", email = "jakobdu@pik-potsdam.de", role = "aut")
+  )
 Description: The mrindustry packages contains data preprocessing for the
     REMIND model.
 License: LGPL-3
 URL: https://github.com/pik-piam/mrindustry
+Depends:
+    madrat (>= 3.13.1)
 Suggests:
     testthat
 Encoding: UTF-8
