@@ -9,7 +9,6 @@
 #'
 #' @return A list with a [`magpie`][magclass::magclass] object `x`.
 #' 
-#' @importFrom mrremind tool_expand_tibble
 
 #' @export
 calcindustry_max_secondary_steel_share <- function(scenarios = NULL,
