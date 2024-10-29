@@ -15,6 +15,8 @@
 #'
 #' @importFrom dplyr anti_join arrange bind_rows filter group_by select ungroup
 #' @importFrom rlang .data syms !!!
+#' @importFrom magclass as.magpie
+
 
 #' @export
 calcCement <- function() {

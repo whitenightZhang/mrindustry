@@ -12,6 +12,7 @@
 #' @importFrom quitte madrat_mule
 #' @importFrom rlang .data .env sym syms
 #' @importFrom tidyr nest pivot_longer unnest
+#' @importFrom dplyr desc 
 
 #' @export
 calcIndustry_EEK <- function(kap) {

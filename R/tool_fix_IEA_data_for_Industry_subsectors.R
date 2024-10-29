@@ -35,6 +35,7 @@
 #' @importFrom rlang .data
 #' @importFrom tibble as_tibble
 #' @importFrom tidyr complete gather nesting spread
+#' @importFrom magclass getRegions getYears
 
 tool_fix_IEA_data_for_Industry_subsectors <- function(data, ieamatch,
                                                       threshold = 1e-2) {

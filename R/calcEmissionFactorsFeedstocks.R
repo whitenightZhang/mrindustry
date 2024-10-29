@@ -13,6 +13,7 @@
 #' @importFrom dplyr filter pull select
 #' @importFrom rlang .data
 #' @importFrom tibble as_tibble
+#' @importFrom magclass magpply new.magpie mbind getNames
 
 #' @export
 #'

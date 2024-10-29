@@ -1,10 +1,11 @@
 
 .onAttach <- function(libname, pkgname) {
-  madrat::madratAttach(pkgname)
+  madrat::madratAttach(c(pkgname, "GDPuc", "mrremind", "mrcommons", "mrdrivers"))
+  
 }
 
 .onDetach <- function(libpath) {
-  madrat::madratDetach(libpath)
+  madrat::madratDetach(c(libpath, "GDPuc", "mrremind", "mrcommons", "mrdrivers"))
 }
 
 # redirect standard messaging functions to vcat

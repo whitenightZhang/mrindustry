@@ -4,6 +4,8 @@
 #' @return A list with a [`magpie`][magclass::magclass] object `x`, `weight`,
 #'   `unit`, and `description`.
 #' 
+#' @importFrom magclass getYears<-
+#' 
 #' @author Michaja Pehl
 #' 
 #' @seealso [`calcOutput()`], [`readADVANCE_WP2()`], [`convertADVANCE_WP2()`]

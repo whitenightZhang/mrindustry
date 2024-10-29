@@ -1,6 +1,7 @@
 #' Read Final energy demand for feedstocks (non-energy use)
 #'
 #' @return magpie object of region dependent data
+#' @importFrom utils read.csv
 #' @author Renato Rodrigues
 #'
 #' @seealso \code{\link{readSource}}

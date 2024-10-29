@@ -1,4 +1,7 @@
 
+#' @importFrom magclass collapseNames
+
+
 calcEmissionsTe <- function() {
 
   x <- calcOutput("Emissions", datasource = "CDIAC", aggregate = FALSE)[, 2010, ]

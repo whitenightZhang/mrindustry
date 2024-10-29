@@ -17,6 +17,7 @@
 #' @importFrom rlang .data sym
 #' @importFrom tibble as_tibble
 #' @importFrom tidyr complete everything nesting
+#' @importFrom magclass collapseDim
 
 #' @export
 calcChemicalFeedstocksShare <- function()

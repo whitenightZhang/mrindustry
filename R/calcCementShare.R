@@ -17,6 +17,7 @@
 #' @importFrom rlang sym
 #' @importFrom tibble tribble as_tibble
 #' @importFrom tidyr pivot_longer complete nesting
+#' @importFrom magclass dimSums
 
 #' @export
 calcCementShare <- function() {

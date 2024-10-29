@@ -43,10 +43,13 @@
 #'   list_to_data_frame madrat_mule magclass_to_tibble order.levels
 #'   seq_range sum_total_
 #' @importFrom readr write_rds
-#' @importFrom stats nls SSlogis sd
+#' @importFrom stats nls SSlogis sd lm
 #' @importFrom tibble as_tibble tibble tribble
 #' @importFrom tidyr expand_grid pivot_longer pivot_wider replace_na
 #' @importFrom zoo na.approx rollmean
+#' @importFrom utils head
+#' @importFrom dplyr bind_cols  
+#' @importFrom magclass setNames
 
 #' @rdname EDGE-Industry
 #' @export
