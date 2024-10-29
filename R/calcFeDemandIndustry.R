@@ -19,7 +19,6 @@
 #' @importFrom magclass getNames<- getItems getSets mselect add_dimension
 #' @importFrom stats na.omit
 #' @importFrom tidyselect all_of
-#' @importFrom mrremind toolAggregateTimeSteps
 #' @author Michaja Pehl
 #'
 calcFeDemandIndustry <- function(use_ODYM_RECC = FALSE) {
