@@ -21,6 +21,10 @@ Useful links:
 Authors:
 \itemize{
   \item Jakob Dürrwächter \email{jakobdu@pik-potsdam.de}
+  \item Renato Rodrigues \email{renato.rodrigues@pik-potsdam.de}
+  \item Simón Moreno-Leiva \email{simon.moreno@pik-potsdam.de}
+  \item Lavinia Baumstark \email{lavinia.baumstark@pik-potsdam.de}
+  \item Michaja Pehl \email{michaja.pehl@pik-potsdam.de}
 }
 
 }

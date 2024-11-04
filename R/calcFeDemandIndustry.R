@@ -186,7 +186,7 @@ calcFeDemandIndustry <- function(use_ODYM_RECC = FALSE,
   stationary <- readSource("Stationary")
 
   # aggregate to 5-year averages to suppress volatility
-  stationary <- toolAggregateTimeSteps(stationary)
+  stationary <- mrremind::toolAggregateTimeSteps(stationary)
 
   # ---- _ modify Industry FE data to carry on current trends ----
   v <- grep("\\.fe(..i$|ind)", getNames(stationary), value = TRUE)
