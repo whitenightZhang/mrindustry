@@ -2,8 +2,8 @@ cff-version: 1.2.0
 message: If you use this software, please cite it using the metadata from this file.
 type: software
 title: 'mrindustry: input data generation for the REMIND industry module'
-version: 0.2.0
-date-released: '2024-10-29'
+version: 0.3.0
+date-released: '2024-11-04'
 abstract: The mrindustry packages contains data preprocessing for the REMIND model.
 authors:
 - family-names: Benke
@@ -12,6 +12,18 @@ authors:
 - family-names: Dürrwächter
   given-names: Jakob
   email: jakobdu@pik-potsdam.de
+- family-names: Rodrigues
+  given-names: Renato
+  email: renato.rodrigues@pik-potsdam.de
+- family-names: Moreno-Leiva
+  given-names: Simón
+  email: simon.moreno@pik-potsdam.de
+- family-names: Baumstark
+  given-names: Lavinia
+  email: lavinia.baumstark@pik-potsdam.de
+- family-names: Pehl
+  given-names: Michaja
+  email: michaja.pehl@pik-potsdam.de
 license: LGPL-3.0
 repository-code: https://github.com/pik-piam/mrindustry
 
