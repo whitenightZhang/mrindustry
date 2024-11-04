@@ -14,7 +14,7 @@ tool_expand_tibble(d, scenarios, regions, structure.columns = NULL)
 \item{regions}{A character vector of region names.}
 
 \item{structure.columns}{A character vector of column names to be carried
-along.}
+along.  Ignored if not a column in `d`.}
 }
 \value{
 A `tibble`.

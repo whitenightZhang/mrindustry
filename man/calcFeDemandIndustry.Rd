@@ -4,11 +4,14 @@
 \alias{calcFeDemandIndustry}
 \title{Calculates FE demand in industry as REMIND variables}
 \usage{
-calcFeDemandIndustry(use_ODYM_RECC = FALSE)
+calcFeDemandIndustry(use_ODYM_RECC = FALSE, last_empirical_year = 2020)
 }
 \arguments{
 \item{use_ODYM_RECC}{per-capita pathways for `SDP_xx` scenarios?  (Defaults
 to `FALSE`.)}
+
+\item{last_empirical_year}{Last year for which empirical data is available.
+Defaults to 2020.}
 }
 \description{
 Calculates FE demand in industry as REMIND variables
