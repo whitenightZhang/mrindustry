@@ -4,9 +4,19 @@ Title: input data generation for the REMIND industry module
 Version: 0.2.0
 Date: 2024-10-29
 Authors@R: c(
-    person(given = "Falk", family = "Benke", email = "benke@pik-potsdam.de", role = c("aut", "cre")),
-    person(given = "Jakob", family = "Dürrwächter", email = "jakobdu@pik-potsdam.de", role = "aut")
-  )
+    person(given = "Falk", family = "Benke", email = "benke@pik-potsdam.de",
+           role = c("aut", "cre")),
+    person(given = "Jakob", family = "Dürrwächter",
+           email = "jakobdu@pik-potsdam.de", role = "aut"),
+    person("Renato", "Rodrigues", email = "renato.rodrigues@pik-potsdam.de",
+           role = "aut"),
+    person(given = "Simón", family = "Moreno-Leiva",
+           email = "simon.moreno@pik-potsdam.de", role = "aut"),
+    person(given = "Lavinia", family = "Baumstark",
+           email = "lavinia.baumstark@pik-potsdam.de", rol = "aut"),
+    person(given = "Michaja", family = "Pehl",
+           email = "michaja.pehl@pik-potsdam.de", role = "aut")
+    )
 Description: The mrindustry packages contains data preprocessing for the
     REMIND model.
 License: LGPL-3
