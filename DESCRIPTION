@@ -1,7 +1,7 @@
 Type: Package
 Package: mrindustry
 Title: input data generation for the REMIND industry module
-Version: 0.3.0
+Version: 0.4.0
 Date: 2024-11-04
 Authors@R: c(
     person(given = "Falk", family = "Benke", email = "benke@pik-potsdam.de",
