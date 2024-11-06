@@ -225,9 +225,7 @@ calcSteel_Projections <- function(subtype = 'production',
     character.data.frame()
 
   ## historic population ----
-  population_history <- calcOutput(type = 'PopulationPast',
-                                   PopulationPast = 'UN_PopDiv',
-                                   aggregate = FALSE) %>%
+  population_history <- calcOutput("PopulationPast", pastData = "UN_PopDiv", aggregate = FALSE) %>%
     as.data.frame() %>%
     as_tibble() %>%
     select(iso3c = .data$Region, year = .data$Year,
@@ -238,8 +236,7 @@ calcSteel_Projections <- function(subtype = 'production',
            population = .data$population * 1e6)
 
   ## GDP projections ----
-  GDP <- calcOutput(type = 'GDP', average2020 = FALSE, naming = 'scenario',
-		    aggregate = FALSE) %>%
+  GDP <- calcOutput("GDP", average2020 = FALSE, naming = "scenario", aggregate = FALSE) %>%
     as.data.frame() %>%
     as_tibble() %>%
     select(scenario = .data$Data1, iso3c = .data$Region, year = .data$Year,
@@ -251,8 +248,7 @@ calcSteel_Projections <- function(subtype = 'production',
            GDP = .data$GDP * 1e6)
 
   ## population ----
-  population <- calcOutput('Population', naming = 'scenario',
-                           aggregate = FALSE) %>%
+  population <- calcOutput("Population", naming = "scenario", aggregate = FALSE) %>%
     as.data.frame() %>%
     as_tibble() %>%
     select(scenario = .data$Data1, iso3c = .data$Region, year = .data$Year,
