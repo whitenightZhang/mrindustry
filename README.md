@@ -1,8 +1,8 @@
 # input data generation for the REMIND industry module
 
-R package **mrindustry**, version **0.4.2**
+R package **mrindustry**, version **0.4.3**
 
-[![CRAN status](https://www.r-pkg.org/badges/version/mrindustry)](https://cran.r-project.org/package=mrindustry)  [![R build status](https://github.com/pik-piam/mrindustry/workflows/check/badge.svg)](https://github.com/pik-piam/mrindustry/actions) [![codecov](https://codecov.io/gh/pik-piam/mrindustry/branch/master/graph/badge.svg)](https://app.codecov.io/gh/pik-piam/mrindustry) 
+[![CRAN status](https://www.r-pkg.org/badges/version/mrindustry)](https://cran.r-project.org/package=mrindustry)  [![R build status](https://github.com/pik-piam/mrindustry/workflows/check/badge.svg)](https://github.com/pik-piam/mrindustry/actions) [![codecov](https://codecov.io/gh/pik-piam/mrindustry/branch/master/graph/badge.svg)](https://app.codecov.io/gh/pik-piam/mrindustry) [![r-universe](https://pik-piam.r-universe.dev/badges/mrindustry)](https://pik-piam.r-universe.dev/builds)
 
 ## Purpose and Functionality
 
@@ -39,7 +39,7 @@ In case of questions / problems please contact Falk Benke <benke@pik-potsdam.de>
 
 To cite package **mrindustry** in publications use:
 
-Benke F, Dürrwächter J, Rodrigues R, Moreno-Leiva S, Baumstark L, Pehl M (2024). _mrindustry: input data generation for the REMIND industry module_. R package version 0.4.2, <https://github.com/pik-piam/mrindustry>.
+Benke F, Dürrwächter J, Rodrigues R, Moreno-Leiva S, Baumstark L, Pehl M (2024). _mrindustry: input data generation for the REMIND industry module_. R package version 0.4.3, <https://github.com/pik-piam/mrindustry>.
 
 A BibTeX entry for LaTeX users is
 
@@ -48,7 +48,7 @@ A BibTeX entry for LaTeX users is
   title = {mrindustry: input data generation for the REMIND industry module},
   author = {Falk Benke and Jakob Dürrwächter and Renato Rodrigues and Simón Moreno-Leiva and Lavinia Baumstark and Michaja Pehl},
   year = {2024},
-  note = {R package version 0.4.2},
+  note = {R package version 0.4.3},
   url = {https://github.com/pik-piam/mrindustry},
 }
 ```
