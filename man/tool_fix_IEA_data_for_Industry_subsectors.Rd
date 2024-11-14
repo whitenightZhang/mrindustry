@@ -10,7 +10,7 @@ tool_fix_IEA_data_for_Industry_subsectors(data, ieamatch, threshold = 0.01)
 \item{data}{MAgPIE object containing the IEA Energy Balances data}
 
 \item{ieamatch}{mapping of IEA product/flow combinations to REMIND
-\code{sety}/\code{fety}/\code{te} combinations as used in \code{\link[=calcIO]{calcIO()}}}
+\code{sety}/\code{fety}/\code{te} combinations as used in mrremind::calcIO()}
 
 \item{threshold}{minimum share each industry subsector uses of each product.
 Defaults to 1 \%.}
@@ -31,7 +31,7 @@ Use regional or global averages if IEA industry data lists energy use only as
 "non-specified".
 Outputs from blast furnaces (\code{BLFURGS}, \code{OGASES}) and coke ovens (\code{OVENCOKE},
 \code{COKEOVGS}, \code{COALTAR}, \code{NONCRUDE}), that are inputs into industry subsectors.
-Used internally in \code{\link[=calcIO]{calcIO()}} for subtype \code{output_Industry_subsectors}.
+Used internally in mrremind::calcIO() for subtype \code{output_Industry_subsectors}.
 }
 \author{
 Michaja Pehl
