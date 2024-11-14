@@ -37,7 +37,7 @@
 #'   - `scen1,regi1,cement,4` will lastly overwrite the value for the `scen1`,
 #'     `regi1` combination
 #'
-#' Replacements occure in this fixed order (`NA`/`NA`, `scenario`/`NA`,
+#' Replacements occur in this fixed order (`NA`/`NA`, `scenario`/`NA`,
 #' `NA`/`region`, `scenario`/`region`).
 #'
 #' Lastly, output is filtered for `scenarios` and `regions`.
