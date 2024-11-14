@@ -44,7 +44,7 @@ Calculate Limits on Industry CCS Capacities
 \details{
 The limits on industry CCS capacities are calculated from data of the
 \href{zotero://select/items/3_E5GNNPZ8}{Global Status of CCS 2023} report (through
-\code{\link[=readGlobalCCSinstitute]{readGlobalCCSinstitute()}}.  CCS projects are
+mrremind::readGlobalCCSinstitute().  CCS projects are
 \itemize{
 \item filtered for valid (i.e. not "Under Evaluation") data for "Operation date"
 and "CO~2~ capture capacity"

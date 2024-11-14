@@ -1,8 +1,8 @@
 Type: Package
 Package: mrindustry
 Title: input data generation for the REMIND industry module
-Version: 0.4.1
-Date: 2024-11-05
+Version: 0.4.2
+Date: 2024-11-06
 Authors@R: c(
     person(given = "Falk", family = "Benke", email = "benke@pik-potsdam.de",
            role = c("aut", "cre")),
@@ -36,7 +36,7 @@ Imports:
     madrat (>= 3.7.1),
     magclass (>= 6.16.1),
     magrittr,
-    mrdrivers (>= 2.0.0),
+    mrdrivers (>= 4.0.0),
     purrr,
     quitte (>= 0.3105.0),
     readODS,

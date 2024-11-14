@@ -11,13 +11,13 @@
 #' "non-specified".
 #' Outputs from blast furnaces (`BLFURGS`, `OGASES`) and coke ovens (`OVENCOKE`,
 #' `COKEOVGS`, `COALTAR`, `NONCRUDE`), that are inputs into industry subsectors.
-#' Used internally in [`calcIO()`] for subtype `output_Industry_subsectors`.
+#' Used internally in mrremind::calcIO() for subtype `output_Industry_subsectors`.
 #'
 #' @md
 #' @param data MAgPIE object containing the IEA Energy Balances data
 #'
 #' @param ieamatch mapping of IEA product/flow combinations to REMIND
-#'        `sety`/`fety`/`te` combinations as used in [`calcIO()`]
+#'        `sety`/`fety`/`te` combinations as used in mrremind::calcIO()
 #'
 #' @param threshold minimum share each industry subsector uses of each product.
 #'   Defaults to 1 %.

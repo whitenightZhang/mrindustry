@@ -4,7 +4,7 @@
 #' @details
 #' The limits on industry CCS capacities are calculated from data of the
 #' [Global Status of CCS 2023](zotero://select/items/3_E5GNNPZ8) report (through
-#' [`readGlobalCCSinstitute()`].  CCS projects are
+#' mrremind::readGlobalCCSinstitute().  CCS projects are
 #' - filtered for valid (i.e. not "Under Evaluation") data for "Operation date"
 #'   and "CO~2~ capture capacity"
 #' - assigned to REMIND industry subsectors according to `facility_subsector`,
