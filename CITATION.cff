@@ -3,7 +3,7 @@ message: If you use this software, please cite it using the metadata from this f
 type: software
 title: 'mrindustry: input data generation for the REMIND industry module'
 version: 0.4.3
-date-released: '2024-11-14'
+date-released: '2024-11-15'
 abstract: The mrindustry packages contains data preprocessing for the REMIND model.
 authors:
 - family-names: Benke

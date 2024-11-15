@@ -1293,7 +1293,8 @@ calcFeDemandIndustry <- function(use_ODYM_RECC = FALSE,
 
   industry_subsectors_specific_FE <- calcOutput(
     type = "industry_subsectors_specific", subtype = "FE",
-    scenarios = getNames(x = industry_subsectors_ue, dim = 1),
+    scenarios = c(getNames(x = industry_subsectors_ue, dim = 1),
+                  "gdp_SSP2_lowEn"),
     regions = unique(region_mapping_21$region),
     aggregate = FALSE
   ) %>%
