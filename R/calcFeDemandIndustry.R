@@ -707,7 +707,7 @@ calcFeDemandIndustry <- function(use_ODYM_RECC = FALSE,
           foo,
 
           foo %>%
-            filter("gdp_SSP2EU" == .data$scenario) %>%
+            filter("gdp_SSP2" == .data$scenario) %>%
             mutate(scenario = "gdp_SSP2_highDemDEU")
 
         )  %>%
