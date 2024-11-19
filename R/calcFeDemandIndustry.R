@@ -1473,10 +1473,12 @@ calcFeDemandIndustry <- function(use_ODYM_RECC = FALSE,
     # default scenario values are calculated from the last year of empirical
     # data on
     filter('gdp_SSP2' == .data$scenario) %>% # TODO: define default scenario
+    select(-'scenario') %>%
     inner_join(
       industry_subsectors_specific_FE,
 
-      c("scenario", "region", "subsector")
+      by = c("region", "subsector"),
+      relationship = 'many-to-many' # rhs: many years, lhs: many scenarios
     ) %>%
     inner_join(specific_FE_limits, "subsector") %>%
     # allow for year-specific decreases
@@ -1491,15 +1493,7 @@ calcFeDemandIndustry <- function(use_ODYM_RECC = FALSE,
     assert(not_na, 'fixing_year',
            description = 'missing fixing_year for scenario in specific_FE') %>%
     decrease_specific_energy_by_alpha(year = last_empirical_year) %>%
-    # extend to non-default scenarios
-    # TODO: this overrides scenario differences present in upstream
-    # industry_subsectors_specific_energy data.  But those are faulty in any
-    # case, as they relate to historical data, and limited to the SDP scenarios.
-    # So the upstream differentiation by scenario should be removed.
-    expand(nesting(!!!syms(setdiff(colnames(.), 'scenario'))),
-           scenario = unique(industry_subsectors_specific_energy$scenario)) %>%
-    decrease_specific_energy_by_alpha(exclude_scenario = 'gdp_SSP2') %>%
-      select("scenario", "region", "year", "subsector", "specific.energy")
+    select("scenario", "region", "year", "subsector", "specific.energy")
 
   ### converge subsector en shares to global value ----
   # calculate global shares, weighted by subsector activity
