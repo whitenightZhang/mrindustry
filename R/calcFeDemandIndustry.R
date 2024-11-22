@@ -1,5 +1,6 @@
 #' Calculates FE demand in industry as REMIND variables
 #'
+#' @md
 #' @param use_ODYM_RECC per-capita pathways for `SDP_xx` scenarios?  (Defaults
 #'   to `FALSE`.)
 #' @param last_empirical_year Last year for which empirical data is available.
@@ -1048,6 +1049,49 @@ calcFeDemandIndustry <- function(use_ODYM_RECC = FALSE,
     mutate(share = .data$value / sum(.data$value)) %>%
     ungroup() %>%
     select(-"value")
+
+  ### modify subsector FE share targets ----
+  # Default data with no modification will reduce the solids share of other
+  # industry in the Non-OECD region by ten percentage points, and increase the
+  # electricity share by as much.  The changes are phased in over the time
+  # horizon of IEA ETP data (2025–60).
+  IEA_ETP_Ind_FE_shares_delta <- tribble(
+    ~region,      ~subsector,   ~fety,   ~share.delta,
+    'Non-OECD',   'otherInd',   'feel',    0.1,
+    'Non-OECD',   'otherInd',   'feso',   -0.1)
+
+  # verify modification sums
+  IEA_ETP_Ind_FE_shares_delta %>%
+    group_by(.data$region, .data$subsector) %>%
+    summarise(share.delta.sum = sum(.data$share.delta), .groups = 'drop') %>%
+    verify(0 == .data$share.delta.sum) %>%
+    invisible()
+
+  IEA_ETP_Ind_FE_shares <- IEA_ETP_Ind_FE_shares %>%
+    left_join(
+      # expand modifications to phase in from 0 to full over the time horizon of
+      # IEA_ETP_Ind_FE_shares
+      IEA_ETP_Ind_FE_shares_delta %>%
+        left_join(
+          IEA_ETP_Ind_FE_shares %>%
+            select(-'share') %>%
+            filter(.data$year %in% range(.data$year)),
+
+          c('region', 'subsector', 'fety')
+        ) %>%
+        mutate(share.delta = ifelse(min(.data$year) == .data$year,
+                                    0,
+                                    .data$share.delta)) %>%
+        interpolate_missing_periods(year = unique(IEA_ETP_Ind_FE_shares$year),
+                                    value = 'share.delta'),
+
+      c('region', 'subsector', 'fety', 'year'),
+
+    ) %>%
+    replace_na(list(share.delta = 0)) %>%
+    # add share modifications
+    mutate(share = .data$share + .data$share.delta) %>%
+    select(-'share.delta')
 
   ### split feel shares and extend to SSP scenarios ----
   IEA_ETP_Ind_FE_shares <- bind_rows(
