@@ -59,7 +59,7 @@ So
 \code{regi1} combination
 }
 
-Replacements occure in this fixed order (\code{NA}/\code{NA}, \code{scenario}/\code{NA},
+Replacements occur in this fixed order (\code{NA}/\code{NA}, \code{scenario}/\code{NA},
 \code{NA}/\code{region}, \code{scenario}/\code{region}).
 
 Lastly, output is filtered for \code{scenarios} and \code{regions}.

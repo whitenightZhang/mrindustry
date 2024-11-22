@@ -527,7 +527,7 @@ calcFeDemandIndustry <- function(use_ODYM_RECC = FALSE,
   industry_subsectors_material_relative <- calcOutput(
     type = "industry_subsectors_specific", subtype = "material_relative",
     scenarios = c(getNames(x = industry_subsectors_ue, dim = 1),
-                  "gdp_SSP2_lowEn"),
+                  "gdp_SSP2_lowEn", "gdp_SSP2_highDemDEU"),
     regions = unique(region_mapping_21$region),
     aggregate = FALSE
   ) %>%
@@ -678,6 +678,7 @@ calcFeDemandIndustry <- function(use_ODYM_RECC = FALSE,
           foo %>%
             filter("gdp_SSP2EU" == .data$scenario) %>%
             mutate(scenario = "gdp_SSP2_lowEn")
+
         ),
 
         c("scenario", "subsector", "iso3c", "year")
@@ -703,7 +704,14 @@ calcFeDemandIndustry <- function(use_ODYM_RECC = FALSE,
         relationship = "many-to-many"
       ) %>%
       left_join(
-        foo %>%
+        bind_rows(
+          foo,
+
+          foo %>%
+            filter("gdp_SSP2" == .data$scenario) %>%
+            mutate(scenario = "gdp_SSP2_highDemDEU")
+
+        )  %>%
           select("scenario", "subsector", "iso3c", "year", "GDP", "value"),
 
         c("scenario", "subsector", "iso3c", "year")
