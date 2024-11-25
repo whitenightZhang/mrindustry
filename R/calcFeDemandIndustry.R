@@ -421,7 +421,8 @@ calcFeDemandIndustry <- function(use_ODYM_RECC = FALSE,
 
   fixing_year <- calcOutput(
     type = 'industry_subsectors_specific', subtype = 'fixing_year',
-    scenarios = getNames(remind, fulldim = TRUE)[['scenario']],
+    scenarios = c(getNames(remind, fulldim = TRUE)[['scenario']],
+                  'gdp_SSP2_highDemDEU'),
     regions = unique(region_mapping_21$region),
     aggregate = FALSE
   ) %>%
