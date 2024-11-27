@@ -421,7 +421,8 @@ calcFeDemandIndustry <- function(use_ODYM_RECC = FALSE,
 
   fixing_year <- calcOutput(
     type = 'industry_subsectors_specific', subtype = 'fixing_year',
-    scenarios = getNames(remind, fulldim = TRUE)[['scenario']],
+    scenarios = c(getNames(remind, fulldim = TRUE)[['scenario']],
+                  'gdp_SSP2_highDemDEU'),
     regions = unique(region_mapping_21$region),
     aggregate = FALSE
   ) %>%
@@ -1485,46 +1486,17 @@ calcFeDemandIndustry <- function(use_ODYM_RECC = FALSE,
     )
   }
 
-  # decrease values by alpha p.a.
-  decrease_specific_energy_by_alpha <- function(df,
-                                                year = NULL,
-                                                exclude_scenario = FALSE)
-  {
-    df %>%
-      group_by(!!!syms(c("scenario", "region", "subsector"))) %>%
-      arrange(.data$year) %>%
-      mutate(
-        fixing_year = ifelse(!is.null(.env$year), .env$year, .data$fixing_year),
-        specific.energy = case_when(
-          exclude_scenario == .data$scenario ~ .data$specific.energy,
-          'absolute' == .data$type ~
-            ( (.data$specific.energy - .data$limit)
-            * pmin(1, (1 - .data$alpha) ^ (.data$year - .data$fixing_year))
-            )
-          + .data$limit,
-          'relative' == .data$type ~
-            ( .data$specific.energy * (1 - .data$limit)
-            * pmin(1, (1 - .data$alpha) ^ (.data$year - .data$fixing_year))
-            )
-          + (.data$specific.energy * .data$limit),
-          TRUE ~ NA)) %>%
-      assert(not_na, everything()) %>%
-      ungroup()
-  }
-
-  industry_subsectors_specific_energy <-
-    industry_subsectors_specific_energy %>%
-    # default scenario values are calculated from the last year of empirical
-    # data on
+  #### decrease values by alpha p.a. ----
+  industry_subsectors_specific_energy <- industry_subsectors_specific_energy %>%
+    # calculate default scenario values first
     filter('gdp_SSP2' == .data$scenario) %>% # TODO: define default scenario
-    select(-'scenario') %>%
+    left_join(fixing_year, c('scenario', 'region')) %>%
     inner_join(
       industry_subsectors_specific_FE,
 
-      by = c("region", "subsector"),
-      relationship = 'many-to-many' # rhs: many years, lhs: many scenarios
+      c('scenario', 'region', 'subsector')
     ) %>%
-    inner_join(specific_FE_limits, "subsector") %>%
+    inner_join(specific_FE_limits, 'subsector') %>%
     # allow for year-specific decreases
     interpolate_missing_periods_(
       periods = list(
@@ -1533,11 +1505,57 @@ calcFeDemandIndustry <- function(use_ODYM_RECC = FALSE,
                                max(fixing_year$fixing_year)))),
       value = 'specific.energy',
       method = 'linear') %>%
-    left_join(fixing_year, by = c('scenario', 'region')) %>%
-    assert(not_na, 'fixing_year',
-           description = 'missing fixing_year for scenario in specific_FE') %>%
-    decrease_specific_energy_by_alpha(year = last_empirical_year) %>%
-    select("scenario", "region", "year", "subsector", "specific.energy")
+    mutate(
+      specific.energy = case_when(
+        'absolute' == .data$type ~
+            ( (.data$specific.energy - .data$limit)
+            * pmin(1, (1 - .data$alpha) ^ (.data$year - .env$last_empirical_year))
+            )
+          + .data$limit,
+
+        'relative' == .data$type ~
+            ( .data$specific.energy * (1 - .data$limit)
+            * pmin(1, (1 - .data$alpha) ^ (.data$year - .env$last_empirical_year))
+            )
+          + (.data$specific.energy * .data$limit),
+        TRUE ~ NA)) %>%
+    assert(not_na, everything()) %>%
+    ungroup() %>%
+    # extend to non-standard scenarios
+    select(-'fixing_year', -'alpha', -'scenario') %>%
+    left_join(fixing_year, 'region', relationship = 'many-to-many') %>%
+    inner_join(
+      industry_subsectors_specific_FE,
+
+      c('scenario', 'region', 'subsector')
+    ) %>%
+    group_by(.data$region, .data$subsector) %>%
+    mutate(
+      # continue default scenario data until fixing year
+      specific.energy = ifelse(
+        # TODO: define default scenario
+        'gdp_SSP2' != .data$scenario & .data$fixing_year < .data$year,
+        .data$specific.energy[.data$fixing_year == .data$year],
+        .data$specific.energy),
+      specific.energy = case_when(
+        # TODO: define default scenario
+        'gdp_SSP2' == .data$scenario ~ .data$specific.energy,
+
+        'absolute' == .data$type ~
+          ( (.data$specific.energy - .data$limit)
+            * pmin(1,  (1 - .data$alpha) ^ (.data$year - .data$fixing_year))
+          )
+        + .data$limit,
+
+        'relative' == .data$type ~
+          ( .data$specific.energy * (1 - .data$limit)
+            * pmin(1, (1 - .data$alpha) ^ (.data$year - .data$fixing_year))
+          )
+        + (.data$specific.energy * .data$limit),
+        TRUE ~ NA)) %>%
+    assert(not_na, everything()) %>%
+    ungroup() %>%
+    select('scenario', 'region', 'year', 'subsector', 'specific.energy')
 
   ### converge subsector en shares to global value ----
   # calculate global shares, weighted by subsector activity
