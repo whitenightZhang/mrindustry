@@ -1259,9 +1259,9 @@ calcFeDemandIndustry <- function(use_ODYM_RECC = FALSE,
   }
 
   ### extend to H2 and HTH_el shares ----
-  feh2_share_in_fega <- 0.3
+  feh2_share_in_fega <- 0.35
   # H2 shares grow linearly from 0.1 % to feh2_share_in_fega of fega from
-  # 2020 to 2050 and are constant afterwards
+  # 2025 to 2060 and are constant afterwards
   industry_subsectors_en_shares <- bind_rows(
     industry_subsectors_en_shares %>%
       filter(!grepl("^fega", .data$pf)),
@@ -1275,7 +1275,7 @@ calcFeDemandIndustry <- function(use_ODYM_RECC = FALSE,
       mutate(feh2 = pmin(feh2_share_in_fega,
                          pmax(0.01,
                               feh2_share_in_fega
-                              * (.data$year - 2020) / (2050 - 2020)))
+                              * (.data$year - 2025) / (2060 - 2025)))
              * .data$fega,
              fega = .data$fega - .data$feh2) %>%
       pivot_longer(c("fega", "feh2"), names_to = "pf.fety",
