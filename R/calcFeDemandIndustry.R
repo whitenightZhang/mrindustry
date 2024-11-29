@@ -1261,7 +1261,7 @@ calcFeDemandIndustry <- function(use_ODYM_RECC = FALSE,
   ### extend to H2 and HTH_el shares ----
   feh2_share_in_fega <- 0.35
   # H2 shares grow linearly from 0.1 % to feh2_share_in_fega of fega from
-  # 2020 to 2050 and are constant afterwards
+  # 2025 to 2060 and are constant afterwards
   industry_subsectors_en_shares <- bind_rows(
     industry_subsectors_en_shares %>%
       filter(!grepl("^fega", .data$pf)),
