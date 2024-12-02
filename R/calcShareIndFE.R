@@ -22,6 +22,7 @@
 #'   summarise mutate ungroup
 #' @importFrom quitte character.data.frame
 #' @importFrom tidyr pivot_wider pivot_longer complete
+#' @importFrom data.table :=
 #'
 #' @export
 calcShareIndFE <- function() {
