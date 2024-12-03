@@ -15,7 +15,7 @@
 readMMSA_Methanol <- function() {
   # Define the filename for the MMSA Methanol Outlook file
   filename <- "MMSA Global Methanol Outlook 2023 Growth and Decarbonization.xlsx"
-  
+  browser()
   # Read regional data for Methanol Supply and Demand
   data_4region <- read_excel(filename, sheet = "Page 7-11 Methanol S&D ", range = "A1:M13", skip = 0)
   
@@ -28,7 +28,7 @@ readMMSA_Methanol <- function() {
   ) %>%
     dplyr::rename(Region = 1) %>%  # Rename the first column to "Region"
     dplyr::mutate(Type = "Production capacity") %>%  # Add a "Type" column with "Production capacity"
-    dplyr::relocate(Type, .after = 1) %>%  # Move "Type" column to the second position
+    dplyr::relocate(.data$Type, .after = 1) %>%  # Move "Type" column to the second position
     dplyr::filter(!Region %in% c("Europe", "North America", "Middle East"))  # Exclude specified regions
   
   # Identify rows for Asia in data_capacity_add
@@ -55,10 +55,10 @@ readMMSA_Methanol <- function() {
     range = "A8:L14",
     skip = 0
   ) %>%
-    dplyr::rename(Region = 1) %>%  # Rename the first column to "Region"
+    dplyr::rename("Region" = 1) %>%  # Rename the first column to "Region"
     dplyr::mutate(Type = "Total Demand") %>%  # Add a "Type" column with "Total Demand"
-    dplyr::relocate(Type, .after = 1) %>%  # Move "Type" column to the second position
-    dplyr::filter(!Region %in% c("Europe", "North America", "Middle East", "Asia"))  # Exclude specified regions
+    dplyr::relocate(.data$Type, .after = 1) %>%  # Move "Type" column to the second position
+    dplyr::filter(!.data$Region %in% c("Europe", "North America", "Middle East", "Asia"))  # Exclude specified regions
   
   # Exclude rows with "Production" from data_4region
   data_4region <- data_4region[data_4region$Type != "Production", ]

@@ -54,15 +54,15 @@ readIHS_Meth <- function(subtype) {
   
   # Calculate scaling ratios based on the 2018 value
   Total_capacity <- Total_capacity %>%
-    dplyr::group_by(Region) %>%
-    dplyr::mutate(Ratio = value / value[Year == "2018"])
+    dplyr::group_by(.data$Region) %>%
+    dplyr::mutate("Ratio" = .data$value / .data$value[.data$Year == "2018"])
   
   # Expand 2018 data to include production data for the years 2010 to 2020
   data_2010_2020 <- data %>%
-    tidyr::crossing(Year = Total_capacity$Year) %>%  # Generate all years for each country
+    tidyr::crossing("Year" = Total_capacity$Year) %>%  # Generate all years for each country
     dplyr::left_join(Total_capacity, by = "Year") %>%  # Join with total capacity ratios
-    dplyr::mutate(Adjusted_Value = .data[[subtype[1]]] * Ratio) %>%  # Scale data by ratio
-    dplyr::select(Country, Year, Adjusted_Value)  # Keep only relevant columns
+    dplyr::mutate("Adjusted_Value" = .data[[subtype[1]]] * .data$Ratio) %>%  # Scale data by ratio
+    dplyr::select("Country", "Year", "Adjusted_Value")  # Keep only relevant columns
   
   # Convert data to a magpie object based on the subtype
   if (subtype[2] == "2010-2020") {

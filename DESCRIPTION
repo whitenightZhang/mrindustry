@@ -35,6 +35,7 @@ Imports:
     Hmisc,
     madrat (>= 3.7.1),
     magclass (>= 6.16.1),
+    magpiesets,
     magrittr,
     mrdrivers (>= 4.0.0),
     purrr,

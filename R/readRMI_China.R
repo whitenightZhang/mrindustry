@@ -1,6 +1,6 @@
 #' Read RMI_China
 #'
-#' Read-in RMI (Rocky Mountain Institute) Transforming China’s Chemicals Industry Pathways and Outlook under the Carbon Neutrality Goal 2022.xlsx 
+#' Read-in RMI (Rocky Mountain Institute) Transforming China Chemicals Industry Pathways and Outlook under the Carbon Neutrality Goal 2022.xlsx 
 #' "ES1-3 China Chemical Demand", "ES29 China Chemical Structure" files as
 #' magclass object
 #'
@@ -28,7 +28,7 @@ readRMI_China <- function(subtype) {
   subtype <- unlist(strsplit(subtype, "_"))
   
   # Define the filename for the RMI report
-  filename <- "RMI Transforming China’s Chemicals Industry Pathways and Outlook under the Carbon Neutrality Goal 2022.xlsx"
+  filename <- "RMI Transforming China Chemicals Industry Pathways and Outlook under the Carbon Neutrality Goal 2022.xlsx"
   
   # Define the configuration for each subtype
   File <- switch(subtype[1],

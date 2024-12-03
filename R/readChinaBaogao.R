@@ -26,7 +26,7 @@ readChinaBaogao <- function() {
   # Transform the data from wide to long format
   data <- tidyr::pivot_longer(
     data,
-    cols = `2015`:`2023`,  # Specify the range of years to pivot
+    cols = "2015":"2023",  # Specify the range of years to pivot
     names_to = "Year",     # Name of the new column that will store year values
     values_to = "Value"    # Name of the new column that will store corresponding values
   )
