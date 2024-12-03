@@ -1259,7 +1259,6 @@ calcFeDemandIndustry <- function(use_ODYM_RECC = FALSE,
   }
 
   ### extend to H2 and HTH_el shares ----
-  feh2_share_in_fega <- 0.35
   # H2 shares grow linearly from 0.1 % to feh2_share_in_fega of fega from
   # 2025 to 2060 and are constant afterwards
   industry_subsectors_en_shares <- bind_rows(
@@ -1272,12 +1271,33 @@ calcFeDemandIndustry <- function(use_ODYM_RECC = FALSE,
       complete(nesting(!!!syms(setdiff(colnames(.), "pf.fety"))),
                pf.fety = c("fega", "feh2")) %>%
       pivot_wider(names_from = "pf.fety", values_from = "share") %>%
-      mutate(feh2 = pmin(feh2_share_in_fega,
-                         pmax(0.01,
-                              feh2_share_in_fega
-                              * (.data$year - 2025) / (2060 - 2025)))
+      full_join(
+        bind_rows(
+          expand_grid(
+            region = c('CAZ', 'CHA', 'DEU', 'ECE', 'ECS', 'ENC', 'ESC', 'ESW',
+                       'EWN', 'FRA', 'JPN', 'UKI', 'USA'),
+            year.start = 2025,
+            year.end   = 2060,
+            feh2_share_in_fega = 0.35),
+
+          expand_grid(
+            region = c('IND', 'LAM', 'MEA', 'NEN', 'NES', 'OAS', 'REF', 'SSA'),
+            year.start = 2030,
+            year.end   = 2060,
+            feh2_share_in_fega = 0.35)
+        ),
+
+        'region') %>%
+      assert(not_na, everything()) %>%
+      mutate(
+        feh2 = pmin(.data$feh2_share_in_fega,
+                    pmax(0.01,
+                           .data$feh2_share_in_fega
+                         * (.data$year - .data$year.start)
+                         / (.data$year.end - .data$year.start)))
              * .data$fega,
-             fega = .data$fega - .data$feh2) %>%
+        fega = .data$fega - .data$feh2) %>%
+      select(-'year.start', -'year.end', -'feh2_share_in_fega') %>%
       pivot_longer(c("fega", "feh2"), names_to = "pf.fety",
                    values_to = "share") %>%
       unite("pf", c("pf.fety", "pf.subsector"), sep = "_")
