@@ -16,11 +16,10 @@
 convertChinaBaogao <- function(x) {
   # Convert country names in the spatial dimension (dim = 1) to ISO codes
   getItems(x, dim = 1) <- toolCountry2isocode(getItems(x, dim = 1))
-  
+
   # Fill missing country data with 0 for consistency
   x <- toolCountryFill(x, fill = 0)
-  
+
   # Return the processed magpie object
   return(x)
 }
-

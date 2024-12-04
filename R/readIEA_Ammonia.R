@@ -15,11 +15,11 @@
 #' a <- readSource(type = "IEA_Ammonia", subtype = "BaseYear_2020")
 #' }
 #'
-#' @importFrom readxl read_excel tidyr pivot_longer pivot_wider
+#' @importFrom readxl read_excel
+#' @importFrom tidyr pivot_longer pivot_wider
 
 readIEA_Ammonia <- function(subtype) {
   # Define the file name
-  browser()
   filename <- "IEA Ammonia Technology Roadmap 2021.xlsx"
 
   # Read the specified sheet and range into a data frame
@@ -50,7 +50,7 @@ readIEA_Ammonia <- function(subtype) {
   }
 
   # Remove the "SUM" column from the data
-  data <- subset(data, select = -c(SUM))
+  data <- data[, !(names(data) %in% "SUM")]
 
   # Convert the wide-format data into long format
   # "Route" will store column names, and corresponding values go into "value"

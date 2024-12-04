@@ -2,7 +2,7 @@
 #' @author Qianzhi Zhang
 #'
 #' @export
-calcIHS_Meth <- function(subtype) { 
+calcIHS_Meth <- function(subtype) {
   x <- readSource("IHS_Meth", subtype = subtype)
   return(list(
     x = x,

@@ -2,7 +2,7 @@
 #' @author Qianzhi Zhang
 #'
 #' @export
-calcIEA_Ammonia <- function(subtype) { 
+calcIEA_Ammonia <- function(subtype) {
   x <- readSource("IEA_Ammonia", subtype = subtype)
   return(list(
     x = x,

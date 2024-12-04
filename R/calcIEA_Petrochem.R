@@ -2,7 +2,7 @@
 #' @author Qianzhi Zhang
 #'
 #' @export
-calcIEA_Petrochem <- function(subtype) { 
+calcIEA_Petrochem <- function(subtype) {
   x <- readSource("IEA_Petrochem", subtype = subtype)
   return(list(
     x = x,
