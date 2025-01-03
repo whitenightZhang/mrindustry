@@ -1,0 +1,8 @@
+# alpha-parameter for the "modified rates of change" method from Pehl et al.
+# (2024) [https://doi.org/10.5194/gmd-17-2015-2024], section 3.7
+scenario,   base.scenario,   region,   subsector,         factor
+gdp_SSP5,   gdp_SSP2EU,      NA,       cement,            0.8
+gdp_SSP5,   gdp_SSP2EU,      NA,       chemicals,         0.8
+gdp_SSP5,   gdp_SSP2EU,      NA,       steel_primary,     0.8
+gdp_SSP5,   gdp_SSP2EU,      NA,       steel_secondary,   0.8
+gdp_SSP5,   gdp_SSP2EU,      NA,       otherInd,          0.8
