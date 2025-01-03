@@ -1,7 +1,3 @@
-# Thermodynamic limits on industry specific FE consumption by Silvia Madeddu
-# (see post https://mattermost.pik-potsdam.de/rd3/pl/u7eg6ed5gpr85rabznepnaoqrr
-# and https://mattermost.pik-potsdam.de/rd3/pl/g74og14a7igi8n6trjbhgcntrc).
-# GJ/t for absolute subsectors, share for relative subsectors
 subsector,        type,      limit
 cement,           absolute,  1.8
 steel_primary,    absolute,  8

@@ -1,5 +1,3 @@
-# autonomous energy efficiency improvement rate per annum, see Pehl et al.
-# (2024) [https://doi.org/10.5194/gmd-17-2015-2024], section 3.6
 scenario,                     region,   subsector,         alpha
 NA,                           NA,       cement,            0.021
 NA,                           NA,       steel_primary,     0.0048

@@ -1,5 +1,3 @@
-# alpha-parameter of the "fixed ratio method" detailed in Pehl et al. (2024)
-# [https://doi.org/10.5194/gmd-17-2015-2024], section 3.7
 scenario,                     base.scenario,   region,   subsector,         factor
 gdp_SDP,                      gdp_SSP1,        NA,       cement,             1
 gdp_SDP,                      gdp_SSP1,        NA,       chemicals,          1
