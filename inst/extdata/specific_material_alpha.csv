@@ -1,0 +1,17 @@
+scenario,         region,   subsector,         alpha,   convergence.time
+gdp_SSP1,         NA,       cement,            0.03,    50
+gdp_SSP1,         CHA,      cement,            0.065,   50
+gdp_SSP1,         NA,       chemicals,         0.05,    50
+gdp_SSP1,         NA,       steel_primary,     0.06,    50
+gdp_SSP1,         CHA,      steel_primary,     0.10,    50
+gdp_SSP1,         NA,       steel_secondary,   0.06,    50
+gdp_SSP1,         CHA,      steel_secondary,   0.10,    50
+gdp_SSP1,         NA,       otherInd,          0.02,    50
+gdp_SSP2_lowEn,   NA,       cement,            0.03,    50
+gdp_SSP2_lowEn,   CHA,      cement,            0.065,   50
+gdp_SSP2_lowEn,   NA,       chemicals,         0.05,    50
+gdp_SSP2_lowEn,   NA,       steel_primary,     0.06,    50
+gdp_SSP2_lowEn,   CHA,      steel_primary,     0.10,    50
+gdp_SSP2_lowEn,   NA,       steel_secondary,   0.06,    50
+gdp_SSP2_lowEn,   CHA,      steel_secondary,   0.10,    50
+gdp_SSP2_lowEn,   NA,       otherInd,          0.02,    50
