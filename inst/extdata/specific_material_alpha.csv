@@ -11,10 +11,12 @@ gdp_SSP1,         NA,       steel_primary,     0.06,    50
 gdp_SSP1,         CHA,      steel_primary,     0.10,    50
 gdp_SSP1,         SSA,      steel_primary,     -0.02,   50
 gdp_SSP1,         LAM,      steel_primary,     0.03,    50
+gdp_SSP1,         IND,      steel_primary,     0.03,    50
 gdp_SSP1,         NA,       steel_secondary,   0.06,    50
 gdp_SSP1,         CHA,      steel_secondary,   0.10,    50
 gdp_SSP1,         SSA,      steel_secondary,   -0.02,   50
 gdp_SSP1,         LAM,      steel_secondary,   0.03,    50
+gdp_SSP1,         IND,      steel_secondary,   0.03,    50
 gdp_SSP1,         NA,       otherInd,          0.02,    50
 gdp_SSP1,         SSA,      otherInd,          -0.01,   50
 gdp_SSP1,         MEA,      otherInd,          0.0,     50
@@ -30,10 +32,12 @@ gdp_SSP2_lowEn,   NA,       steel_primary,     0.06,    50
 gdp_SSP2_lowEn,   CHA,      steel_primary,     0.10,    50
 gdp_SSP2_lowEn,   SSA,      steel_primary,     -0.02,   50
 gdp_SSP2_lowEn,   LAM,      steel_primary,     0.03,    50
+gdp_SSP2_lowEn,   IND,      steel_primary,     0.03,    50
 gdp_SSP2_lowEn,   NA,       steel_secondary,   0.06,    50
 gdp_SSP2_lowEn,   CHA,      steel_secondary,   0.10,    50
 gdp_SSP2_lowEn,   SSA,      steel_secondary,   -0.02,   50
 gdp_SSP2_lowEn,   LAM,      steel_secondary,   0.03,    50
+gdp_SSP2_lowEn,   IND,      steel_secondary,   0.03,    50
 gdp_SSP2_lowEn,   NA,       otherInd,          0.02,    50
 gdp_SSP2_lowEn,   SSA,      otherInd,          -0.01,   50
 gdp_SSP2_lowEn,   MEA,      otherInd,          0.0,     50
