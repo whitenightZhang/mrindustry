@@ -26,7 +26,7 @@ calcFeDemandIndustry <- function(use_ODYM_RECC = FALSE,
                                  last_empirical_year = 2020)
 {
 
-  # read in stationary data with industry focus ----
+  # ---- Industry subsectors data and FE stubs ----
   stationary <- readSource("Stationary")[, , c("feindheat", "feh2i")]
 
   # aggregate to 5-year averages to suppress volatility
@@ -127,7 +127,7 @@ calcFeDemandIndustry <- function(use_ODYM_RECC = FALSE,
     select("EDGEitems", "REMINDitems_out", "weight_Fedemand") %>%
     na.omit() %>%
     filter(.data$EDGEitems %in% getNames(data, dim = "item")) %>%
-    # REMIND variables in focus:
+    # REMIND variables in focus: stationary items with industry focus
     filter(grepl("s$", .data$REMINDitems_out) & grepl("fe(..i$|ind)", .data$EDGEitems)) %>%
     distinct()
 
