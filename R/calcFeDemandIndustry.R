@@ -136,10 +136,6 @@ calcFeDemandIndustry <- function(use_ODYM_RECC = FALSE,
         subtype = "economic",
         match.steel.historic.values = TRUE,
         match.steel.estimates = "IEA_ETP",
-        China_Production = readSource(type = "ExpertGuess",
-                                      subtype = "Chinese_Steel_Production",
-                                      convert = FALSE) %>%
-          madrat_mule(),
         aggregate = FALSE, years = years, supplementary = FALSE) %>%
         magclass_to_tibble() %>%
         filter(grepl("^gdp_SSP(1|2EU)$", .data$scenario)) %>%
@@ -435,10 +431,6 @@ calcFeDemandIndustry <- function(use_ODYM_RECC = FALSE,
       type = "Industry_Value_Added",
       match.steel.historic.values = TRUE,
       match.steel.estimates = "IEA_ETP",
-      China_Production = readSource(type = "ExpertGuess",
-                                    subtype = "Chinese_Steel_Production",
-                                    convert = FALSE) %>%
-        madrat_mule(),
       aggregate = FALSE,
       years = sort(union(getYears(remind, as.integer = TRUE),
                          last_empirical_year:max(fixing_year$fixing_year))),
@@ -451,10 +443,6 @@ calcFeDemandIndustry <- function(use_ODYM_RECC = FALSE,
       subtype = "production",
       match.steel.historic.values = TRUE,
       match.steel.estimates = "IEA_ETP",
-      China_Production = readSource(type = "ExpertGuess",
-                                    subtype = "Chinese_Steel_Production",
-                                    convert = FALSE) %>%
-        madrat_mule(),
       aggregate = FALSE,
       years = sort(union(getYears(remind, as.integer = TRUE),
                          last_empirical_year:max(fixing_year$fixing_year))),

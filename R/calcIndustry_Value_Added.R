@@ -13,9 +13,8 @@
 #'     until 2060, and original growth rates after that.
 #' @param save.plots `NULL` (default) if no plots are saved, or the path to save
 #'     directories to.
-#' @param China_Production A data frame with columns `period` and
-#'     `total.production` prescribing total production for China to have,
-#'     disregarding results from the stock saturation model.
+#' @param do_use_expert_guess_steel Whether or not to overwrite steel productions with 
+#'     expert guesses from input data in the sources folder.
 #'
 #' @return A list with a [`magpie`][magclass::magclass] object `x`, `weight`,
 #'   `unit`, `description`, `min`, and `max`.
@@ -48,7 +47,7 @@ calcIndustry_Value_Added <- function(subtype = 'physical',
                                      match.steel.historic.values = TRUE,
                                      match.steel.estimates = 'none',
                                      save.plots = NULL,
-                                     China_Production = NULL) {
+                                     do_use_expert_guess_steel = TRUE) {
   if (!is.null(save.plots)) {
     if (!all(isTRUE(file.info(save.plots)$isdir),
              448L == bitwAnd(file.info(save.plots)$mode, 448L))) {
@@ -325,7 +324,7 @@ calcIndustry_Value_Added <- function(subtype = 'physical',
     calcOutput(type = 'Steel_Projections',
                match.steel.historic.values = match.steel.historic.values,
                match.steel.estimates = match.steel.estimates,
-               China_Production = China_Production,
+               do_use_expert_guess = do_use_expert_guess_steel,
                aggregate = FALSE, supplementary = FALSE) %>%
       as.data.frame() %>%
       as_tibble() %>%

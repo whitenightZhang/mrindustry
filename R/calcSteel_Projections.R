@@ -15,9 +15,8 @@
 #'     until 2060, and original growth rates after that.
 #' @param save.plots `NULL` (default) if no plots are saved, or the path to save
 #'     directories to.
-#' @param China_Production A data frame with columns `period` and
-#'     `total.production` prescribing total production for China to have,
-#'     disregarding results from the stock saturation model.
+#' @param do_use_expert_guess Whether or not to overwrite steel productions with 
+#'     expert guesses from input data in the sources folder.
 #'
 #' @return A list with a [`magpie`][magclass::magclass] object `x`, `weight`,
 #'   `unit`, `description`, `min`, and `max`.
@@ -50,7 +49,7 @@ calcSteel_Projections <- function(subtype = 'production',
                                   match.steel.historic.values = TRUE,
                                   match.steel.estimates = 'none',
                                   save.plots = NULL,
-                                  China_Production = NULL) {
+                                  do_use_expert_guess = TRUE) {
 
   
   if (!is.null(save.plots)) {
@@ -1019,8 +1018,14 @@ calcSteel_Projections <- function(subtype = 'production',
   }
 
   # match exogenous data for China ----
-  if (is.data.frame(China_Production)) {
-    China_Production <- China_Production %>%
+  if (do_use_expert_guess) {
+    prod_expert_guess = readSource(type = "ExpertGuess",
+                                   subtype = "Steel_Production",
+                                   convert = FALSE) %>%
+      madrat_mule() %>% 
+      select(-'iso3c')  # TODO: adapt.
+    
+    prod_expert_guess <- prod_expert_guess %>%
       interpolate_missing_periods(period = seq_range(range(.$period)),
                                   value = 'total.production',
                                   method = 'spline') %>%
@@ -1034,7 +1039,7 @@ calcSteel_Projections <- function(subtype = 'production',
                                    'secondary.production')) %>%
       group_by(.data$scenario, .data$iso3c, .data$year) %>%
       summarise(production = sum(.data$value), .groups = 'drop') %>%
-      left_join(China_Production, c('year' = 'period')) %>%
+      left_join(prod_expert_guess, c('year' = 'period')) %>%
       mutate(factor = .data$total.production / .data$production) %>%
       select('iso3c', 'year', 'factor') %>%
       expand_grid(scenario = unique(production_estimates$scenario)) %>%
@@ -1080,7 +1085,7 @@ calcSteel_Projections <- function(subtype = 'production',
   if ('IEA_ETP' == match.steel.estimates) {
     # projected SSP2 production aggregated into OECD/Non-OECD regions
     # w/o Chinese production if that is exogenously prescribed
-    if (!is.data.frame(China_Production)) {
+    if (!do_use_expert_guess) {
       projected_production <- tmp %>%
         filter('SSP2' == .data$scenario) %>%
         mutate(
@@ -1107,7 +1112,7 @@ calcSteel_Projections <- function(subtype = 'production',
       character.data.frame() %>%
       mutate(year = as.integer(.data$year))
 
-    if (is.data.frame(China_Production)) {
+    if (do_use_expert_guess) {
       ETP_production <- bind_rows(
         ETP_production %>%
           filter('OECD' == .data$region),
@@ -1115,7 +1120,7 @@ calcSteel_Projections <- function(subtype = 'production',
         ETP_production %>%
           filter('Non-OECD' == .data$region) %>%
           left_join(
-            China_Production %>%
+            prod_expert_guess %>%
               mutate(total.production = .data$total.production * 1e-6),
 
             c('year' = 'period')
@@ -1144,7 +1149,7 @@ calcSteel_Projections <- function(subtype = 'production',
 
     # If exogenous Chinese production trajectories gobble up all Non-OECD
     # production, temper the scaling factor to only meet 2060 production exactly
-    if (is.data.frame(China_Production)) {
+    if (do_use_expert_guess) {
       scaling_factor <- scaling_factor %>%
       mutate(factor = ( .data$factor
                       + ( first(.data$factor, order_by = .data$year)
@@ -1173,7 +1178,7 @@ calcSteel_Projections <- function(subtype = 'production',
       ungroup() %>%
       assert(not_na, everything())
 
-    if (!is.data.frame(China_Production)) {
+    if (!do_use_expert_guess) {
       IEA_ETP_matched <- tmp %>%
         mutate(OECD.region = ifelse(.data$iso3c %in% OECD_iso3c,
                                     'OECD', 'Non-OECD')) %>%

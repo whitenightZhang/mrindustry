@@ -29,10 +29,6 @@ calcIndustry_EEK <- function(kap) {
     subtype = 'economic',
     match.steel.historic.values = TRUE,
     match.steel.estimates = 'IEA_ETP',
-    China_Production = readSource(type = 'ExpertGuess',
-                                  subtype = 'Chinese_Steel_Production',
-                                  convert = FALSE) %>%
-      madrat_mule(),
     aggregate = FALSE, years = base_year, supplementary = FALSE, warnNA = FALSE) %>%
     `[`(,,'gdp_SSP2EU') %>%
     quitte::magclass_to_tibble() %>%
