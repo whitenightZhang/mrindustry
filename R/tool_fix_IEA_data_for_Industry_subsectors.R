@@ -34,7 +34,8 @@
 #'             character.data.frame interpolate_missing_periods_
 #' @importFrom rlang .data
 #' @importFrom tibble as_tibble
-#' @importFrom tidyr complete gather nesting spread
+#' @importFrom stats na.omit
+#' @importFrom tidyr complete gather nesting spread crossing
 #' @export
 tool_fix_IEA_data_for_Industry_subsectors <- function(data, ieamatch,
                                                       threshold = 1e-2) {
