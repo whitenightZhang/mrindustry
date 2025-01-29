@@ -1022,11 +1022,19 @@ calcSteel_Projections <- function(subtype = 'production',
     prod_expert_guess = readSource(type = "ExpertGuess",
                                    subtype = "Steel_Production",
                                    convert = FALSE) %>%
-      madrat_mule() %>%
-      filter('CHN' == .data$iso3c) %>%
-      select(-'iso3c')
+      madrat_mule()
 
-    prod_expert_guess <- prod_expert_guess %>%
+    expert_guess_china <- prod_expert_guess %>%
+      filter('CHN' == .data$iso3c) %>%
+      select(-'iso3c') %>%
+      interpolate_missing_periods(period = seq_range(range(.$period)),
+                                  value = 'total.production',
+                                  method = 'spline') %>%
+      mutate(total.production = .data$total.production * 1e6)
+
+    expert_guess_india <- prod_expert_guess %>%
+      filter('IND' == .data$iso3c) %>%
+      select(-'iso3c') %>%
       interpolate_missing_periods(period = seq_range(range(.$period)),
                                   value = 'total.production',
                                   method = 'spline') %>%
@@ -1040,7 +1048,7 @@ calcSteel_Projections <- function(subtype = 'production',
                                    'secondary.production')) %>%
       group_by(.data$scenario, .data$iso3c, .data$year) %>%
       summarise(production = sum(.data$value), .groups = 'drop') %>%
-      left_join(prod_expert_guess, c('year' = 'period')) %>%
+      left_join(expert_guess_china, c('year' = 'period')) %>%
       mutate(factor = .data$total.production / .data$production) %>%
       select('iso3c', 'year', 'factor') %>%
       expand_grid(scenario = unique(production_estimates$scenario)) %>%
@@ -1121,7 +1129,7 @@ calcSteel_Projections <- function(subtype = 'production',
         ETP_production %>%
           filter('Non-OECD' == .data$region) %>%
           left_join(
-            prod_expert_guess %>%
+            expert_guess_china %>%
               mutate(total.production = .data$total.production * 1e-6),
 
             c('year' = 'period')
@@ -1208,6 +1216,30 @@ calcSteel_Projections <- function(subtype = 'production',
         arrange('scenario', 'region', 'iso3c', 'year', 'variable')
     }
 
+    # merge inida expert guess
+    if (do_use_expert_guess) {
+      IEA_ETP_matched <- bind_rows(
+        IEA_ETP_matched %>%
+          filter('IND' != .data$iso3c),
+
+        IEA_ETP_matched %>%
+          filter('IND' == .data$iso3c) %>%
+          pivot_wider(names_from = 'variable') %>%
+          left_join(expert_guess_india, c('year' = 'period')) %>%
+          mutate(factor = .data$total.production / (.data$primary.production + .data$secondary.production)) %>%
+          select(-'total.production') %>%
+          # fill na of factor with 1
+          mutate(factor = ifelse(is.na(.data$factor), 1, .data$factor)) %>%
+          mutate(primary.production = .data$primary.production * .data$factor,
+                 secondary.production = .data$secondary.production * .data$factor) %>%
+          select(-'factor') %>%
+          pivot_longer(cols = c('primary.production', 'secondary.production'),
+                       names_to = 'variable')
+      ) %>%
+        verify(!is.na(.data$value),
+               description = paste('Exogenous Indian production merge is valid'))
+    }
+
     ## update max secondary steel share ----
     secondary.steel.max.share <- update.secondary.steel.max.share(
       IEA_ETP_matched, secondary.steel.max.share)
@@ -1283,7 +1315,7 @@ calcSteel_Projections <- function(subtype = 'production',
       facet_wrap(~ region, scales = 'free_y') +
       labs(x = NULL, y = 'Mt Steel/year') +
       scale_fill_manual(values = c('Primary Production' = 'orange',
-                                   'Secondary Production' = 'yellow'),
+                                   'Secondary Production' = 'brown'),
                         name = NULL) +
       coord_cartesian(xlim = c(NA, 2100), expand = FALSE) +
       theme_minimal() +
