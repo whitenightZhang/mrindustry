@@ -1022,7 +1022,9 @@ calcSteel_Projections <- function(subtype = 'production',
     prod_expert_guess = readSource(type = "ExpertGuess",
                                    subtype = "Steel_Production",
                                    convert = FALSE) %>%
-      madrat_mule()
+      madrat_mule() %>%
+      filter('CHN' == .data$iso3c) %>%
+      select(-'iso3c')
 
     prod_expert_guess <- prod_expert_guess %>%
       interpolate_missing_periods(period = seq_range(range(.$period)),
@@ -1030,28 +1032,21 @@ calcSteel_Projections <- function(subtype = 'production',
                                   method = 'spline') %>%
       mutate(total.production = .data$total.production * 1e6)
 
-    tmp2 <- tmp
     tmp <- tmp %>%
       filter('SSP2EU' == .data$scenario,
-             .data$iso3c %in% unique(prod_expert_guess$iso3c),
+             'CHN' == .data$iso3c,
              max(steel_historic_prod$year) < .data$year,
              .data$variable %in% c('primary.production',
                                    'secondary.production')) %>%
       group_by(.data$scenario, .data$iso3c, .data$year) %>%
-      summarise(production = sum(.data$value), .groups = 'drop')
-
-    tmp <- tmp %>%
-      left_join(prod_expert_guess, c('year' = 'period', 'iso3c'))
-
-    tmp <- tmp %>%
+      summarise(production = sum(.data$value), .groups = 'drop') %>%
+      left_join(prod_expert_guess, c('year' = 'period')) %>%
       mutate(factor = .data$total.production / .data$production) %>%
       select('iso3c', 'year', 'factor') %>%
       expand_grid(scenario = unique(production_estimates$scenario)) %>%
       complete(nesting(!!sym('scenario')),
                iso3c = setdiff(unique(production_estimates$iso3c), 'Total'),
-               year = unique(production_estimates$year))
-
-    tmp <- tmp %>%
+               year = unique(production_estimates$year)) %>%
       group_by(.data$scenario, .data$iso3c) %>%
       mutate(
         factor = case_when(
@@ -1060,15 +1055,11 @@ calcSteel_Projections <- function(subtype = 'production',
         factor = case_when(
           is.na(.data$factor) ~ last(na.omit(.data$factor)),
           TRUE ~ .data$factor)) %>%
-      ungroup()
-
-    tmp <- tmp %>%
-      left_join(tmp2, c('scenario', 'iso3c', 'year')) %>%
+      ungroup() %>%
+      left_join(tmp, c('scenario', 'iso3c', 'year')) %>%
       mutate(value = .data$value * .data$factor) %>%
-      select(-'factor')
-
-    tmp <- tmp %>%
-       assert(not_na, everything())
+      select(-'factor') %>%
+      assert(not_na, everything())
 
     ## construct output ----
     x <- tmp %>%
@@ -1105,7 +1096,7 @@ calcSteel_Projections <- function(subtype = 'production',
     } else  {
       projected_production <- tmp %>%
         filter('SSP2' == .data$scenario,
-               !(.data$iso3c %in% unique(prod_expert_guess$iso3c))) %>%
+               'CHN' != .data$iso3c) %>%
         mutate(
           region = ifelse(.data$iso3c %in% OECD_iso3c, 'OECD', 'Non-OECD')) %>%
         group_by(.data$region, .data$year) %>%
@@ -1123,19 +1114,16 @@ calcSteel_Projections <- function(subtype = 'production',
       mutate(year = as.integer(.data$year))
 
     if (do_use_expert_guess) {
-      ETP_production_oecd <- ETP_production %>%
-        filter('OECD' == .data$region)
+      ETP_production <- bind_rows(
+        ETP_production %>%
+          filter('OECD' == .data$region),
 
-      expert_guess_sum <- prod_expert_guess %>%
-        group_by(.data$period) %>%
-        summarise(total.production = sum(.data$total.production)) %>%
-        ungroup() %>%
-        mutate(total.production = .data$total.production * 1e-6)
-
-      ETP_production_nonoecd <- ETP_production %>%
+        ETP_production %>%
           filter('Non-OECD' == .data$region) %>%
           left_join(
-            expert_guess_sum,
+            prod_expert_guess %>%
+              mutate(total.production = .data$total.production * 1e-6),
+
             c('year' = 'period')
           ) %>%
           mutate(total.production = ifelse(!is.na(.data$total.production),
@@ -1143,10 +1131,6 @@ calcSteel_Projections <- function(subtype = 'production',
                                            last(na.omit(.data$total.production))),
                  ETP = .data$ETP - .data$total.production) %>%
           select(-'total.production')
-
-      ETP_production <- bind_rows(
-        ETP_production_oecd,
-        ETP_production_nonoecd
       ) %>%
         verify(expr = .data$ETP > 0,
                description = paste('exogenous Chinese production does not exceed',
@@ -1208,7 +1192,7 @@ calcSteel_Projections <- function(subtype = 'production',
         arrange('scenario', 'region', 'iso3c', 'year', 'variable')
     } else {
       IEA_ETP_matched <- tmp %>%
-        filter(!(.data$iso3c %in% unique(prod_expert_guess$iso3c))) %>%
+        filter('CHN' != .data$iso3c) %>%
         mutate(OECD.region = ifelse(.data$iso3c %in% OECD_iso3c,
                                     'OECD', 'Non-OECD')) %>%
         full_join(scaling_factor, c('year', 'OECD.region' = 'region')) %>%
@@ -1216,7 +1200,7 @@ calcSteel_Projections <- function(subtype = 'production',
         select(-'factor', -'OECD.region') %>%
         bind_rows(
           tmp %>%
-            filter(.data$iso3c %in% unique(prod_expert_guess$iso3c))
+            filter('CHN' == .data$iso3c)
         ) %>%
         complete(nesting(!!!syms(c('scenario', 'region', 'iso3c', 'variable'))),
                  year = unique(.$year),
