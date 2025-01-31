@@ -7,7 +7,7 @@
 #' @param subtype One of
 #'   - `FE` for specific final energy demand change factors
 #'   - `material_alpha` for alpha factors and convergence time of specific
-#'     material demand decreases relative to the `SSP2EU` scenario
+#'     material demand decreases relative to the `SSP2` scenario
 #'   - `material_relative` for scaling factors of specific material demand
 #'     relative to baseline scenarios
 #'   - `material_relative_change` for scaling factors of specific material

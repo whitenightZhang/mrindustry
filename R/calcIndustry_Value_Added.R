@@ -38,12 +38,11 @@
 #' @importFrom stats nls SSlogis sd lm
 #' @importFrom tibble as_tibble tibble tribble
 #' @importFrom tidyr expand_grid pivot_longer pivot_wider replace_na
-#' @importFrom zoo na.approx rollmean
 #' @importFrom utils head
-#' @importFrom dplyr bind_cols  
+#' @importFrom dplyr bind_cols
 #' @importFrom magclass setNames
-
 #' @export
+#'
 calcIndustry_Value_Added <- function(subtype = 'physical',
                                      match.steel.historic.values = TRUE,
                                      match.steel.estimates = 'none',
@@ -78,28 +77,28 @@ calcIndustry_Value_Added <- function(subtype = 'physical',
 
 
   ## population data ----
-  population <- calcOutput('Population', naming = 'scenario',
-                           aggregate = FALSE) %>%
+  population <- calcOutput("Population", scenario = c("SSPs", "SDPs"), naming = "scenario", aggregate = FALSE) %>%
     as.data.frame() %>%
     as_tibble() %>%
     select(scenario = .data$Data1, iso3c = .data$Region, year = .data$Year,
            population = .data$Value) %>%
     character.data.frame() %>%
-    mutate(scenario = sub('^pop_', '', .data$scenario),
-           year = as.integer(.data$year),
+    mutate(year = as.integer(.data$year),
            # million people * 1e6/million = people
            population = .data$population * 1e6)
 
   ## GDP data ----
-  GDP <- calcOutput(type = 'GDP', average2020 = FALSE, naming = 'scenario',
+  GDP <- calcOutput(type = "GDP",
+                    scenario = c("SSPs", "SDPs"),
+                    average2020 = FALSE,
+                    naming = "scenario",
                     aggregate = FALSE) %>%
     as.data.frame() %>%
     as_tibble() %>%
     select(scenario = .data$Data1, iso3c = .data$Region, year = .data$Year,
            GDP = .data$Value) %>%
     character.data.frame() %>%
-    mutate(scenario = sub('^gdp_', '', .data$scenario),
-           year = as.integer(.data$year),
+    mutate(year = as.integer(.data$year),
            # $m * 1e6 $/$m = $
            GDP = .data$GDP * 1e6)
 
@@ -336,8 +335,7 @@ calcIndustry_Value_Added <- function(subtype = 'physical',
              # Gt/year * 1e9 t/Gt = t/year
              value = .data$value * 1e9,
              variable = sub('^ue_steel_(primary|secondary)$',
-                            '\\1.production', .data$variable),
-             scenario = sub('^gdp_', '', .data$scenario)) %>%
+                            '\\1.production', .data$variable)) %>%
       filter(between(.data$year, 2000, 2100)) %>%
       full_join(region_mapping, 'iso3c') %>%
       assert(not_na, everything()) %>%
@@ -602,10 +600,10 @@ calcIndustry_Value_Added <- function(subtype = 'physical',
             * ((last_cement_year + 14 - .data$year) / 14) ^ 2
             ),
         ifelse(last_cement_year > .data$year, .data$shift.factor, 1)),
-      shift.factor = na.approx(object = .data$shift.factor, x = .data$year,
-                               yleft = first(na.omit(.data$shift.factor)),
-                               yright = last(na.omit(.data$shift.factor)),
-                               na.rm = FALSE),
+      shift.factor = zoo::na.approx(object = .data$shift.factor, x = .data$year,
+                                    yleft = first(na.omit(.data$shift.factor)),
+                                    yright = last(na.omit(.data$shift.factor)),
+                                    na.rm = FALSE),
       cement.production = .data$shift.factor * .data$cement.production) %>%
     ungroup() %>%
     select(-'data', -'shift.factor') %>%
@@ -1357,8 +1355,7 @@ calcIndustry_Value_Added <- function(subtype = 'physical',
         value = .data$value * case_when(
           'ue_cement'    == pf ~ 1e-9,
           'ue_chemicals' == pf ~ 1e-12,
-          'ue_otherInd'  == pf ~ 1e-12),
-        scenario = paste0('gdp_', .data$scenario)) %>%
+          'ue_otherInd'  == pf ~ 1e-12)) %>%
       interpolate_missing_periods_(periods = list(year = 1993:2150),
                                    expand.values = TRUE) %>%
       select('scenario', 'iso3c', 'pf', 'year', 'value')
@@ -1373,8 +1370,7 @@ calcIndustry_Value_Added <- function(subtype = 'physical',
              'steel.VA', 'otherInd.VA') %>%
       pivot_longer(matches('\\.VA$')) %>%
       # $/yr * 1e12 $tn/$ = $tn/yr
-      mutate(value = .data$value * 1e-12,
-             scenario = paste0('gdp_', .data$scenario)) %>%
+      mutate(value = .data$value * 1e-12) %>%
       select('scenario', 'iso3c', 'name', 'year', 'value')
   }
 

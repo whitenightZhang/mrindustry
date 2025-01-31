@@ -18,8 +18,6 @@
 #' @importFrom rlang syms
 #' @importFrom tidyr pivot_longer pivot_wider
 #' @importFrom tibble tribble
-#' @importFrom zoo rollmean
-
 #' @export
 #' @rdname ODYM_RECC
 readODYM_RECC <- function(subtype, smooth = TRUE) {
@@ -82,9 +80,9 @@ calcODYM_RECC <- function(subtype, smooth = TRUE) {
         x <- x %>%
           group_by(.data$scenario, .data$iso3c, .data$subsector) %>%
           mutate(value = c(first(.data$value),
-                           rollmean(.data$value, k = 3,
-                                    fill = c('extend', NA, 'extend'),
-                                    align = 'center')[-c(1, n())],
+                           zoo::rollmean(.data$value, k = 3,
+                                         fill = c('extend', NA, 'extend'),
+                                         align = 'center')[-c(1, n())],
                            last(.data$value))) %>%
           ungroup()
       }

@@ -34,7 +34,7 @@ calcIndustry_EEK <- function(kap) {
                                   convert = FALSE) %>%
       madrat_mule(),
     aggregate = FALSE, years = base_year, supplementary = FALSE, warnNA = FALSE) %>%
-    `[`(,,'gdp_SSP2EU') %>%
+    `[`(,,'SSP2') %>%
     quitte::magclass_to_tibble() %>%
     select('iso3c', subsector = 'name', VA = 'value') %>%
     mutate(subsector = sub('_VA$', '', .data$subsector))
@@ -86,7 +86,7 @@ calcIndustry_EEK <- function(kap) {
     # shares should lead to higher EEK shares)
     left_join(
       FEdemand %>%
-        `[`(,base_year,'gdp_SSP2EU.fe', pmatch = 'left') %>%
+        `[`(,base_year,'SSP2.fe', pmatch = 'left') %>%
         `[`(,,'steel', pmatch = TRUE) %>%
         quitte::magclass_to_tibble() %>%
         select(iso3c = 'region', 'item', FE = 'value') %>%
@@ -342,7 +342,7 @@ calcIndustry_EEK <- function(kap) {
       anti_join(
         tibble(iso3c = SSA_iso3c,
                year = 2025,
-               scenario = 'gdp_SSP5',
+               scenario = 'SSP5',
                subsector = 'kap_steel_primary'),
 
         c('iso3c', 'year', 'scenario', 'subsector')
@@ -351,7 +351,7 @@ calcIndustry_EEK <- function(kap) {
     EEK %>%
       semi_join(
         tibble(tidyr::crossing(iso3c = SSA_iso3c, year = c(2020, 2025, 2030)),
-               scenario = 'gdp_SSP5',
+               scenario = 'SSP5',
                subsector = 'kap_steel_primary'),
         by = c('iso3c', 'year', 'scenario', 'subsector')
       ) %>%

@@ -19,7 +19,7 @@ calcindustry_subsectors_specific(
 \itemize{
 \item \code{FE} for specific final energy demand change factors
 \item \code{material_alpha} for alpha factors and convergence time of specific
-material demand decreases relative to the \code{SSP2EU} scenario
+material demand decreases relative to the \code{SSP2} scenario
 \item \code{material_relative} for scaling factors of specific material demand
 relative to baseline scenarios
 \item \code{material_relative_change} for scaling factors of specific material

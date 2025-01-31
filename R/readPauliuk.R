@@ -16,21 +16,20 @@
 #'
 #' @importFrom dplyr mutate
 #' @importFrom quitte madrat_mule
-#' @importFrom readxl read_xlsx
 #' @importFrom rlang .data
-
 #' @export
+#'
 readPauliuk <- function(subtype = 'lifetime')
 {
   # ---- list all available subtypes with functions doing all the work ----
   switchboard <- list(
     lifetime = function()
     {
-      read_xlsx(path = './Supplementary_Table_23.xlsx',
-                sheet = 'Supplementray_Table_23',
-                range = 'A5:J201',
-                col_names = c('country', 'lifetime'),
-                col_types = c('text', rep('skip', 8), 'numeric')) %>%
+      readxl::read_xlsx(path = './Supplementary_Table_23.xlsx',
+                        sheet = 'Supplementray_Table_23',
+                        range = 'A5:J201',
+                        col_names = c('country', 'lifetime'),
+                        col_types = c('text', rep('skip', 8), 'numeric')) %>%
         mutate(lifetime = as.integer(.data$lifetime)) %>%
         madrat_mule() %>%
         return()
