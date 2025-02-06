@@ -14,13 +14,12 @@
 #' @importFrom assertr assert
 #' @importFrom dplyr bind_rows mutate pull rename select distinct
 #' @importFrom readr read_csv
-#' @importFrom readxl read_excel
 #' @importFrom rlang is_empty
 #' @importFrom tibble tibble
 #' @importFrom tidyr pivot_longer
-
 #' @export
 #' @rdname USGS
+#'
 readUSGS <- function(subtype = 'cement') {
   # subtype switchboard ----
   switchboard <- list(
@@ -64,10 +63,10 @@ readUSGS <- function(subtype = 'cement') {
         f <- path.expand(file.path(base_path, files_sheets[[i, 'file']]))
         ## read the entire sheet with global cement production data ----
         d <- suppressMessages(
-          read_excel(path = f,
-                     sheet = files_sheets[[i, 'sheet']],
-                     col_types = 'text',
-                     trim_ws = TRUE)
+          readxl::read_excel(path = f,
+                             sheet = files_sheets[[i, 'sheet']],
+                             col_types = 'text',
+                             trim_ws = TRUE)
         )
 
         ## find those portions that contain data ----
@@ -191,10 +190,13 @@ readUSGS <- function(subtype = 'cement') {
         ungroup() %>%
         select(-'reporting.year') %>%
         left_join(
-          calcOutput('GDP', aggregate = FALSE, average2020 = FALSE, years = unique(to_estimate$year)) %>%
-            # historic data should be all identical, so just pick the 'default'
-            # scenario
-            `[`(,,'gdp_SSP2EU') %>%
+          calcOutput("GDP",
+                     scenario = "SSP2",
+                     naming = "scenario",
+                     aggregate = FALSE,
+                     average2020 = FALSE,
+                     years = unique(to_estimate$year)) %>%
+            # historic data should be all identical, so just pick the 'SSP2' scenario
             as.data.frame() %>%
             as_tibble() %>%
             select(iso3c = 'Region', year = 'Year', GDP = 'Value') %>%

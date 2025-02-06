@@ -60,8 +60,8 @@ calcCementShare <- function() {
     select('iso3c', 'year', 'fety', 'value') %>%
     as.magpie(spatial = 1, temporal = 2, data = 4),
 
-  weight = calcOutput('GDP', aggregate = FALSE) %>%
-    `[`(,unique(quitte::remind_timesteps$period),'gdp_SSP2') %>%
+  weight = calcOutput('GDP', scenario = "SSP2", naming = "scenario", aggregate = FALSE) %>%
+    `[`(, unique(quitte::remind_timesteps$period), ) %>%
     dimSums(dim = 3),
 
   unit = 'share',

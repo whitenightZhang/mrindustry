@@ -40,11 +40,9 @@
 #' @importFrom stats nls SSlogis sd lm
 #' @importFrom tibble as_tibble tibble tribble
 #' @importFrom tidyr expand_grid pivot_longer pivot_wider replace_na
-#' @importFrom zoo na.approx rollmean
 #' @importFrom utils head
-#' @importFrom dplyr bind_cols  
+#' @importFrom dplyr bind_cols
 #' @importFrom magclass setNames
-
 #' @export
 calcSteel_Projections <- function(subtype = 'production',
                                   match.steel.historic.values = TRUE,
@@ -52,7 +50,7 @@ calcSteel_Projections <- function(subtype = 'production',
                                   save.plots = NULL,
                                   China_Production = NULL) {
 
-  
+
   if (!is.null(save.plots)) {
     if (!all(isTRUE(file.info(save.plots)$isdir),
              448L == bitwAnd(file.info(save.plots)$mode, 448L))) {
@@ -75,7 +73,6 @@ calcSteel_Projections <- function(subtype = 'production',
       'SDP_RC',    'low',
       'SSP1',      'low',
       'SSP2',      'med',
-      'SSP2EU',    'med',
       'SSP3',      'med',
       'SSP4',      'med',
       'SSP5',      'high') %>%
@@ -100,7 +97,6 @@ calcSteel_Projections <- function(subtype = 'production',
       'SDP_RC',    'SSP2',
       'SSP1',      'SSP2',
       'SSP2',      'SSP2',
-      'SSP2EU',    'SSP2',
       'SSP3',      'SSP2',
       'SSP4',      'SSP4',
       'SSP5',      'SSP2') %>%
@@ -114,7 +110,6 @@ calcSteel_Projections <- function(subtype = 'production',
       'SDP_RC',    '2100',
       'SSP1',      '2100',
       'SSP2',      '2100',
-      'SSP2EU',    '2100',
       'SSP3',      '2100',
       'SSP4',      '2010',
       'SSP5',      '2100') %>%
@@ -128,7 +123,6 @@ calcSteel_Projections <- function(subtype = 'production',
       'SDP_RC',    '1.25',
       'SSP1',      '1.25',
       'SSP2',      '1',
-      'SSP2EU',    '1',
       'SSP3',      '1',
       'SSP4',      '1',
       'SSP5',      '0.75') %>%
@@ -230,26 +224,28 @@ calcSteel_Projections <- function(subtype = 'production',
            population = .data$population * 1e6)
 
   ## GDP projections ----
-  GDP <- calcOutput("GDP", average2020 = FALSE, naming = "scenario", aggregate = FALSE) %>%
+  GDP <- calcOutput("GDP",
+                    scenario = c("SSPs", "SDPs"),
+                    average2020 = FALSE,
+                    naming = "scenario",
+                    aggregate = FALSE) %>%
     as.data.frame() %>%
     as_tibble() %>%
     select(scenario = .data$Data1, iso3c = .data$Region, year = .data$Year,
            GDP = .data$Value) %>%
     character.data.frame() %>%
-    mutate(scenario = sub('^gdp_', '', .data$scenario),
-           year = as.integer(.data$year),
+    mutate(year = as.integer(.data$year),
            # $m * 1e6 $/$m = $
            GDP = .data$GDP * 1e6)
 
   ## population ----
-  population <- calcOutput("Population", naming = "scenario", aggregate = FALSE) %>%
+  population <- calcOutput("Population", scenario = c("SSPs", "SDPs"), naming = "scenario", aggregate = FALSE) %>%
     as.data.frame() %>%
     as_tibble() %>%
     select(scenario = .data$Data1, iso3c = .data$Region, year = .data$Year,
            population = .data$Value) %>%
     character.data.frame() %>%
-    mutate(scenario = sub('^pop_', '', .data$scenario),
-           year = as.integer(.data$year),
+    mutate(year = as.integer(.data$year),
            # million people * 1e6/million = people
            population = .data$population * 1e6)
 
@@ -835,7 +831,7 @@ calcSteel_Projections <- function(subtype = 'production',
       # stock additions: rolling average of stock changes (stocks might decrease
       # with decreasing population, but still become obsolete and need
       # replacement) over five years
-      stock.additions = rollmean(
+      stock.additions = zoo::rollmean(
         pmax(0,
              .data$steel.stock - lag(.data$steel.stock, order_by = .data$year,
                                      default = first(.data$steel.stock))),
@@ -905,8 +901,7 @@ calcSteel_Projections <- function(subtype = 'production',
     ) %>%
     assert(not_na, everything()) %>%
     # t/year * 1e-6 Gt/t = Gt/year
-    mutate(value = .data$value * 1e-9,
-           scenario = paste0('gdp_', .data$scenario)) %>%
+    mutate(value = .data$value * 1e-9) %>%
     select('scenario', 'iso3c', 'pf', 'year', 'value') %>%
     as.magpie(spatial = 2, temporal = 4, data = 5)
 
@@ -1012,8 +1007,7 @@ calcSteel_Projections <- function(subtype = 'production',
       ) %>%
       assert(not_na, everything()) %>%
       # t/year * 1e-9 Gt/t = Gt/year
-      mutate(value = .data$value * 1e-9,
-             scenario = paste0('gdp_', .data$scenario)) %>%
+      mutate(value = .data$value * 1e-9) %>%
       select('scenario', 'iso3c', 'pf', 'year', 'value') %>%
       as.magpie(spatial = 2, temporal = 4, data = 5)
   }
@@ -1027,7 +1021,7 @@ calcSteel_Projections <- function(subtype = 'production',
       mutate(total.production = .data$total.production * 1e6)
 
     tmp <- tmp %>%
-      filter('SSP2EU' == .data$scenario,
+      filter('SSP2' == .data$scenario,
              'CHN' == .data$iso3c,
              max(steel_historic_prod$year) < .data$year,
              .data$variable %in% c('primary.production',
@@ -1069,8 +1063,7 @@ calcSteel_Projections <- function(subtype = 'production',
       ) %>%
       assert(not_na, everything()) %>%
       # t/year * 1e-9 Gt/t = Gt/year
-      mutate(value = .data$value * 1e-9,
-             scenario = paste0('gdp_', .data$scenario)) %>%
+      mutate(value = .data$value * 1e-9) %>%
       select('scenario', 'iso3c', 'pf', 'year', 'value') %>%
       as.magpie(spatial = 2, temporal = 4, data = 5)
   }
@@ -1166,10 +1159,10 @@ calcSteel_Projections <- function(subtype = 'production',
           year = c(max(steel_historic_prod$year), 2100), factor = 1)) %>%
       complete(year = unique(tmp$year)) %>%
       filter(!is.na(.data$region)) %>%
-      mutate(factor = na.approx(object = .data$factor,
-                                x = .data$year,
-                                yleft = first(na.omit(.data$factor)),
-                                yright = last(na.omit(.data$factor)))) %>%
+        mutate(factor = zoo::na.approx(object = .data$factor,
+                                       x = .data$year,
+                                       yleft = first(na.omit(.data$factor)),
+                                       yright = last(na.omit(.data$factor)))) %>%
       ungroup() %>%
       assert(not_na, everything())
 
@@ -1220,8 +1213,7 @@ calcSteel_Projections <- function(subtype = 'production',
       ) %>%
       assert(not_na, everything()) %>%
       # t/year * 1e-9 Gt/t = Gt/year
-      mutate(value = .data$value * 1e-9,
-             scenario = paste0('gdp_', .data$scenario)) %>%
+      mutate(value = .data$value * 1e-9) %>%
       select('scenario', 'iso3c', 'pf', 'year', 'value') %>%
       as.magpie(spatial = 2, temporal = 4, data = 5)
   } else if ('none' != match.steel.estimates) {
@@ -1235,7 +1227,6 @@ calcSteel_Projections <- function(subtype = 'production',
       list(x = secondary.steel.max.share %>%
              filter(.data$year %in% unique(quitte::remind_timesteps$period),
                     'Total' != .data$iso3c) %>%
-             mutate(scenario = paste0('gdp_', .data$scenario)) %>%
              select('scenario', 'iso3c', 'year', 'share') %>%
              as.magpie(spatial = 2, temporal = 3, data = 4),
            weight = calcOutput(
@@ -1250,14 +1241,14 @@ calcSteel_Projections <- function(subtype = 'production',
       )
     )
   }
-  
+
   if (!is.null(save.plots)) {
 
     p <- ggplot() +
       geom_area(
         data = x %>%
           as_tibble() %>%
-          filter('gdp_SSP2EU' == .data$scenario) %>%
+          filter('SSP2' == .data$scenario) %>%
           left_join(region_mapping, 'iso3c') %>%
           full_join(
             tibble(
@@ -1291,7 +1282,7 @@ calcSteel_Projections <- function(subtype = 'production',
     write_rds(x = p,
               file = file.path(save.plots,
                                '6_Steel_production.rds'))
-  } 
+  }
 
   # return statement ----
   return(list(x = x,
