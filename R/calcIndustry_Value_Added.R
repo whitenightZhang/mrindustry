@@ -16,6 +16,7 @@
 #' @param China_Production A data frame with columns `period` and
 #'     `total.production` prescribing total production for China to have,
 #'     disregarding results from the stock saturation model.
+#' @param INDSTAT Gets passed to [`readUNIDO()`] as `subtype` argument.
 #'
 #' @return A list with a [`magpie`][magclass::magclass] object `x`, `weight`,
 #'   `unit`, `description`, `min`, and `max`.
@@ -35,7 +36,7 @@
 #'   list_to_data_frame madrat_mule magclass_to_tibble order.levels
 #'   seq_range sum_total_
 #' @importFrom readr write_rds
-#' @importFrom stats nls SSlogis sd lm
+#' @importFrom stats lm nls nls.control SSlogis sd
 #' @importFrom tibble as_tibble tibble tribble
 #' @importFrom tidyr expand_grid pivot_longer pivot_wider replace_na
 #' @importFrom utils head
@@ -47,7 +48,8 @@ calcIndustry_Value_Added <- function(subtype = 'physical',
                                      match.steel.historic.values = TRUE,
                                      match.steel.estimates = 'none',
                                      save.plots = NULL,
-                                     China_Production = NULL) {
+                                     China_Production = NULL,
+                                     INDSTAT = 'INDSTAT3') {
   if (!is.null(save.plots)) {
     if (!all(isTRUE(file.info(save.plots)$isdir),
              448L == bitwAnd(file.info(save.plots)$mode, 448L))) {
@@ -70,7 +72,7 @@ calcIndustry_Value_Added <- function(subtype = 'physical',
     select(region = 'RegionCode', iso3c = 'CountryCode')
 
   ## UNIDO INSTATA2 data ----
-  INDSTAT <- readSource('UNIDO', 'INDSTAT2') %>%
+  INDSTAT <- readSource('UNIDO', subtype = INDSTAT) %>%
     as_tibble() %>%
     filter(!is.na(.data$value)) %>%
     left_join(region_mapping, 'iso3c')
@@ -152,7 +154,9 @@ calcIndustry_Value_Added <- function(subtype = 'physical',
             filter(.data$region == r,
                    'Total' == .data$iso3c),
           start = list(a = 1000, b = -2000),
-          trace = FALSE) %>%
+          trace = FALSE,
+          control = nls.control(maxiter = 1000,
+                                minFactor = 2 ^ -12)) %>%
         broom::tidy() %>%
         select('term', 'estimate') %>%
         pivot_wider(names_from = 'term', values_from = 'estimate') %>%

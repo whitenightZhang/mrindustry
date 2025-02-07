@@ -4,19 +4,26 @@
 #'
 #' @md
 #' @param subtype one of
-#'     - `INDSTAT2`: read INDSTAT2 data
+#'     - `INDSTAT2`: read INDSTAT 2 data
+#'     - `INDSTAT3`: read INDSTAT 3 data from [https://stat.unido.org/data/download?dataset=indstat&revision=3]
+#'     - `INDSTAT4`: read INDSTAT 4 data from [https://stat.unido.org/data/download?dataset=indstat&revision=4]
+#'       INDSTAT 4 data quality has not been vetted and should not be used for
+#'       production.
+#' @param exclude Exclude faulty data (`TRUE`, default) or not.  Return a tibble
+#'     of country/subsector/year combinations for `exclude = 'return'`.
+#'     (Work-in-progress)
 #' @param x result from `readUNIDO()` as passed to `convertUNIDO()`
 #'
 #' @return A [`magpie`][magclass::magclass] object.
 #'
-#' `readUNIDO` returns raw INDSTAT2 data.  `convertUNIDO` converts to iso3c
+#' `readUNIDO` returns raw INDSTAT data.  `convertUNIDO` converts to iso3c
 #' country codes, selects industry subsectors value added data according to this
 #' table
 #'
 #' | subsector     | ISIC | ctable | utable |
 #' |---------------|------|--------|--------|
 #' | manufacturing | D    | 20     | 17–20  |
-#' | cement        | 20   | 20     | 17–20  |
+#' | cement        | 26   | 20     | 17–20  |
 #' | chemicals     | 24   | 20     | 17–20  |
 #' | steel         | 27   | 20     | 17–20  |
 #'
@@ -27,19 +34,19 @@
 #' |---------------|-------|------------------|
 #' | manufacturing | BIH   | 1990–91          |
 #' | manufacturing | CHN   | 1963–97          |
+#' | manufacturing | EGY   | 2018-19          |
 #' | manufacturing | HKG   | 1963–2015        |
-#' | manufacturing | IRQ   | 1994–98          |
 #' | manufacturing | MAC   | 1963–2015        |
 #' | manufacturing | MDV   | 1963–2015        |
 #' | cement        | BDI   | 1980–2010        |
 #' | cement        | CIV   | 1990–93          |
 #' | cement        | HKG   | 1973–79          |
-#' | cement        | IRQ   | 1992–97          |
 #' | cement        | NAM   | 2007–10          |
 #' | cement        | RUS   | 1970–90          |
 #' | chemicals     | CIV   | 1989             |
 #' | chemicals     | HKG   | 1973–79, 2008–15 |
 #' | chemicals     | MAC   | 1978–79          |
+#' | chemicals     | MMR   | 2021             |
 #' | chemicals     | NER   | 1999–2002        |
 #' | steel         | BGD   | 2011             |
 #' | steel         | CHE   | 1995–96          |
@@ -52,6 +59,10 @@
 #' | steel         | MKD   | 1996             |
 #' | steel         | PAK   | 1981–82          |
 #' | steel         | TUN   | 2003–06          |
+#' | all           | IRN   | 2022             |
+#' | all           | IRQ   | 1992-2002        |
+#' | all           | MWI   | 2021             |
+#' | all           | TZA   | 2022             |
 #'
 #' `calcUNIDO()` calculates `otherInd` subsector values as the difference
 #' between `manufacturing` and `cement`, `chemicals`, and `steel` values and is
@@ -62,149 +73,257 @@
 #' @seealso [`readSource()`], [`calcOutput()`]
 #'
 #' @importFrom assertr assert not_na verify
-#' @importFrom dplyr anti_join bind_rows filter group_by inner_join left_join
-#'     mutate select summarise
+#' @importFrom dplyr anti_join between bind_rows filter group_by inner_join
+#'     left_join mutate n select summarise ungroup
 #' @importFrom GDPuc convertGDP
+#' @importFrom madrat toolCountryFill
+#' @importFrom magclass as.magpie
 #' @importFrom magrittr %>%
 #' @importFrom quitte list_to_data_frame madrat_mule
-#' @importFrom readr read_csv
-#' @importFrom rlang .data is_empty
+#' @importFrom readr col_character col_double col_integer col_skip cols read_csv
+#' @importFrom rlang !!! .data is_empty syms
 #' @importFrom tibble tibble tribble
-#' @importFrom tidyr unite
+#' @importFrom tidyr drop_na expand_grid unite
 
 #' @rdname UNIDO
 #' @export
-readUNIDO <- function(subtype = 'INDSTAT2')
+readUNIDO <- function(subtype = 'INDSTAT3')
 {
-    # define read functions for all subtypes ----
-    switchboard <- list(
-        `INDSTAT2` = function()
-        {
-            path <- '~/PIK/swap/inputdata/sources/UNIDO/' # used for debugging
-            path <- './'
+    base_path <- '~/PIK/swap/inputdata/sources/UNIDO/' # used for debugging
+    base_path <- './'
 
-            read_csv(file = file.path(path, 'INDSTAT2',
-                                      'INDSTAT2_2017_ISIC_Rev_3.csv'),
-                     col_names = c('ctable', 'country', 'year', 'isic',
-                                   'isiccomb', 'value', 'utable', 'source',
-                                   'lastupdated', 'unit'),
-                     col_types = 'iiiccdiddc',
-                     na = '...') %>%
-                select('ctable', 'country', 'year', 'isic', 'isiccomb',
-                       'utable', 'source', 'lastupdated', 'unit', 'value') %>%
-                filter(!is.na(.data$value)) %>%
-                madrat_mule() %>%
-                return()
-        }
-    )
+    path <- switch(
+        subtype,
+        `INDSTAT2` = c(base_path, 'INDSTAT2', 'INDSTAT2_2017_ISIC_Rev_3.csv'),
+        `INDSTAT3` = c(base_path, 'INDSTAT3_2025-01-09', 'data.csv'),
+        `INDSTAT4` = c(base_path, 'INDSTAT4_2025-01-09', 'data.csv'),
+        stop('subtype not implemented')) %>%
+        paste(collapse = .Platform$file.sep)
 
-    # check if the subtype called is available ----
-    if (is_empty(intersect(subtype, names(switchboard))))
-        stop(paste('Invalid subtype -- supported subtypes are:',
-                   names(switchboard)))
+    col_types <- switch(
+        subtype,
+        `INDSTAT2` = cols(ctable      = col_integer(),
+                          country     = col_integer(),
+                          year        = col_integer(),
+                          isic        = col_character(),
+                          isiccomb    = '-',
+                          value       = col_double(),
+                          utable      = col_integer(),
+                          source      = '-',
+                          lastupdated = col_double(),
+                          unit        = '-'),
+        `INDSTAT3` = cols(Year                       = col_integer(),
+                          Country                    = '-',
+                          CountryCode                = col_integer(),
+                          Variable                   = '-',
+                          VariableCode               = col_integer(),
+                          UnconsolidatedVariableCode = col_integer(),
+                          UnconsolidatedVariableName = '-',
+                          ActivityCode               = col_character(),
+                          Activity                   = '-',
+                          ActivityCombination        = '-',
+                          Value                      = '-',
+                          UnitType                   = '-',
+                          ValueUSD                   = col_double()),
+        `INDSTAT4` = cols(Year                       = col_integer(),
+                          Country                    = '-',
+                          CountryCode                = col_integer(),
+                          Variable                   = '-',
+                          VariableCode               = col_integer(),
+                          UnconsolidatedVariableCode = col_integer(),
+                          UnconsolidatedVariableName = '-',
+                          ActivityCode               = col_character(),
+                          Activity                   = '-',
+                          ActivityCombination        = '-',
+                          Value                      = '-',
+                          UnitType                   = '-',
+                          ValueUSD                   = col_double()),
+        stop('subtype not implemented'))
 
-    # ---- load data and do whatever ----
-    return(switchboard[[subtype]]())
+    col_names <- switch(subtype,
+                        `INDSTAT2` = names(col_types$cols),
+                        `INDSTAT3` = TRUE,
+                        `INDSTAT4` = TRUE,
+                        stop('subtype not implemented'))
+
+    read_csv(file = path, col_names = col_names, col_types = col_types,
+             na = '...') %>%
+        madrat_mule() %>%
+        return()
 }
 
 #' @rdname UNIDO
 #' @export
-convertUNIDO <- function(x, subtype = 'INDSTAT2')
+convertUNIDO <- function(x, subtype = 'INDSTAT3', exclude = TRUE)
 {
-    # define convert functions for all subtypes ----
-    switchboard <- list(
-        `INDSTAT2` = function(x)
-        {
-            . <- NULL
-            # add iso3c codes ----
+    harmonise_column_names <- function(d, subtype)
+    {
+        d %>%
+            select(
+                switch(subtype,
+                       `INDSTAT2` = c('country', 'year', 'isic', 'ctable',
+                                      'utable', 'lastupdated', 'value'),
+                       `INDSTAT3` = c('country' = 'CountryCode',
+                                      'year'    = 'Year',
+                                      'isic'    = 'ActivityCode',
+                                      'ctable'  = 'VariableCode',
+                                      'utable'  = 'UnconsolidatedVariableCode',
+                                      'value'   = 'ValueUSD'),
+                       `INDSTAT4` = c('country' = 'CountryCode',
+                                      'year'    = 'Year',
+                                      'isic'    = 'ActivityCode',
+                                      'ctable'  = 'VariableCode',
+                                      'utable'  = 'UnconsolidatedVariableCode',
+                                      'value'   = 'ValueUSD'),
+                       stop('unknown subtype')))
+    }
 
-            # FIXME We are substituting some historic country codes by 'default'
-            # codes of current countries.  Generally, they are situated in the
-            # same aggregation region, so this has no impact on the derivation
-            # of regional statistics.  This does not apply to former Yugoslavia
-            # however.  Since the countries in question (currently Slovenia and
-            # Croatia, others might join the EU at a later time and then require
-            # reclassification) are small compared to the respective regions
-            # (Europe and Rest-of-World), the impact should be limited.
-            x <- x %>%
-                madrat_mule() %>%
-                ## fix countries up ----
-                filter(810 != .data$country) %>%   # SUN data synthetic anyhow
-                left_join(
-                    tribble(
-                        ~country,   ~replacement,
-                        200,        203,            # CSE for CSK
-                        530,        531,            # CUW for ANT
-                        890,        688,            # SRB for YUG
-                        891,        688             # SRB for SCG
-                    ),
+    add_iso3c <- function(d, subtype)
+    {
+        # data ----
+        ## countries to remove ----
+        # SUN data synthetic anyhow
+        countries_to_remove <- 810
 
-                    'country'
-                ) %>%
-                mutate(country = ifelse(!is.na(.data$replacement),
-                                        .data$replacement,
-                                        .data$country)) %>%
-                select(-'replacement') %>%
-                ## add country codes ----
-                left_join(
-                    bind_rows(
-                        countrycode::codelist %>%
-                            select('iso3c', 'un') %>%
-                            filter(!is.na(.data$iso3c), !is.na(.data$un)),
+        ## countries to substitute ----
+        # FIXME We are substituting some historic country codes by 'default'
+        # codes of current countries.  Generally, they are situated in the same
+        # aggregation region, so this has no impact on the derivation of
+        # regional statistics.  This does not apply to former Yugoslavia
+        # however.  Since the countries in question (currently Slovenia and
+        # Croatia, others might join the EU at a later time and then require
+        # reclassification) are small compared to the respective regions
+        # (Europe and Rest-of-World), the impact should be limited.
+        countries_to_substitute <- switch(
+            subtype,
 
-                        # country codes missing from package countrycode
-                        tribble(
-                            ~iso3c,   ~un,
-                            'TWN',    158,   # Republic of China
-                            'ETH',    230,   # Ethiopia and Eritrea
-                            'DEU',    278,   # East Germany
-                            'DEU',    280,   # West Germany
-                            'PAN',    590,   # Panama
-                            'SDN',    736    # Sudan
-                        )
-                    ),
+            `INDSTAT2` = tribble(
+                ~country,   ~replacement,
+                200,        203,            # CSE for CSK
+                530,        531,            # CUW for ANT
+                890,        688,            # SRB for YUG
+                891,        688             # SRB for SCG
+            ),
 
-                    c('country' = 'un')
-                ) %>%
-                assert(not_na, everything())
+            `INDSTAT3` = tribble(
+                ~country,   ~replacement,
+                200,        203,            # CSE for CSK
+                412,        688,            # SRB for Kosovo
+                530,        531,            # CUW for ANT
+                890,        688,            # SRB for YUG
+                891,        688             # SRB for SCG
+            ),
 
-            # aggregate subsectors ----
-            ## subsector selection ----
-            subsector_selection <- bind_rows(
-                tibble(subsector = 'manufacturing',
-                       isic      = 'D',
-                       ctable    = 20,
-                       utable    = 17:20),
+            `INDSTAT4` = tribble(
+                ~country,   ~replacement,
+                200,        203,            # CSE for CSK
+                412,        688,            # SRB for Kosovo
+                530,        531,            # CUW for ANT
+                890,        688,            # SRB for YUG
+                891,        688             # SRB for SCG
+            ),
 
-                tibble(subsector = 'cement',
-                       isic      = '26',
-                       ctable    = 20,
-                       utable    = 17:20),
+            stop('unknown subtype'))
 
-                tibble(subsector = 'chemicals',
-                       isic      = '24',
-                       ctable    = 20,
-                       utable    = 17:20),
+        ## additional country codes ----
+        # which are missing from the countrycode package
+        additional_country_codes <- tribble(
+            ~iso3c,   ~un,
+            'TWN',    158,   # Republic of China
+            'ETH',    230,   # Ethiopia and Eritrea
+            'DEU',    278,   # East Germany
+            'DEU',    280,   # West Germany
+            'PAN',    590,   # Panama
+            'SDN',    736    # Sudan
+        )
 
-                tibble(subsector = 'steel',
-                       isic      = '27',
-                       ctable    = 20,
-                       utable    = 17:20)
-            )
+        # process ----
+        d %>%
+            # exclude countries
+            filter(!.data$country %in% countries_to_remove) %>%
+            # substitute countries
+            left_join(countries_to_substitute, 'country') %>%
+            mutate(country = ifelse(!is.na(.data$replacement),
+                                    .data$replacement,
+                                    .data$country)) %>%
+            select(-'replacement') %>%
+            # add iso3c codes
+            left_join(
+                bind_rows(
+                    countrycode::codelist %>%
+                        select('iso3c', 'un') %>%
+                        filter(!is.na(.data$iso3c), !is.na(.data$un)),
 
-            ## subsector exclusion ----
-            subsector_exclusion <- bind_rows(
+                    additional_country_codes
+                ),
+
+                c('country' = 'un')
+            ) %>%
+            select(-'country') %>%
+            assert(not_na, everything())
+
+    }
+
+    most_recent_value <- function(d)
+    {
+        if ('lastupdated' %in% colnames(d)) {
+            d <- d %>%
+                group_by(!!!syms(setdiff(colnames(d),
+                                         c('lastupdated', 'value')))) %>%
+                filter(max(.data$lastupdated) == .data$lastupdated) %>%
+                ungroup() %>%
+                select(-'lastupdated')
+        }
+        return(d)
+    }
+
+    drop_duplicates <- function(d)
+    {
+        d %>%
+            # filter duplicates, which stem from split countries (e.g. CUW)
+            group_by(!!!syms(setdiff(colnames(d), 'value'))) %>%
+            summarise(value = max(.data$value), .groups = 'drop')
+    }
+
+    select_subsectors <- function(d)
+    {
+        d %>%
+            inner_join(
+                tribble(
+                    ~subsector,        ~isic,
+                    'manufacturing',   'D',
+                    'cement',          '26',
+                    'chemicals',       '24',
+                    'steel',           '27') %>%
+                    expand_grid(ctable = 20, utable = 17:20),
+
+                c('isic', 'ctable', 'utable')
+            ) %>%
+            select(-'isic', -'ctable', -'utable')
+    }
+
+    to_exclude <- function(d, subtype)
+    {
+        switch(
+            subtype,
+            bind_rows(   # default for all subtypes for now
                 list_to_data_frame(
                     list(
                         # unreasonable data
-                        IRQ = 1994:1998,
-                        MDV = unique(x$year),
+                        EGY = 2018:2019,
+                        IRN = 2022,
+                        IRQ = 1992:2002,
+                        MDV = unique(d$year),
+                        MWI = 2021,
                         BIH = 1990:1991,
+                        TZA = 2022,
                         # unrepresentative data
-                        HKG = unique(x$year),
-                        MAC = unique(x$year),
-                        CHN = min(x$year):1997),
-                    'iso3c', 'year') %>%
+                        HKG = unique(d$year),
+                        MAC = unique(d$year),
+                        CHN = min(d$year):1997
+                    ),
+                    'iso3c', 'year'
+                ) %>%
                     mutate(subsector = 'manufacturing'),
 
                 # Data with an obvious mismatch between steel production and
@@ -219,12 +338,18 @@ convertUNIDO <- function(x, subtype = 'INDSTAT2')
                          HKG = 1973:1979,
                          HRV = 2012,
                          IRL = 1980,
+                         IRN = 2022,
+                         IRQ = c(1992, 1993, 2001, 2002, 2011, 2014),
                          LKA = 2006,
                          MAR = 1989:2004,
                          MKD = 1996,
+                         MWI = 2021,
                          PAK = 1981:1982,
-                         TUN = 2003:2006),
-                    'iso3c', 'year') %>%
+                         TUN = 2003:2006,
+                         TZA = 2022
+                    ),
+                    'iso3c', 'year'
+                ) %>%
                     mutate(subsector = 'steel'),
 
                 list_to_data_frame(
@@ -233,66 +358,86 @@ convertUNIDO <- function(x, subtype = 'INDSTAT2')
                                             # before and after
                          NAM = 2007:2010,   # zero cement production
                          HKG = 1973:1979,   # no data for CHN prior to 1980
-                         IRQ = 1992:1997,   # cement VA 100 times higher than
+                         IRN = 2022,
+                         IRQ = 1992:2002,   # cement VA 100 times higher than
                                             # before and after
-                         RUS = 1970:1990    # exclude data from Soviet period
+                         MWI = 2021,
+                         RUS = 1970:1990,   # exclude data from Soviet period,
                                             # which biases projections up
+                         TZA = 2022
                     ),
-                    'iso3c', 'year') %>%
+                    'iso3c', 'year'
+                ) %>%
                     mutate(subsector = 'cement'),
 
                 list_to_data_frame(
                     list(CIV = 1989,
+                         IRN = 2022,
+                         IRQ = 1994:1997,
+                         MMR = 2021,
+                         MWI = 2021,
                          NER = 1999:2002,
                          HKG = c(1973:1979, 2008:2015),
-                         MAC = c(1978:1979)),
-                    'iso3c', 'year') %>%
+                         MAC = c(1978:1979),
+                         TZA = 2022
+                    ),
+                    'iso3c', 'year'
+                ) %>%
                     mutate(subsector = 'chemicals')
             )
+        )
+    }
 
-            ### aggregation ----
-            x <- x %>%
-                inner_join(
-                    subsector_selection,
+    exclude_subsectors <- function(d, subtype, exclude = TRUE)
+    {
 
-                    c('isic', 'ctable', 'utable')
-                ) %>%
+        if (isTRUE(exclude)) {
+            d <- d %>%
                 anti_join(
-                    subsector_exclusion,
+                    to_exclude(d, subtype),
 
                     c('iso3c', 'year', 'subsector')
-                ) %>%
-                # GDP conversion is only valid for monetary units
-                verify('$' == .data$unit) %>%
-                GDPuc::toolConvertGDP(unit_in  = 'constant 2005 US$MER',
-                           unit_out = mrdrivers::toolGetUnitDollar(),
-                           replace_NAs = 'with_USA') %>%
-                group_by(.data$iso3c, .data$subsector, .data$year) %>%
-                filter(max(.data$lastupdated) == .data$lastupdated) %>%
-                # for split countries, which lead to duplicates (e.g. CUW), use
-                # the maximum
-                summarise(value = max(.data$value), .groups = 'drop')
-
-            # return ----
-            x %>%
-              as.magpie(spatial = 1, temporal = 3, data = ncol(.)) %>%
-              toolCountryFill(verbosity = 2) %>%
-              return()
+                )
         }
-    )
+        return(d)
+    }
 
-    # check if the subtype called is available ----
-    if (is_empty(intersect(subtype, names(switchboard))))
-        stop(paste('Invalid subtype -- supported subtypes are:',
-                   names(switchboard)))
+    convert_dollarbucks <- function(d, subtype)
+    {
+        d %>%
+            GDPuc::toolConvertGDP(
+                unit_in = switch(subtype,
+                                 `INDSTAT2` = 'constant 2005 US$MER',
+                                 `INDSTAT3` = 'constant 2005 US$MER', # ???
+                                 `INDSTAT4` = 'constant 2005 US$MER', # ???
+                                 stop('unknown subtype')),
+                unit_out = mrdrivers::toolGetUnitDollar(),
+                replace_NAs = 'with_USA')
+    }
 
-    # ---- load data and do whatever ----
-    return(switchboard[[subtype]](x))
+    # process data ----
+    if ('return' == exclude)
+        return(to_exclude(madrat_mule(x), subtype))
+
+    x %>%
+        madrat_mule() %>%
+        harmonise_column_names(subtype) %>%
+        drop_na('value') %>%
+        select_subsectors() %>%
+        add_iso3c(subtype) %>%
+        exclude_subsectors(subtype, isTRUE(exclude)) %>%
+        convert_dollarbucks(subtype) %>%
+        most_recent_value() %>%
+        drop_duplicates() %>%
+        select('iso3c', 'year', 'subsector', 'value') %>%
+        as.magpie(spatial = 1, temporal = 2, tidy = TRUE) %>%
+        toolCountryFill(verbosity = 2) %>%
+        return()
 }
 
 #' @rdname UNIDO
 #' @export
-calcUNIDO <- function(subtype = 'INDSTAT2')
+calcUNIDO <- function(subtype = 'INDSTAT3')
 {
     # define calc functions for all subtypes ----
     switchboard <- list(
