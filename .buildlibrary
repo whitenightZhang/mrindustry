@@ -8,6 +8,6 @@ AcceptedNotes:
 - Imports includes .* non-default packages.
 - unable to verify current time
 allowLinterWarnings: yes
-enforceVersionUpdate: no
+enforceVersionUpdate: yes
 skipCoverage: no
 AutocreateCITATION: yes
