@@ -439,43 +439,36 @@ convertUNIDO <- function(x, subtype = 'INDSTAT3', exclude = TRUE)
 #' @export
 calcUNIDO <- function(subtype = 'INDSTAT3')
 {
-    # define calc functions for all subtypes ----
-    switchboard <- list(
-        `INDSTAT2` = function(x)
-        {
-            x <- readSource(type = 'UNIDO', subtype = subtype, convert = TRUE)
+    known_subtypes <- c('INDSTAT2', 'INDSTAT3', 'INDSTAT4')
+    if (subtype %in% known_subtypes) {
+        x <- readSource(type = 'UNIDO', subtype = subtype, convert = TRUE)
 
-            x_manufacturing <- dimSums(x[,,'manufacturing'], dim = 3)
-            x_no_manufacturing <- x[,,'manufacturing', invert = TRUE]
-            x_otherInd <- setNames(
-                ( x_manufacturing
-                - dimSums(x_no_manufacturing, dim = 3)
-                ),
-                'otherInd')
+        x_manufacturing <- dimSums(x[,,'manufacturing'], dim = 3)
+        x_no_manufacturing <- x[,,'manufacturing', invert = TRUE]
+        x_otherInd <- setNames(
+            ( x_manufacturing
+            - dimSums(x_no_manufacturing, dim = 3)
+            ),
+            'otherInd')
 
-            # $/year * 1e-9 $bn/$ = $bn/year
-            x <- mbind(x_no_manufacturing, x_otherInd) * 1e-9
+        # $/year * 1e-9 $bn/$ = $bn/year
+        x <- mbind(x_no_manufacturing, x_otherInd) * 1e-9
 
-            # give proper variable names
-            subsector_names <- c('cement', 'chemicals', 'steel', 'otherInd')
-            variable_names  <- paste0('Value Added|Industry|',
-                                      c('Cement', 'Chemicals', 'Steel',
-                                        'Other Industry'))
+        # give proper variable names
+        subsector_names <- c('cement', 'chemicals', 'steel', 'otherInd')
+        variable_names  <- paste0('Value Added|Industry|',
+                                  c('Cement', 'Chemicals', 'Steel',
+                                    'Other Industry'))
 
-            getNames(x) <- variable_names[match(getNames(x), subsector_names)]
+        getNames(x) <- variable_names[match(getNames(x), subsector_names)]
 
-            return(list(x = x,
-                        weight = NULL,
-                        unit = 'billion US$2017/yr',
-                        description = 'industry subsector value added'))
-        }
-    )
-
-    # check if the subtype called is available ----
-    if (is_empty(intersect(subtype, names(switchboard))))
-        stop(paste('Invalid subtype -- supported subtypes are:',
-                   names(switchboard)))
-
-    # ---- load data and do whatever ----
-    return(switchboard[[subtype]]())
+        return(list(x = x,
+                    weight = NULL,
+                    unit = 'billion US$2017/yr',
+                    description = 'industry subsector value added'))
+    }
+    else {
+        stop(paste('Invalid subtype.  Supported subtypes are:',
+                   paste(known_subtypes, collapse = ', ')))
+    }
 }
