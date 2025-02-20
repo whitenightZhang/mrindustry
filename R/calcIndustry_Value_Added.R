@@ -4,6 +4,7 @@
 #' @param subtype One of
 #'   - `physical` Returns physical production trajectories for cement.
 #'   - `economic` Returns value added trajectories for all subsectors.
+#' @param scenarios Vector of strings designating the scenarios to be returned.
 #' @param match.steel.historic.values Should steel production trajectories match
 #'   historic values?
 #' @param match.steel.estimates Should steel production trajectories match
@@ -45,6 +46,7 @@
 #' @export
 #'
 calcIndustry_Value_Added <- function(subtype = 'physical',
+                                     scenarios,
                                      match.steel.historic.values = TRUE,
                                      match.steel.estimates = 'none',
                                      save.plots = NULL,
@@ -79,30 +81,20 @@ calcIndustry_Value_Added <- function(subtype = 'physical',
 
 
   ## population data ----
-  population <- calcOutput("Population", scenario = c("SSPs", "SDPs"), naming = "scenario", aggregate = FALSE) %>%
-    as.data.frame() %>%
-    as_tibble() %>%
-    select(scenario = .data$Data1, iso3c = .data$Region, year = .data$Year,
-           population = .data$Value) %>%
-    character.data.frame() %>%
-    mutate(year = as.integer(.data$year),
-           # million people * 1e6/million = people
-           population = .data$population * 1e6)
+  population <- calcOutput("Population", scenario = scenarios, aggregate = FALSE) %>%
+    tibble::as_tibble() %>%
+    dplyr::select("scenario" = "variable", "iso3c", "year", "population" = "value") %>%
+    quitte::character.data.frame() %>%
+    # million people * 1e6/million = people
+    dplyr::mutate(population = .data$population * 1e6)
 
   ## GDP data ----
-  GDP <- calcOutput(type = "GDP",
-                    scenario = c("SSPs", "SDPs"),
-                    average2020 = FALSE,
-                    naming = "scenario",
-                    aggregate = FALSE) %>%
-    as.data.frame() %>%
-    as_tibble() %>%
-    select(scenario = .data$Data1, iso3c = .data$Region, year = .data$Year,
-           GDP = .data$Value) %>%
-    character.data.frame() %>%
-    mutate(year = as.integer(.data$year),
-           # $m * 1e6 $/$m = $
-           GDP = .data$GDP * 1e6)
+  GDP <- calcOutput(type = "GDP", scenario = scenarios, average2020 = FALSE, aggregate = FALSE) %>%
+    tibble::as_tibble() %>%
+    dplyr::select("scenario" = "variable", "iso3c", "year", "GDP" = "value") %>%
+    quitte::character.data.frame() %>%
+    # $m * 1e6 $/$m = $
+    dplyr::mutate(GDP = .data$GDP * 1e6)
 
   ## ---- load cement production data ----
   data_cement_production <- calcOutput('Cement', aggregate = FALSE,
@@ -326,6 +318,7 @@ calcIndustry_Value_Added <- function(subtype = 'physical',
              'GDPpC', 'steel.VApt'),
 
     calcOutput(type = 'Steel_Projections',
+               scenario = scenarios,
                match.steel.historic.values = match.steel.historic.values,
                match.steel.estimates = match.steel.estimates,
                China_Production = China_Production,
