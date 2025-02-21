@@ -4,9 +4,16 @@
 \alias{calcFeDemandIndustry}
 \title{Calculates FE demand in industry as REMIND variables}
 \usage{
-calcFeDemandIndustry(use_ODYM_RECC = FALSE, last_empirical_year = 2020)
+calcFeDemandIndustry(
+  scenarios,
+  use_ODYM_RECC = FALSE,
+  last_empirical_year = 2020
+)
 }
 \arguments{
+\item{scenarios}{Vector of strings designating the scenario. !!Currently it acts as a filter only, with the actual
+scenarios computed within the function hard-coded into remind_scenarios.}
+
 \item{use_ODYM_RECC}{per-capita pathways for \code{SDP_xx} scenarios?  (Defaults
 to \code{FALSE}.)}
 

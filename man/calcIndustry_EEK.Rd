@@ -4,11 +4,13 @@
 \alias{calcIndustry_EEK}
 \title{Industry Energy Efficiency Capital}
 \usage{
-calcIndustry_EEK(kap)
+calcIndustry_EEK(kap, scenarios)
 }
 \arguments{
 \item{kap}{General internal capital stock, as calculated internally by
 `calcCapital()`.}
+
+\item{scenarios}{Vector of strings designating the scenarios to be returned.}
 }
 \value{
 A list with a [`magpie`][magclass::magclass] object `x`, `weight`,

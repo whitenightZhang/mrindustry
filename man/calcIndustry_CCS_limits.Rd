@@ -5,6 +5,7 @@
 \title{Calculate Limits on Industry CCS Capacities}
 \usage{
 calcIndustry_CCS_limits(
+  scenarios,
   a1 = 0.3,
   a2 = 0.15,
   installation_minimum = 1,
@@ -17,6 +18,8 @@ calcIndustry_CCS_limits(
 )
 }
 \arguments{
+\item{scenarios}{Vector of strings designating the FEdemand scenarios.}
+
 \item{a1, a2}{Annual growth factors of CCS capacity limits, for the first ten
 years and thereafter, default to \code{0.7} and \code{0.2} (70 \% and 20 \%,
 respectively).}

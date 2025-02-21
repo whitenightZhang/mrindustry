@@ -6,6 +6,7 @@
 \usage{
 calcSteel_Projections(
   subtype = "production",
+  scenarios,
   match.steel.historic.values = TRUE,
   match.steel.estimates = "none",
   save.plots = NULL,
@@ -20,6 +21,8 @@ production.
 \item \code{secondary.steel.max.share} Returns the maximum share of secondary steel
 in total steel production.
 }}
+
+\item{scenarios}{Vector of strings designating the scenarios to be returned.}
 
 \item{match.steel.historic.values}{Should steel production trajectories match
 historic values?}

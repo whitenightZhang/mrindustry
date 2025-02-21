@@ -151,3 +151,13 @@ SSP2_highDemDEU,        SSP2,            NA,       chemicals,         1
 SSP2_highDemDEU,        SSP2,            NA,       steel_primary,     1
 SSP2_highDemDEU,        SSP2,            NA,       steel_secondary,   1
 SSP2_highDemDEU,        SSP2,            NA,       otherInd,          1
+SSP2IndiaMedium,        SSP2,            NA,       cement,            1
+SSP2IndiaMedium,        SSP2,            NA,       chemicals,         1
+SSP2IndiaMedium,        SSP2,            NA,       steel_primary,     1
+SSP2IndiaMedium,        SSP2,            NA,       steel_secondary,   1
+SSP2IndiaMedium,        SSP2,            NA,       otherInd,          1
+SSP2IndiaHigh,          SSP2,            NA,       cement,            1
+SSP2IndiaHigh,          SSP2,            NA,       chemicals,         1
+SSP2IndiaHigh,          SSP2,            NA,       steel_primary,     1
+SSP2IndiaHigh,          SSP2,            NA,       steel_secondary,   1
+SSP2IndiaHigh,          SSP2,            NA,       otherInd,          1
