@@ -28,7 +28,7 @@ calcIndustry_EEK <- function(kap, scenarios) {
   industry_VA <- calcOutput(
     type = 'Industry_Value_Added',
     subtype = 'economic',
-    scenario = unique(c(scenarios, "SSP2")),
+    scenarios = unique(c(mrdrivers::toolReplaceShortcuts(scenarios), "SSP2")),
     match.steel.historic.values = TRUE,
     match.steel.estimates = 'IEA_ETP',
     China_Production = readSource(type = 'ExpertGuess',

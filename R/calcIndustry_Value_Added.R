@@ -318,7 +318,7 @@ calcIndustry_Value_Added <- function(subtype = 'physical',
              'GDPpC', 'steel.VApt'),
 
     calcOutput(type = 'Steel_Projections',
-               scenario = scenarios,
+               scenarios = scenarios,
                match.steel.historic.values = match.steel.historic.values,
                match.steel.estimates = match.steel.estimates,
                China_Production = China_Production,

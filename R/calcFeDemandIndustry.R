@@ -207,7 +207,7 @@ calcFeDemandIndustry <- function(scenarios, use_ODYM_RECC = FALSE, last_empirica
     calcOutput(
       type = "Steel_Projections",
       subtype = "production",
-      scenario = gdpPopScen,
+      scenarios = gdpPopScen,
       match.steel.historic.values = TRUE,
       match.steel.estimates = "IEA_ETP",
       China_Production = readSource(type = "ExpertGuess",

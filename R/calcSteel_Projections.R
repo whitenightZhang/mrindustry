@@ -1230,6 +1230,7 @@ calcSteel_Projections <- function(subtype = 'production',
              as.magpie(spatial = 2, temporal = 3, data = 4),
            weight = calcOutput(
              type = 'Steel_Projections',
+             scenarios = scenarios,
              match.steel.historic.values = match.steel.historic.values,
              match.steel.estimates = match.steel.estimates,
              aggregate = FALSE, years = unique(quitte::remind_timesteps$period),
