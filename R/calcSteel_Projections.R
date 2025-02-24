@@ -10,7 +10,8 @@
 #' @param match.steel.historic.values Should steel production trajectories match
 #'   historic values?
 #' @param match.steel.estimates Should steel production trajectories match
-#'   exogenous estimates?  `NULL` or one of
+#'   exogenous estimates?
+#'   - `none` no matching
 #'   - `IEA_ETP` IEA 2017 Energy Transition Pathways steel production totals for
 #'     OECD and Non-OECD countries from the _Reference Technologies Scenario_
 #'     until 2060, and original growth rates after that.
@@ -57,6 +58,12 @@ calcSteel_Projections <- function(subtype = 'production',
              448L == bitwAnd(file.info(save.plots)$mode, 448L))) {
       stop('No writable directory `save.plots`: ', save.plots)
     }
+  }
+
+  if (  do_use_expert_guess
+      & match.steel.estimates != 'IEA_ETP'
+      & "SSP2IndiaHigh" %in% scenarios){
+      stop('SSP2IndiaHigh ExpertGuess corections only implemented for IEA-ETP matching')
   }
 
   produce_plots_and_tables <- TRUE
@@ -1212,19 +1219,25 @@ calcSteel_Projections <- function(subtype = 'production',
     if (do_use_expert_guess) {
       IEA_ETP_matched <- bind_rows(
         IEA_ETP_matched %>%
-          filter('IND' != .data$iso3c),
+          filter('IND' != .data$iso3c | 'SSP2IndiaHigh' != .data$scenario),
 
         IEA_ETP_matched %>%
-          filter('IND' == .data$iso3c) %>%
+          filter('IND' == .data$iso3c & 'SSP2IndiaHigh' == .data$scenario) %>%
           pivot_wider(names_from = 'variable') %>%
           left_join(expert_guess_india, c('year' = 'period')) %>%
-          mutate(factor = .data$total.production / (.data$primary.production + .data$secondary.production)) %>%
-          select(-'total.production') %>%
-          # fill na of factor with 1
-          mutate(factor = ifelse(is.na(.data$factor), 1, .data$factor)) %>%
-          mutate(primary.production = .data$primary.production * .data$factor,
-                 secondary.production = .data$secondary.production * .data$factor) %>%
-          select(-'factor') %>%
+          # only primary changed
+          mutate(
+            primary.factor = ifelse(
+              is.na(.data$total.production),
+              1.,
+              (.data$total.production - .data$secondary.production)/.data$primary.production)) %>%
+          # same share as before
+          mutate(total.factor = .data$total.production / (.data$primary.production + .data$secondary.production)) %>%
+          mutate(total.factor = ifelse(is.na(.data$total.factor), 1, .data$total.factor)) %>%
+          # weight approaches 50-50
+          mutate(primary.production = .data$primary.production * (.data$primary.factor + .data$total.factor)/2.,
+                 secondary.production = .data$secondary.production * (1. + .data$total.factor)/2.) %>%
+          select(-'primary.factor', -'total.factor', -'total.production') %>%
           pivot_longer(cols = c('primary.production', 'secondary.production'),
                        names_to = 'variable')
       ) %>%
