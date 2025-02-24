@@ -6,6 +6,7 @@
 #' Earth System Science Data 11, 1675–1710. https://doi.org/10.5194/essd-11-1675-2019.
 #' @author Bennet Weiss
 readAndrew2019 <- function() {
+    setwd("C:\\Users\\bennetwe\\Documents\\Code\\madrat_wd\\sources\\Andrew2019")
     path <- file.path("v1", "1. annual_cement_production.csv") 
     data <- readr::read_csv(path)
     # clean up data such that the country row becomes a column, too

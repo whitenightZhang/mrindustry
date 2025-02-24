@@ -1,8 +1,24 @@
+#' Convert data from Andrew 2019
 #' @author Bennet Weiss
+#' @param x Magpie object
 convertAndrew2019 <- function(x) {
-    # remove unrecognized countries for now
-    x <- toolCountryFill(x, fill=NaN, verbosity=2)
+    no_remove_warning <- c(
+      "VDR", "East & West Pakistan", "Federation of Malaya-Singapore", "YMD", "FORMER YEMEN",
+      "French Indo-China", "Japan (Excluding The Ruyuku Islands)", "ANT", "Netherland Antilles and Aruba",
+      "Peninsular Malaysia", "Republic of South Vietnam", "Rhodesia-Nyasaland", "Rwanda-Urundi", "Sabah",
+      "Sarawak", "SUDAN", "Tanganyika", "United Korea", "Zanzibar", # countries with NA entries
+      "DDR", "DEW", # only one value in 1990
+      "KNA___215", "KNA___216", "PCZ", "French Equatorial Africa", "Kuwaiti Oil Fires", "Leeward Islands", "Pacific Islands (Palau)", # zero anyways
+      "French West Africa", "KSV", "Ryukyu Islands" # unsure
+    )
+    getItems(x, dim=1)[which(getItems(x, dim=1) == "YEMEN")] <- "YEM"
+    getItems(x, dim=1)[which(getItems(x, dim=1) == "REPUBLIC OF SUDAN")] <- "SDN"
+    x <- toolISOhistorical(x, overwrite = FALSE) # probably not needed
+    x <- toolCountryFill(x, fill=NA, verbosity=1, no_remove_warning=no_remove_warning)
+    # Puerto Rico is missing in dataset. Probably no problem.
     return(x)
+    
+    
     
     # TODO take care of other data that does not have clear country code...
     # set countries that are unrecognized to NAN for now TODO correct that
