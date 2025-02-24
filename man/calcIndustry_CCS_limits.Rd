@@ -5,6 +5,7 @@
 \title{Calculate Limits on Industry CCS Capacities}
 \usage{
 calcIndustry_CCS_limits(
+  scenarios,
   a1 = 0.3,
   a2 = 0.15,
   installation_minimum = 1,
@@ -17,6 +18,8 @@ calcIndustry_CCS_limits(
 )
 }
 \arguments{
+\item{scenarios}{Vector of strings designating the FEdemand scenarios.}
+
 \item{a1, a2}{Annual growth factors of CCS capacity limits, for the first ten
 years and thereafter, default to \code{0.7} and \code{0.2} (70 \% and 20 \%,
 respectively).}
@@ -72,7 +75,7 @@ The resulting project capacities constitute the limits on industry subsector
 CCS capacity for 2025.  The limit on CCS capacities for regions (or countries
 if \code{region_mapping} is \code{NULL}) is set to a value of total 2025 subsector CCS
 capacity, times the regions share in subsector activity (e.g. cement
-production) of the SSP2EU scenario
+production) of the SSP2 scenario
 \itemize{
 \item in 2030 if the region as some CCS capacity in 2025 in a different industry
 subsector, or

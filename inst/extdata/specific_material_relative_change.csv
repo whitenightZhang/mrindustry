@@ -1,6 +1,6 @@
 scenario,   base.scenario,   region,   subsector,         factor
-gdp_SSP5,   gdp_SSP2EU,      NA,       cement,            0.8
-gdp_SSP5,   gdp_SSP2EU,      NA,       chemicals,         0.8
-gdp_SSP5,   gdp_SSP2EU,      NA,       steel_primary,     0.8
-gdp_SSP5,   gdp_SSP2EU,      NA,       steel_secondary,   0.8
-gdp_SSP5,   gdp_SSP2EU,      NA,       otherInd,          0.8
+SSP5,       SSP2,            NA,       cement,            0.8
+SSP5,       SSP2,            NA,       chemicals,         0.8
+SSP5,       SSP2,            NA,       steel_primary,     0.8
+SSP5,       SSP2,            NA,       steel_secondary,   0.8
+SSP5,       SSP2,            NA,       otherInd,          0.8

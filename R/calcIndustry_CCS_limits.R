@@ -29,7 +29,7 @@
 #' CCS capacity for 2025.  The limit on CCS capacities for regions (or countries
 #' if `region_mapping` is `NULL`) is set to a value of total 2025 subsector CCS
 #' capacity, times the regions share in subsector activity (e.g. cement
-#' production) of the SSP2EU scenario
+#' production) of the SSP2 scenario
 #' - in 2030 if the region as some CCS capacity in 2025 in a different industry
 #'   subsector, or
 #' - in 2035 if the region has no industry CCS capacity in 2030 at all.
@@ -38,6 +38,7 @@
 #' first years, and by the annual growth factor `a2` afterwards (defaulting to
 #' 70 % and 20 %, respectively).
 #'
+#' @param scenarios Vector of strings designating the FEdemand scenarios.
 #' @param a1,a2 Annual growth factors of CCS capacity limits, for the first ten
 #'     years and thereafter, default to `0.7` and `0.2` (70 % and 20 %,
 #'     respectively).
@@ -65,6 +66,7 @@
 #'
 #' @export
 calcIndustry_CCS_limits <- function(
+    scenarios,
     a1 = 0.3, a2 = 0.15,
     installation_minimum = 1,
     stage_weight = c('Operational'          = 1,
@@ -86,14 +88,15 @@ calcIndustry_CCS_limits <- function(
 
   remind_timesteps <- unique(quitte::remind_timesteps$period)
 
-  ## read SSP2EU industry activity ----
-  ind_activity <- calcOutput('FEdemand', aggregate = FALSE,
+  ## read SSP2 industry activity ----
+  ### Pass the scenarios argument to FEdemand to optimize madrat caching.
+  ind_activity <- calcOutput("FEdemand",
+                             scenario = unique(c(scenarios, "SSP2")),
+                             aggregate = FALSE,
                              years = remind_timesteps) %>%
-    `[`(,,paste0('gdp_SSP2EU.',
-                 c('ue_cement', 'ue_chemicals', 'ue_steel_primary'))) %>%
+    `[`(,,paste0('SSP2.', c('ue_cement', 'ue_chemicals', 'ue_steel_primary'))) %>%
     magclass_to_tibble() %>%
-    mutate(subsector = sub('ue_([^_]+).*', '\\1', .data$item),
-           .keep = 'unused') %>%
+    mutate(subsector = sub('ue_([^_]+).*', '\\1', .data$item), .keep = 'unused') %>%
     select(iso3c = 'region', 'subsector', period= 'year',  activity = 'value')
 
   ## set/check region mapping ----

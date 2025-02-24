@@ -6,27 +6,35 @@
 \alias{calcUNIDO}
 \title{UNIDO data}
 \usage{
-readUNIDO(subtype = "INDSTAT2")
+readUNIDO(subtype = "INDSTAT3")
 
-convertUNIDO(x, subtype = "INDSTAT2")
+convertUNIDO(x, subtype = "INDSTAT3", exclude = TRUE)
 
-calcUNIDO(subtype = "INDSTAT2")
+calcUNIDO(subtype = "INDSTAT3")
 }
 \arguments{
 \item{subtype}{one of
-- \code{INDSTAT2}: read INDSTAT2 data}
+- \code{INDSTAT2}: read INDSTAT 2 data
+- \code{INDSTAT3}: read INDSTAT 3 data from \link{https://stat.unido.org/data/download?dataset=indstat&revision=3}
+- \code{INDSTAT4}: read INDSTAT 4 data from \link{https://stat.unido.org/data/download?dataset=indstat&revision=4}
+INDSTAT 4 data quality has not been vetted and should not be used for
+production.}
 
 \item{x}{result from \code{readUNIDO()} as passed to \code{convertUNIDO()}}
+
+\item{exclude}{Exclude faulty data (\code{TRUE}, default) or not.  Return a tibble
+of country/subsector/year combinations for \code{exclude = 'return'}.
+(Work-in-progress)}
 }
 \value{
 A \code{\link[magclass:magclass-package]{magpie}} object.
 
-\code{readUNIDO} returns raw INDSTAT2 data.  \code{convertUNIDO} converts to iso3c
+\code{readUNIDO} returns raw INDSTAT data.  \code{convertUNIDO} converts to iso3c
 country codes, selects industry subsectors value added data according to this
 table\tabular{llll}{
    subsector \tab ISIC \tab ctable \tab utable \cr
    manufacturing \tab D \tab 20 \tab 17–20 \cr
-   cement \tab 20 \tab 20 \tab 17–20 \cr
+   cement \tab 26 \tab 20 \tab 17–20 \cr
    chemicals \tab 24 \tab 20 \tab 17–20 \cr
    steel \tab 27 \tab 20 \tab 17–20 \cr
 }
@@ -37,19 +45,19 @@ regressions according to this table\tabular{lll}{
    subsector \tab iso3c \tab years \cr
    manufacturing \tab BIH \tab 1990–91 \cr
    manufacturing \tab CHN \tab 1963–97 \cr
+   manufacturing \tab EGY \tab 2018-19 \cr
    manufacturing \tab HKG \tab 1963–2015 \cr
-   manufacturing \tab IRQ \tab 1994–98 \cr
    manufacturing \tab MAC \tab 1963–2015 \cr
    manufacturing \tab MDV \tab 1963–2015 \cr
    cement \tab BDI \tab 1980–2010 \cr
    cement \tab CIV \tab 1990–93 \cr
    cement \tab HKG \tab 1973–79 \cr
-   cement \tab IRQ \tab 1992–97 \cr
    cement \tab NAM \tab 2007–10 \cr
    cement \tab RUS \tab 1970–90 \cr
    chemicals \tab CIV \tab 1989 \cr
    chemicals \tab HKG \tab 1973–79, 2008–15 \cr
    chemicals \tab MAC \tab 1978–79 \cr
+   chemicals \tab MMR \tab 2021 \cr
    chemicals \tab NER \tab 1999–2002 \cr
    steel \tab BGD \tab 2011 \cr
    steel \tab CHE \tab 1995–96 \cr
@@ -62,6 +70,10 @@ regressions according to this table\tabular{lll}{
    steel \tab MKD \tab 1996 \cr
    steel \tab PAK \tab 1981–82 \cr
    steel \tab TUN \tab 2003–06 \cr
+   all \tab IRN \tab 2022 \cr
+   all \tab IRQ \tab 1992-2002 \cr
+   all \tab MWI \tab 2021 \cr
+   all \tab TZA \tab 2022 \cr
 }
 
 

@@ -2,6 +2,7 @@
 #'
 #' @param kap General internal capital stock, as calculated internally by
 #'   `calcCapital()`.
+#' @param scenarios Vector of strings designating the scenarios to be returned.
 #'
 #' @return A list with a [`magpie`][magclass::magclass] object `x`, `weight`,
 #'   `unit`, and `description` fields.
@@ -12,10 +13,10 @@
 #' @importFrom quitte madrat_mule
 #' @importFrom rlang .data .env sym syms
 #' @importFrom tidyr nest pivot_longer unnest
-#' @importFrom dplyr desc 
-
+#' @importFrom dplyr desc
 #' @export
-calcIndustry_EEK <- function(kap) {
+#'
+calcIndustry_EEK <- function(kap, scenarios) {
   # setup ----
   i <- log(4) / 50    # assuming 50 year lifetime of EEK
   base_year <- 2015
@@ -27,10 +28,15 @@ calcIndustry_EEK <- function(kap) {
   industry_VA <- calcOutput(
     type = 'Industry_Value_Added',
     subtype = 'economic',
+    scenarios = unique(c(mrdrivers::toolReplaceShortcuts(scenarios), "SSP2")),
     match.steel.historic.values = TRUE,
     match.steel.estimates = 'IEA_ETP',
-    aggregate = FALSE, years = base_year, supplementary = FALSE, warnNA = FALSE) %>%
-    `[`(,,'gdp_SSP2EU') %>%
+    aggregate = FALSE,
+    years = base_year,
+    supplementary = FALSE,
+    warnNA = FALSE
+  ) %>%
+    mselect(scenario = "SSP2") %>%
     quitte::magclass_to_tibble() %>%
     select('iso3c', subsector = 'name', VA = 'value') %>%
     mutate(subsector = sub('_VA$', '', .data$subsector))
@@ -40,7 +46,7 @@ calcIndustry_EEK <- function(kap) {
     madrat_mule()
 
   ## industry subsector activity and FE projections ----
-  FEdemand <- calcOutput(type = 'FEdemand', aggregate = FALSE, supplementary = FALSE)
+  FEdemand <- calcOutput("FEdemand", scenario = unique(c(scenarios, "SSP2")), aggregate = FALSE)
 
   # calculate EEK ----
   ## split industry VA into IEA investment sectors ----
@@ -82,7 +88,7 @@ calcIndustry_EEK <- function(kap) {
     # shares should lead to higher EEK shares)
     left_join(
       FEdemand %>%
-        `[`(,base_year,'gdp_SSP2EU.fe', pmatch = 'left') %>%
+        `[`(,base_year,'SSP2.fe', pmatch = 'left') %>%
         `[`(,,'steel', pmatch = TRUE) %>%
         quitte::magclass_to_tibble() %>%
         select(iso3c = 'region', 'item', FE = 'value') %>%
@@ -338,7 +344,7 @@ calcIndustry_EEK <- function(kap) {
       anti_join(
         tibble(iso3c = SSA_iso3c,
                year = 2025,
-               scenario = 'gdp_SSP5',
+               scenario = 'SSP5',
                subsector = 'kap_steel_primary'),
 
         c('iso3c', 'year', 'scenario', 'subsector')
@@ -347,7 +353,7 @@ calcIndustry_EEK <- function(kap) {
     EEK %>%
       semi_join(
         tibble(tidyr::crossing(iso3c = SSA_iso3c, year = c(2020, 2025, 2030)),
-               scenario = 'gdp_SSP5',
+               scenario = 'SSP5',
                subsector = 'kap_steel_primary'),
         by = c('iso3c', 'year', 'scenario', 'subsector')
       ) %>%

@@ -4,6 +4,7 @@
 #' @param subtype One of
 #'   - `physical` Returns physical production trajectories for cement.
 #'   - `economic` Returns value added trajectories for all subsectors.
+#' @param scenarios Vector of strings designating the scenarios to be returned.
 #' @param match.steel.historic.values Should steel production trajectories match
 #'   historic values?
 #' @param match.steel.estimates Should steel production trajectories match
@@ -13,8 +14,9 @@
 #'     until 2060, and original growth rates after that.
 #' @param save.plots `NULL` (default) if no plots are saved, or the path to save
 #'     directories to.
-#' @param do_use_expert_guess_steel Whether or not to overwrite steel productions with 
+#' @param do_use_expert_guess_steel Whether or not to overwrite steel productions with
 #'     expert guesses from input data in the sources folder.
+#' @param INDSTAT Gets passed to [`readUNIDO()`] as `subtype` argument.
 #'
 #' @return A list with a [`magpie`][magclass::magclass] object `x`, `weight`,
 #'   `unit`, `description`, `min`, and `max`.
@@ -34,20 +36,21 @@
 #'   list_to_data_frame madrat_mule magclass_to_tibble order.levels
 #'   seq_range sum_total_
 #' @importFrom readr write_rds
-#' @importFrom stats nls SSlogis sd lm
+#' @importFrom stats lm nls nls.control SSlogis sd
 #' @importFrom tibble as_tibble tibble tribble
 #' @importFrom tidyr expand_grid pivot_longer pivot_wider replace_na
-#' @importFrom zoo na.approx rollmean
 #' @importFrom utils head
-#' @importFrom dplyr bind_cols  
+#' @importFrom dplyr bind_cols
 #' @importFrom magclass setNames
-
 #' @export
+#'
 calcIndustry_Value_Added <- function(subtype = 'physical',
+                                     scenarios,
                                      match.steel.historic.values = TRUE,
                                      match.steel.estimates = 'none',
                                      save.plots = NULL,
-                                     do_use_expert_guess_steel = TRUE) {
+                                     do_use_expert_guess_steel = TRUE,
+                                     INDSTAT = 'INDSTAT3') {
   if (!is.null(save.plots)) {
     if (!all(isTRUE(file.info(save.plots)$isdir),
              448L == bitwAnd(file.info(save.plots)$mode, 448L))) {
@@ -70,37 +73,27 @@ calcIndustry_Value_Added <- function(subtype = 'physical',
     select(region = 'RegionCode', iso3c = 'CountryCode')
 
   ## UNIDO INSTATA2 data ----
-  INDSTAT <- readSource('UNIDO', 'INDSTAT2') %>%
+  INDSTAT <- readSource('UNIDO', subtype = INDSTAT) %>%
     as_tibble() %>%
     filter(!is.na(.data$value)) %>%
     left_join(region_mapping, 'iso3c')
 
 
   ## population data ----
-  population <- calcOutput('Population', naming = 'scenario',
-                           aggregate = FALSE) %>%
-    as.data.frame() %>%
-    as_tibble() %>%
-    select(scenario = .data$Data1, iso3c = .data$Region, year = .data$Year,
-           population = .data$Value) %>%
-    character.data.frame() %>%
-    mutate(scenario = sub('^pop_', '', .data$scenario),
-           year = as.integer(.data$year),
-           # million people * 1e6/million = people
-           population = .data$population * 1e6)
+  population <- calcOutput("Population", scenario = scenarios, aggregate = FALSE) %>%
+    tibble::as_tibble() %>%
+    dplyr::select("scenario" = "variable", "iso3c", "year", "population" = "value") %>%
+    quitte::character.data.frame() %>%
+    # million people * 1e6/million = people
+    dplyr::mutate(population = .data$population * 1e6)
 
   ## GDP data ----
-  GDP <- calcOutput(type = 'GDP', average2020 = FALSE, naming = 'scenario',
-                    aggregate = FALSE) %>%
-    as.data.frame() %>%
-    as_tibble() %>%
-    select(scenario = .data$Data1, iso3c = .data$Region, year = .data$Year,
-           GDP = .data$Value) %>%
-    character.data.frame() %>%
-    mutate(scenario = sub('^gdp_', '', .data$scenario),
-           year = as.integer(.data$year),
-           # $m * 1e6 $/$m = $
-           GDP = .data$GDP * 1e6)
+  GDP <- calcOutput(type = "GDP", scenario = scenarios, average2020 = FALSE, aggregate = FALSE) %>%
+    tibble::as_tibble() %>%
+    dplyr::select("scenario" = "variable", "iso3c", "year", "GDP" = "value") %>%
+    quitte::character.data.frame() %>%
+    # $m * 1e6 $/$m = $
+    dplyr::mutate(GDP = .data$GDP * 1e6)
 
   ## ---- load cement production data ----
   data_cement_production <- calcOutput('Cement', aggregate = FALSE,
@@ -152,7 +145,9 @@ calcIndustry_Value_Added <- function(subtype = 'physical',
             filter(.data$region == r,
                    'Total' == .data$iso3c),
           start = list(a = 1000, b = -2000),
-          trace = FALSE) %>%
+          trace = FALSE,
+          control = nls.control(maxiter = 1000,
+                                minFactor = 2 ^ -12)) %>%
         broom::tidy() %>%
         select('term', 'estimate') %>%
         pivot_wider(names_from = 'term', values_from = 'estimate') %>%
@@ -322,6 +317,7 @@ calcIndustry_Value_Added <- function(subtype = 'physical',
              'GDPpC', 'steel.VApt'),
 
     calcOutput(type = 'Steel_Projections',
+               scenarios = scenarios,
                match.steel.historic.values = match.steel.historic.values,
                match.steel.estimates = match.steel.estimates,
                do_use_expert_guess = do_use_expert_guess_steel,
@@ -335,8 +331,7 @@ calcIndustry_Value_Added <- function(subtype = 'physical',
              # Gt/year * 1e9 t/Gt = t/year
              value = .data$value * 1e9,
              variable = sub('^ue_steel_(primary|secondary)$',
-                            '\\1.production', .data$variable),
-             scenario = sub('^gdp_', '', .data$scenario)) %>%
+                            '\\1.production', .data$variable)) %>%
       filter(between(.data$year, 2000, 2100)) %>%
       full_join(region_mapping, 'iso3c') %>%
       assert(not_na, everything()) %>%
@@ -601,10 +596,10 @@ calcIndustry_Value_Added <- function(subtype = 'physical',
             * ((last_cement_year + 14 - .data$year) / 14) ^ 2
             ),
         ifelse(last_cement_year > .data$year, .data$shift.factor, 1)),
-      shift.factor = na.approx(object = .data$shift.factor, x = .data$year,
-                               yleft = first(na.omit(.data$shift.factor)),
-                               yright = last(na.omit(.data$shift.factor)),
-                               na.rm = FALSE),
+      shift.factor = zoo::na.approx(object = .data$shift.factor, x = .data$year,
+                                    yleft = first(na.omit(.data$shift.factor)),
+                                    yright = last(na.omit(.data$shift.factor)),
+                                    na.rm = FALSE),
       cement.production = .data$shift.factor * .data$cement.production) %>%
     ungroup() %>%
     select(-'data', -'shift.factor') %>%
@@ -1356,8 +1351,7 @@ calcIndustry_Value_Added <- function(subtype = 'physical',
         value = .data$value * case_when(
           'ue_cement'    == pf ~ 1e-9,
           'ue_chemicals' == pf ~ 1e-12,
-          'ue_otherInd'  == pf ~ 1e-12),
-        scenario = paste0('gdp_', .data$scenario)) %>%
+          'ue_otherInd'  == pf ~ 1e-12)) %>%
       interpolate_missing_periods_(periods = list(year = 1993:2150),
                                    expand.values = TRUE) %>%
       select('scenario', 'iso3c', 'pf', 'year', 'value')
@@ -1372,8 +1366,7 @@ calcIndustry_Value_Added <- function(subtype = 'physical',
              'steel.VA', 'otherInd.VA') %>%
       pivot_longer(matches('\\.VA$')) %>%
       # $/yr * 1e12 $tn/$ = $tn/yr
-      mutate(value = .data$value * 1e-12,
-             scenario = paste0('gdp_', .data$scenario)) %>%
+      mutate(value = .data$value * 1e-12) %>%
       select('scenario', 'iso3c', 'name', 'year', 'value')
   }
 

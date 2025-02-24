@@ -13,17 +13,16 @@
 #'
 #' @importFrom dplyr filter mutate select
 #' @importFrom quitte add_countrycode_ madrat_mule
-#' @importFrom readxl read_excel
 #' @importFrom tidyr expand_grid pivot_longer
 #'
 #' @seealso [`readSource()`]
-
 #' @export
+#'
 readvanRuijven2016 <- function() {
   USSR_iso3c <- c('ARM', 'AZE', 'BLR', 'EST', 'GEO', 'KAZ', 'KGZ', 'LTU',
                   'LVA', 'MDA', 'RUS', 'TJK', 'TKM', 'UKR', 'UZB')
 
-  x <- read_excel(
+  x <- readxl::read_excel(
     path = './Cement_data_from_Bas.xlsx',
     # path = '~/PIK/swap/inputdata/sources/vanRuijven2016/Cement_data_from_Bas.xlsx',
     sheet = 'Production',
