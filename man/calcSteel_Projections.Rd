@@ -10,7 +10,7 @@ calcSteel_Projections(
   match.steel.historic.values = TRUE,
   match.steel.estimates = "none",
   save.plots = NULL,
-  China_Production = NULL
+  do_use_expert_guess = TRUE
 )
 }
 \arguments{
@@ -28,8 +28,9 @@ in total steel production.
 historic values?}
 
 \item{match.steel.estimates}{Should steel production trajectories match
-exogenous estimates?  \code{NULL} or one of
+exogenous estimates?
 \itemize{
+\item \code{none} no matching
 \item \code{IEA_ETP} IEA 2017 Energy Transition Pathways steel production totals for
 OECD and Non-OECD countries from the \emph{Reference Technologies Scenario}
 until 2060, and original growth rates after that.
@@ -38,9 +39,8 @@ until 2060, and original growth rates after that.
 \item{save.plots}{\code{NULL} (default) if no plots are saved, or the path to save
 directories to.}
 
-\item{China_Production}{A data frame with columns \code{period} and
-\code{total.production} prescribing total production for China to have,
-disregarding results from the stock saturation model.}
+\item{do_use_expert_guess}{Whether or not to overwrite steel productions with
+expert guesses from input data in the sources folder.}
 }
 \value{
 A list with a \code{\link[magclass:magclass-package]{magpie}} object \code{x}, \code{weight},
