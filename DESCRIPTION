@@ -1,7 +1,7 @@
 Type: Package
 Package: mrindustry
 Title: input data generation for the REMIND industry module
-Version: 0.17.0
+Version: 0.17.1
 Date: 2025-02-26
 Authors@R: c(
     person(given = "Falk", family = "Benke", email = "benke@pik-potsdam.de",
@@ -23,7 +23,7 @@ License: LGPL-3
 URL: https://github.com/pik-piam/mrindustry
 Depends:
     R (>= 2.10.0),
-Imports: 
+Imports:
     assertr,
     broom,
     car,
@@ -47,7 +47,7 @@ Imports:
     tidyselect,
     zoo,
 Suggests:
-    mrremind (>= 0.195.0),
+    mrremind (>= 0.220.0),
     testthat,
 Encoding: UTF-8
 RoxygenNote: 7.3.2
