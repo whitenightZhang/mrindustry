@@ -196,10 +196,6 @@ calcFeDemandIndustry <- function(scenarios, use_ODYM_RECC = FALSE, last_empirica
       scenario = gdpPopScen,
       match.steel.historic.values = TRUE,
       match.steel.estimates = "IEA_ETP",
-      China_Production = readSource(type = "ExpertGuess",
-                                    subtype = "Chinese_Steel_Production",
-                                    convert = FALSE) %>%
-        madrat_mule(),
       aggregate = FALSE,
       years = sort(union(remind_years, last_empirical_year:max(fixing_year$fixing_year))),
       warnNA = FALSE
@@ -210,10 +206,6 @@ calcFeDemandIndustry <- function(scenarios, use_ODYM_RECC = FALSE, last_empirica
       scenarios = gdpPopScen,
       match.steel.historic.values = TRUE,
       match.steel.estimates = "IEA_ETP",
-      China_Production = readSource(type = "ExpertGuess",
-                                    subtype = "Chinese_Steel_Production",
-                                    convert = FALSE) %>%
-        madrat_mule(),
       aggregate = FALSE,
       years = sort(union(remind_years,
                          last_empirical_year:max(fixing_year$fixing_year))),

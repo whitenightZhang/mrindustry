@@ -31,10 +31,6 @@ calcIndustry_EEK <- function(kap, scenarios) {
     scenarios = unique(c(mrdrivers::toolReplaceShortcuts(scenarios), "SSP2")),
     match.steel.historic.values = TRUE,
     match.steel.estimates = 'IEA_ETP',
-    China_Production = readSource(type = 'ExpertGuess',
-                                  subtype = 'Chinese_Steel_Production',
-                                  convert = FALSE) %>%
-      madrat_mule(),
     aggregate = FALSE,
     years = base_year,
     supplementary = FALSE,
