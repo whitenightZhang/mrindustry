@@ -60,9 +60,9 @@ calcSteel_Projections <- function(subtype = 'production',
     }
   }
 
-  if (  do_use_expert_guess
-      & match.steel.estimates != 'IEA_ETP'
-      & "SSP2IndiaHigh" %in% scenarios){
+  if (   do_use_expert_guess
+      && match.steel.estimates != 'IEA_ETP'
+      && "SSP2IndiaHigh" %in% scenarios){
       stop('SSP2IndiaHigh ExpertGuess corections only implemented for IEA-ETP matching')
   }
 
@@ -1019,9 +1019,9 @@ calcSteel_Projections <- function(subtype = 'production',
 
   # match exogenous data for China ----
   if (do_use_expert_guess) {
-    prod_expert_guess = readSource(type = "ExpertGuess",
-                                   subtype = "Steel_Production",
-                                   convert = FALSE) %>%
+    prod_expert_guess <- readSource(type = "ExpertGuess",
+                                    subtype = "Steel_Production",
+                                    convert = FALSE) %>%
       madrat_mule()
 
     expert_guess_china <- prod_expert_guess %>%
