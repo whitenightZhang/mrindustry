@@ -6,18 +6,19 @@
 #'     production.
 #'   - `secondary.steel.max.share` Returns the maximum share of secondary steel
 #'     in total steel production.
+#' @param scenarios Vector of strings designating the scenarios to be returned.
 #' @param match.steel.historic.values Should steel production trajectories match
 #'   historic values?
 #' @param match.steel.estimates Should steel production trajectories match
-#'   exogenous estimates?  `NULL` or one of
+#'   exogenous estimates?
+#'   - `none` no matching
 #'   - `IEA_ETP` IEA 2017 Energy Transition Pathways steel production totals for
 #'     OECD and Non-OECD countries from the _Reference Technologies Scenario_
 #'     until 2060, and original growth rates after that.
 #' @param save.plots `NULL` (default) if no plots are saved, or the path to save
 #'     directories to.
-#' @param China_Production A data frame with columns `period` and
-#'     `total.production` prescribing total production for China to have,
-#'     disregarding results from the stock saturation model.
+#' @param do_use_expert_guess Whether or not to overwrite steel productions with
+#'     expert guesses from input data in the sources folder.
 #'
 #' @return A list with a [`magpie`][magclass::magclass] object `x`, `weight`,
 #'   `unit`, `description`, `min`, and `max`.
@@ -45,10 +46,11 @@
 #' @importFrom magclass setNames
 #' @export
 calcSteel_Projections <- function(subtype = 'production',
+                                  scenarios,
                                   match.steel.historic.values = TRUE,
                                   match.steel.estimates = 'none',
                                   save.plots = NULL,
-                                  China_Production = NULL) {
+                                  do_use_expert_guess = TRUE) {
 
 
   if (!is.null(save.plots)) {
@@ -56,6 +58,12 @@ calcSteel_Projections <- function(subtype = 'production',
              448L == bitwAnd(file.info(save.plots)$mode, 448L))) {
       stop('No writable directory `save.plots`: ', save.plots)
     }
+  }
+
+  if (   do_use_expert_guess
+      && match.steel.estimates != 'IEA_ETP'
+      && "SSP2IndiaHigh" %in% scenarios){
+      stop('SSP2IndiaHigh ExpertGuess corections only implemented for IEA-ETP matching')
   }
 
   produce_plots_and_tables <- TRUE
@@ -75,7 +83,9 @@ calcSteel_Projections <- function(subtype = 'production',
       'SSP2',      'med',
       'SSP3',      'med',
       'SSP4',      'med',
-      'SSP5',      'high') %>%
+      'SSP5',      'high',
+      'SSP2IndiaHigh',   'med',
+      'SSP2IndiaMedium', 'med') %>%
       pivot_longer(-'scenario', names_to = 'switch'),
 
     tribble(
@@ -99,7 +109,9 @@ calcSteel_Projections <- function(subtype = 'production',
       'SSP2',      'SSP2',
       'SSP3',      'SSP2',
       'SSP4',      'SSP4',
-      'SSP5',      'SSP2') %>%
+      'SSP5',      'SSP2',
+      'SSP2IndiaHigh',   'SSP2',
+      'SSP2IndiaMedium', 'SSP2') %>%
       pivot_longer(-'scenario', names_to = 'switch'),
 
     tribble(
@@ -112,7 +124,9 @@ calcSteel_Projections <- function(subtype = 'production',
       'SSP2',      '2100',
       'SSP3',      '2100',
       'SSP4',      '2010',
-      'SSP5',      '2100') %>%
+      'SSP5',      '2100',
+      'SSP2IndiaHigh',   '2100',
+      'SSP2IndiaMedium', '2100') %>%
       pivot_longer(-'scenario', names_to = 'switch'),
 
     tribble(
@@ -125,11 +139,14 @@ calcSteel_Projections <- function(subtype = 'production',
       'SSP2',      '1',
       'SSP3',      '1',
       'SSP4',      '1',
-      'SSP5',      '0.75') %>%
+      'SSP5',      '0.75',
+      'SSP2IndiaHigh',   '1',
+      'SSP2IndiaMedium', '1') %>%
       pivot_longer(-'scenario', names_to = 'switch'),
 
     NULL) %>%
-    pivot_wider(names_from = 'switch')
+    pivot_wider(names_from = 'switch') %>%
+    dplyr::filter(.data$scenario %in% .env$scenarios)
 
   `EDGE-Industry_scenario_switches` <- EDGE_scenario_switches %>%
       select(
@@ -194,60 +211,45 @@ calcSteel_Projections <- function(subtype = 'production',
 
 
   ## historic per-capita steel stock estimates ----
-  steel_stock_per_capita <- readSource(type = 'Mueller', subtype = 'stocks',
-                                       convert = FALSE) %>%
+  steel_stock_per_capita <- readSource(type = 'Mueller', subtype = 'stocks', convert = FALSE) %>%
     madrat_mule() %>%
     # remove Netherlands Antilles, only use Bonaire, Sint Eustatius and Saba;
     # Curaçao; and Sint Maarten (Dutch part)
     filter('ANT' != .data$iso3c)
 
   ## historic per-capita GDP ----
-  GDPpC_history <- readSource(type = 'James', subtype = 'IHME_USD05_PPP_pc',
-                              convert = FALSE) %>%
+  GDPpC_history <- readSource(type = 'James', subtype = 'IHME_USD05_PPP_pc', convert = FALSE) %>%
     as_tibble() %>%
     select('iso3c' = 'ISO3', 'year' = 'Year', 'value') %>%
     GDPuc::toolConvertGDP(unit_in = 'constant 2005 US$MER',
-               unit_out = mrdrivers::toolGetUnitDollar(),
-               replace_NAs = 'with_USA') %>%
+                          unit_out = mrdrivers::toolGetUnitDollar(),
+                          replace_NAs = 'with_USA') %>%
     rename(GDPpC = 'value') %>%
     character.data.frame()
 
   ## historic population ----
   population_history <- calcOutput("PopulationPast", pastData = "UN_PopDiv", aggregate = FALSE) %>%
-    as.data.frame() %>%
-    as_tibble() %>%
-    select(iso3c = .data$Region, year = .data$Year,
-           population = .data$Value) %>%
-    character.data.frame() %>%
-    mutate(year = as.integer(.data$year),
-           # million people * 1e6/million = people
-           population = .data$population * 1e6)
+    tibble::as_tibble() %>%
+    dplyr::select("iso3c", "year", "population" = "value") %>%
+    quitte::character.data.frame() %>%
+    # million people * 1e6/million = people
+    dplyr::mutate(population = .data$population * 1e6)
 
-  ## GDP projections ----
-  GDP <- calcOutput("GDP",
-                    scenario = c("SSPs", "SDPs"),
-                    average2020 = FALSE,
-                    naming = "scenario",
-                    aggregate = FALSE) %>%
-    as.data.frame() %>%
-    as_tibble() %>%
-    select(scenario = .data$Data1, iso3c = .data$Region, year = .data$Year,
-           GDP = .data$Value) %>%
-    character.data.frame() %>%
-    mutate(year = as.integer(.data$year),
-           # $m * 1e6 $/$m = $
-           GDP = .data$GDP * 1e6)
+  ## population data ----
+  population <- calcOutput("Population", scenario = scenarios, aggregate = FALSE) %>%
+    tibble::as_tibble() %>%
+    dplyr::select("scenario" = "variable", "iso3c", "year", "population" = "value") %>%
+    quitte::character.data.frame() %>%
+    # million people * 1e6/million = people
+    dplyr::mutate(population = .data$population * 1e6)
 
-  ## population ----
-  population <- calcOutput("Population", scenario = c("SSPs", "SDPs"), naming = "scenario", aggregate = FALSE) %>%
-    as.data.frame() %>%
-    as_tibble() %>%
-    select(scenario = .data$Data1, iso3c = .data$Region, year = .data$Year,
-           population = .data$Value) %>%
-    character.data.frame() %>%
-    mutate(year = as.integer(.data$year),
-           # million people * 1e6/million = people
-           population = .data$population * 1e6)
+  ## GDP data ----
+  GDP <- calcOutput(type = "GDP", scenario = scenarios, average2020 = FALSE, aggregate = FALSE) %>%
+    tibble::as_tibble() %>%
+    dplyr::select("scenario" = "variable", "iso3c", "year", "GDP" = "value") %>%
+    quitte::character.data.frame() %>%
+    # $m * 1e6 $/$m = $
+    dplyr::mutate(GDP = .data$GDP * 1e6)
 
   # estimate steel stock distribution ----
   regression_data <- steel_stock_per_capita %>%
@@ -313,7 +315,8 @@ calcSteel_Projections <- function(subtype = 'production',
         select('scenario', estimate = 'steel.stock.estimate'),
 
       'estimate'
-    ),
+    ) %>%
+      dplyr::filter(!is.na(.data$scenario)),
 
     'scenario'
   ) %>%
@@ -343,7 +346,7 @@ calcSteel_Projections <- function(subtype = 'production',
 
     steel_stock_per_capita %>%
       filter(.data$year >= min(steel_stock_estimates$year)) %>%
-      full_join(
+      inner_join(
         `EDGE-Industry_scenario_switches` %>%
           select('scenario', estimate = 'steel.stock.estimate'),
 
@@ -390,6 +393,7 @@ calcSteel_Projections <- function(subtype = 'production',
   ## update SSP4 ----
   # SSP4 uses SSP2 estimates for OECD countries and SSP1 estimates for non-OECD
   # countries
+  if ("SSP4" %in% scenarios) {
   steel_stock_estimates <- bind_rows(
     # non-masked scenarios
     steel_stock_estimates %>%
@@ -438,6 +442,7 @@ calcSteel_Projections <- function(subtype = 'production',
       assert(not_na, everything())
   ) %>%
     assert(not_na, everything())
+  }
 
   ## calculate regional and global totals, as well as absolute stocks ----
   steel_stock_estimates <- steel_stock_estimates %>%
@@ -728,7 +733,7 @@ calcSteel_Projections <- function(subtype = 'production',
   ## calculate secondary steel max share ----
   secondary.steel.max.switches <- calcOutput(
     type = 'industry_max_secondary_steel_share',
-    scenarios = unique(population$scenario),
+    scenarios = scenarios,
     regions = unique(region_mapping$region),
     aggregate = FALSE) %>%
     as.data.frame() %>%
@@ -1013,8 +1018,23 @@ calcSteel_Projections <- function(subtype = 'production',
   }
 
   # match exogenous data for China ----
-  if (is.data.frame(China_Production)) {
-    China_Production <- China_Production %>%
+  if (do_use_expert_guess) {
+    prod_expert_guess <- readSource(type = "ExpertGuess",
+                                    subtype = "Steel_Production",
+                                    convert = FALSE) %>%
+      madrat_mule()
+
+    expert_guess_china <- prod_expert_guess %>%
+      filter('CHN' == .data$iso3c) %>%
+      select(-'iso3c') %>%
+      interpolate_missing_periods(period = seq_range(range(.$period)),
+                                  value = 'total.production',
+                                  method = 'spline') %>%
+      mutate(total.production = .data$total.production * 1e6)
+
+    expert_guess_india <- prod_expert_guess %>%
+      filter('IND' == .data$iso3c) %>%
+      select(-'iso3c') %>%
       interpolate_missing_periods(period = seq_range(range(.$period)),
                                   value = 'total.production',
                                   method = 'spline') %>%
@@ -1028,7 +1048,7 @@ calcSteel_Projections <- function(subtype = 'production',
                                    'secondary.production')) %>%
       group_by(.data$scenario, .data$iso3c, .data$year) %>%
       summarise(production = sum(.data$value), .groups = 'drop') %>%
-      left_join(China_Production, c('year' = 'period')) %>%
+      left_join(expert_guess_china, c('year' = 'period')) %>%
       mutate(factor = .data$total.production / .data$production) %>%
       select('iso3c', 'year', 'factor') %>%
       expand_grid(scenario = unique(production_estimates$scenario)) %>%
@@ -1073,7 +1093,7 @@ calcSteel_Projections <- function(subtype = 'production',
   if ('IEA_ETP' == match.steel.estimates) {
     # projected SSP2 production aggregated into OECD/Non-OECD regions
     # w/o Chinese production if that is exogenously prescribed
-    if (!is.data.frame(China_Production)) {
+    if (!do_use_expert_guess) {
       projected_production <- tmp %>%
         filter('SSP2' == .data$scenario) %>%
         mutate(
@@ -1100,7 +1120,7 @@ calcSteel_Projections <- function(subtype = 'production',
       character.data.frame() %>%
       mutate(year = as.integer(.data$year))
 
-    if (is.data.frame(China_Production)) {
+    if (do_use_expert_guess) {
       ETP_production <- bind_rows(
         ETP_production %>%
           filter('OECD' == .data$region),
@@ -1108,7 +1128,7 @@ calcSteel_Projections <- function(subtype = 'production',
         ETP_production %>%
           filter('Non-OECD' == .data$region) %>%
           left_join(
-            China_Production %>%
+            expert_guess_china %>%
               mutate(total.production = .data$total.production * 1e-6),
 
             c('year' = 'period')
@@ -1137,7 +1157,7 @@ calcSteel_Projections <- function(subtype = 'production',
 
     # If exogenous Chinese production trajectories gobble up all Non-OECD
     # production, temper the scaling factor to only meet 2060 production exactly
-    if (is.data.frame(China_Production)) {
+    if (do_use_expert_guess) {
       scaling_factor <- scaling_factor %>%
       mutate(factor = ( .data$factor
                       + ( first(.data$factor, order_by = .data$year)
@@ -1166,7 +1186,7 @@ calcSteel_Projections <- function(subtype = 'production',
       ungroup() %>%
       assert(not_na, everything())
 
-    if (!is.data.frame(China_Production)) {
+    if (!do_use_expert_guess) {
       IEA_ETP_matched <- tmp %>%
         mutate(OECD.region = ifelse(.data$iso3c %in% OECD_iso3c,
                                     'OECD', 'Non-OECD')) %>%
@@ -1193,6 +1213,36 @@ calcSteel_Projections <- function(subtype = 'production',
                  year = unique(.$year),
                  fill = list(value = 0)) %>%
         arrange('scenario', 'region', 'iso3c', 'year', 'variable')
+    }
+
+    # merge inida expert guess
+    if (do_use_expert_guess) {
+      IEA_ETP_matched <- bind_rows(
+        IEA_ETP_matched %>%
+          filter('IND' != .data$iso3c | 'SSP2IndiaHigh' != .data$scenario),
+
+        IEA_ETP_matched %>%
+          filter('IND' == .data$iso3c & 'SSP2IndiaHigh' == .data$scenario) %>%
+          pivot_wider(names_from = 'variable') %>%
+          left_join(expert_guess_india, c('year' = 'period')) %>%
+          # only primary changed
+          mutate(
+            primary.factor = ifelse(
+              is.na(.data$total.production),
+              1.,
+              (.data$total.production - .data$secondary.production)/.data$primary.production)) %>%
+          # same share as before
+          mutate(total.factor = .data$total.production / (.data$primary.production + .data$secondary.production)) %>%
+          mutate(total.factor = ifelse(is.na(.data$total.factor), 1, .data$total.factor)) %>%
+          # weight approaches 50-50
+          mutate(primary.production = .data$primary.production * (.data$primary.factor + .data$total.factor)/2.,
+                 secondary.production = .data$secondary.production * (1. + .data$total.factor)/2.) %>%
+          select(-'primary.factor', -'total.factor', -'total.production') %>%
+          pivot_longer(cols = c('primary.production', 'secondary.production'),
+                       names_to = 'variable')
+      ) %>%
+        verify(!is.na(.data$value),
+               description = paste('Exogenous Indian production merge is valid'))
     }
 
     ## update max secondary steel share ----
@@ -1231,6 +1281,7 @@ calcSteel_Projections <- function(subtype = 'production',
              as.magpie(spatial = 2, temporal = 3, data = 4),
            weight = calcOutput(
              type = 'Steel_Projections',
+             scenarios = scenarios,
              match.steel.historic.values = match.steel.historic.values,
              match.steel.estimates = match.steel.estimates,
              aggregate = FALSE, years = unique(quitte::remind_timesteps$period),
@@ -1268,7 +1319,7 @@ calcSteel_Projections <- function(subtype = 'production',
       facet_wrap(~ region, scales = 'free_y') +
       labs(x = NULL, y = 'Mt Steel/year') +
       scale_fill_manual(values = c('Primary Production' = 'orange',
-                                   'Secondary Production' = 'yellow'),
+                                   'Secondary Production' = 'brown'),
                         name = NULL) +
       coord_cartesian(xlim = c(NA, 2100), expand = FALSE) +
       theme_minimal() +

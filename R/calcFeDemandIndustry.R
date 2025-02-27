@@ -5,6 +5,8 @@
 #'   to `FALSE`.)
 #' @param last_empirical_year Last year for which empirical data is available.
 #'   Defaults to 2020.
+#' @param scenarios Vector of strings designating the scenario. !!Currently it acts as a filter only, with the actual
+#'  scenarios computed within the function hard-coded into remind_scenarios.
 #' @importFrom assertr assert not_na verify
 #' @importFrom dplyr anti_join arrange as_tibble between bind_rows case_when
 #'   distinct filter first full_join group_by inner_join left_join
@@ -21,10 +23,32 @@
 #' @importFrom tidyselect all_of
 #' @author Michaja Pehl
 #'
-calcFeDemandIndustry <- function(use_ODYM_RECC = FALSE, last_empirical_year = 2020) {
+calcFeDemandIndustry <- function(scenarios, use_ODYM_RECC = FALSE, last_empirical_year = 2020) {
+
+  # The scenarios argument is currently only used to filter at the end.
+  ## Replace any calls to scenario groups such as "SSPs" and "SSP2IndiaDEAs", with calls to the individual scenarios.
+  scenarios <- mrdrivers::toolReplaceShortcuts(scenarios)
+
+  # Will ideally be replaced by direct usage of the "scenario" argument in the future. SSP2_NAV_all not included here
+  # on purpose (is only created by duplication of SSP2 at the end).
+  remind_scenarios <- c(
+    paste0("SSP", c(1:5, "2_lowEn", "2_highDemDEU", "2IndiaHigh", "2IndiaMedium")),
+    paste0("SDP", c("", "_EI", "_RC", "_MC"))
+  )
+
+  # Check if all the scenarios are available.
+  if (!all(scenarios %in% c(remind_scenarios, "SSP2_NAV_all"))) {
+    stop(paste("The",
+               paste(scenarios[! scenarios %in% c(remind_scenarios, "SSP2_NAV_all")], collapse = ", "),
+               "scenario(s) are not available."))
+  }
+
+  gdpPopScen <- remind_scenarios[
+    remind_scenarios %in% mrdrivers::toolGetScenarioDefinition(driver = "GDPpc", aslist = TRUE)$scenario
+  ]
 
   # ---- Industry subsectors data and FE stubs ----
-  stationary <- readSource("Stationary")[, , c("feindheat", "feh2i")]
+  stationary <- readSource("Stationary", subset = remind_scenarios)[, , c("feindheat", "feh2i")]
 
   # aggregate to 5-year averages to suppress volatility
   stationary <- mrremind::toolAggregateTimeSteps(stationary)
@@ -148,11 +172,6 @@ calcFeDemandIndustry <- function(use_ODYM_RECC = FALSE, last_empirical_year = 20
     remind[, , getNames(tmp)] <- tmp
   }
 
-  remind_scenarios <- c(
-    paste0("SSP", c(1:5, "2_lowEn", "2_highDemDEU")),
-    paste0("SDP", c("", "_EI", "_RC", "_MC"))
-  )
-
   remind_years <- seq(1995, 2150, 5)
 
   # ---- Industry subsectors data and FE stubs ----
@@ -174,27 +193,19 @@ calcFeDemandIndustry <- function(use_ODYM_RECC = FALSE, last_empirical_year = 20
   industry_subsectors_ue <- mbind(
     calcOutput(
       type = "Industry_Value_Added",
+      scenario = gdpPopScen,
       match.steel.historic.values = TRUE,
       match.steel.estimates = "IEA_ETP",
-      China_Production = readSource(type = "ExpertGuess",
-                                    subtype = "Chinese_Steel_Production",
-                                    convert = FALSE) %>%
-        madrat_mule(),
       aggregate = FALSE,
       years = sort(union(remind_years, last_empirical_year:max(fixing_year$fixing_year))),
-      supplementary = FALSE,
       warnNA = FALSE
     ),
-
     calcOutput(
       type = "Steel_Projections",
       subtype = "production",
+      scenarios = gdpPopScen,
       match.steel.historic.values = TRUE,
       match.steel.estimates = "IEA_ETP",
-      China_Production = readSource(type = "ExpertGuess",
-                                    subtype = "Chinese_Steel_Production",
-                                    convert = FALSE) %>%
-        madrat_mule(),
       aggregate = FALSE,
       years = sort(union(remind_years,
                          last_empirical_year:max(fixing_year$fixing_year))),
@@ -202,21 +213,14 @@ calcFeDemandIndustry <- function(use_ODYM_RECC = FALSE, last_empirical_year = 20
   )
 
   ## re-curve specific industry activity per unit GDP ----
-  GDP <- calcOutput(
-    type = "GDP",
-    scenario = c("SSPs", "SDPs"),
-    naming = "scenario",
-    average2020 = FALSE,
-    years = sort(union(remind_years,
-                       last_empirical_year:max(fixing_year$fixing_year))),
-    aggregate = FALSE,
-    supplementary = FALSE) %>%
-    as.data.frame() %>%
+  GDP <- calcOutput("GDP",
+                    scenario = gdpPopScen,
+                    average2020 = FALSE,
+                    years = sort(union(remind_years, last_empirical_year:max(fixing_year$fixing_year))),
+                    aggregate = FALSE) %>%
     as_tibble() %>%
-    select(iso3c = "Region", year = "Year", scenario = "Data1",
-           GDP = "Value") %>%
-    character.data.frame() %>%
-    mutate(year = as.integer(.data$year))
+    dplyr::rename("scenario" = "variable", "GDP" = "value") %>%
+    dplyr::mutate(dplyr::across(tidyselect::where(is.factor), as.character))
 
   ### calculate specific material demand factors ----
   foo <- full_join(
@@ -571,11 +575,7 @@ calcFeDemandIndustry <- function(use_ODYM_RECC = FALSE, last_empirical_year = 20
         ) %>%
         select(-"scenario", -"GDP", -"year") %>%
         inner_join(
-          calcOutput(type = "Population",
-                     scenario = c("SSPs", "SDPs"),
-                     naming = "scenario",
-                     aggregate = FALSE,
-                     years = remind_years) %>%
+          calcOutput("Population", scenario = gdpPopScen, aggregate = FALSE, years = remind_years) %>%
             magclass_to_tibble() %>%
             select("iso3c", "scenario" = "variable", "year", "population" = "value") %>%
             filter(
@@ -1419,18 +1419,17 @@ calcFeDemandIndustry <- function(use_ODYM_RECC = FALSE, last_empirical_year = 20
     industry_subsectors_en[,remind_years,],
     industry_subsectors_ue[,remind_years,])
 
+  # Add SSP2_NAV_all as duplicate of SSP2, if required.
+  if ("SSP2_NAV_all" %in% scenarios) remind <- mbind(remind, setItems(remind[, , "SSP2"], 3.1, "SSP2_NAV_all"))
+  # Filter by scenario
+  remind <-  mselect(remind, scenario = scenarios)
+
   # ---- _ prepare output ----
-
-  return(list(
-    x = remind,
-    weight = NULL,
-    unit = paste0(
-      "EJ, except ue_cement (Gt), ue_primary_steel and ",
-      "ue_secondary_steel (Gt) and ue_chemicals and ",
-      "ue_otherInd ($tn)"
-    ),
-    description = "demand pathways for final energy demand in industry",
-    structure.data = "^(SSP[1-5].*|SDP.*)\\.(fe|ue)"
-  ))
-
+  list(x = remind,
+       weight = NULL,
+       unit = paste0("EJ, except ue_cement (Gt), ue_primary_steel and ",
+                     "ue_secondary_steel (Gt) and ue_chemicals and ",
+                     "ue_otherInd ($tn)"),
+       description = "demand pathways for final energy demand in industry",
+       structure.data = "^(SSP[1-5].*|SDP.*)\\.(fe|ue)")
 }

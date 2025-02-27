@@ -6,10 +6,12 @@
 \usage{
 calcIndustry_Value_Added(
   subtype = "physical",
+  scenarios,
   match.steel.historic.values = TRUE,
   match.steel.estimates = "none",
   save.plots = NULL,
-  China_Production = NULL
+  do_use_expert_guess_steel = TRUE,
+  INDSTAT = "INDSTAT3"
 )
 }
 \arguments{
@@ -18,6 +20,8 @@ calcIndustry_Value_Added(
 \item \code{physical} Returns physical production trajectories for cement.
 \item \code{economic} Returns value added trajectories for all subsectors.
 }}
+
+\item{scenarios}{Vector of strings designating the scenarios to be returned.}
 
 \item{match.steel.historic.values}{Should steel production trajectories match
 historic values?}
@@ -33,9 +37,10 @@ until 2060, and original growth rates after that.
 \item{save.plots}{\code{NULL} (default) if no plots are saved, or the path to save
 directories to.}
 
-\item{China_Production}{A data frame with columns \code{period} and
-\code{total.production} prescribing total production for China to have,
-disregarding results from the stock saturation model.}
+\item{do_use_expert_guess_steel}{Whether or not to overwrite steel productions with
+expert guesses from input data in the sources folder.}
+
+\item{INDSTAT}{Gets passed to \code{\link[=readUNIDO]{readUNIDO()}} as \code{subtype} argument.}
 }
 \value{
 A list with a \code{\link[magclass:magclass-package]{magpie}} object \code{x}, \code{weight},

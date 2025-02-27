@@ -2,6 +2,7 @@
 #'
 #' @param kap General internal capital stock, as calculated internally by
 #'   `calcCapital()`.
+#' @param scenarios Vector of strings designating the scenarios to be returned.
 #'
 #' @return A list with a [`magpie`][magclass::magclass] object `x`, `weight`,
 #'   `unit`, and `description` fields.
@@ -12,10 +13,10 @@
 #' @importFrom quitte madrat_mule
 #' @importFrom rlang .data .env sym syms
 #' @importFrom tidyr nest pivot_longer unnest
-#' @importFrom dplyr desc 
-
+#' @importFrom dplyr desc
 #' @export
-calcIndustry_EEK <- function(kap) {
+#'
+calcIndustry_EEK <- function(kap, scenarios) {
   # setup ----
   i <- log(4) / 50    # assuming 50 year lifetime of EEK
   base_year <- 2015
@@ -27,14 +28,15 @@ calcIndustry_EEK <- function(kap) {
   industry_VA <- calcOutput(
     type = 'Industry_Value_Added',
     subtype = 'economic',
+    scenarios = unique(c(mrdrivers::toolReplaceShortcuts(scenarios), "SSP2")),
     match.steel.historic.values = TRUE,
     match.steel.estimates = 'IEA_ETP',
-    China_Production = readSource(type = 'ExpertGuess',
-                                  subtype = 'Chinese_Steel_Production',
-                                  convert = FALSE) %>%
-      madrat_mule(),
-    aggregate = FALSE, years = base_year, supplementary = FALSE, warnNA = FALSE) %>%
-    `[`(,,'SSP2') %>%
+    aggregate = FALSE,
+    years = base_year,
+    supplementary = FALSE,
+    warnNA = FALSE
+  ) %>%
+    mselect(scenario = "SSP2") %>%
     quitte::magclass_to_tibble() %>%
     select('iso3c', subsector = 'name', VA = 'value') %>%
     mutate(subsector = sub('_VA$', '', .data$subsector))
@@ -44,7 +46,7 @@ calcIndustry_EEK <- function(kap) {
     madrat_mule()
 
   ## industry subsector activity and FE projections ----
-  FEdemand <- calcOutput(type = 'FEdemand', aggregate = FALSE, supplementary = FALSE)
+  FEdemand <- calcOutput("FEdemand", scenario = unique(c(scenarios, "SSP2")), aggregate = FALSE)
 
   # calculate EEK ----
   ## split industry VA into IEA investment sectors ----

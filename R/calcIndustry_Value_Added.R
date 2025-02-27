@@ -4,6 +4,7 @@
 #' @param subtype One of
 #'   - `physical` Returns physical production trajectories for cement.
 #'   - `economic` Returns value added trajectories for all subsectors.
+#' @param scenarios Vector of strings designating the scenarios to be returned.
 #' @param match.steel.historic.values Should steel production trajectories match
 #'   historic values?
 #' @param match.steel.estimates Should steel production trajectories match
@@ -13,9 +14,8 @@
 #'     until 2060, and original growth rates after that.
 #' @param save.plots `NULL` (default) if no plots are saved, or the path to save
 #'     directories to.
-#' @param China_Production A data frame with columns `period` and
-#'     `total.production` prescribing total production for China to have,
-#'     disregarding results from the stock saturation model.
+#' @param do_use_expert_guess_steel Whether or not to overwrite steel productions with
+#'     expert guesses from input data in the sources folder.
 #' @param INDSTAT Gets passed to [`readUNIDO()`] as `subtype` argument.
 #'
 #' @return A list with a [`magpie`][magclass::magclass] object `x`, `weight`,
@@ -45,10 +45,11 @@
 #' @export
 #'
 calcIndustry_Value_Added <- function(subtype = 'physical',
+                                     scenarios,
                                      match.steel.historic.values = TRUE,
                                      match.steel.estimates = 'none',
                                      save.plots = NULL,
-                                     China_Production = NULL,
+                                     do_use_expert_guess_steel = TRUE,
                                      INDSTAT = 'INDSTAT3') {
   if (!is.null(save.plots)) {
     if (!all(isTRUE(file.info(save.plots)$isdir),
@@ -79,30 +80,20 @@ calcIndustry_Value_Added <- function(subtype = 'physical',
 
 
   ## population data ----
-  population <- calcOutput("Population", scenario = c("SSPs", "SDPs"), naming = "scenario", aggregate = FALSE) %>%
-    as.data.frame() %>%
-    as_tibble() %>%
-    select(scenario = .data$Data1, iso3c = .data$Region, year = .data$Year,
-           population = .data$Value) %>%
-    character.data.frame() %>%
-    mutate(year = as.integer(.data$year),
-           # million people * 1e6/million = people
-           population = .data$population * 1e6)
+  population <- calcOutput("Population", scenario = scenarios, aggregate = FALSE) %>%
+    tibble::as_tibble() %>%
+    dplyr::select("scenario" = "variable", "iso3c", "year", "population" = "value") %>%
+    quitte::character.data.frame() %>%
+    # million people * 1e6/million = people
+    dplyr::mutate(population = .data$population * 1e6)
 
   ## GDP data ----
-  GDP <- calcOutput(type = "GDP",
-                    scenario = c("SSPs", "SDPs"),
-                    average2020 = FALSE,
-                    naming = "scenario",
-                    aggregate = FALSE) %>%
-    as.data.frame() %>%
-    as_tibble() %>%
-    select(scenario = .data$Data1, iso3c = .data$Region, year = .data$Year,
-           GDP = .data$Value) %>%
-    character.data.frame() %>%
-    mutate(year = as.integer(.data$year),
-           # $m * 1e6 $/$m = $
-           GDP = .data$GDP * 1e6)
+  GDP <- calcOutput(type = "GDP", scenario = scenarios, average2020 = FALSE, aggregate = FALSE) %>%
+    tibble::as_tibble() %>%
+    dplyr::select("scenario" = "variable", "iso3c", "year", "GDP" = "value") %>%
+    quitte::character.data.frame() %>%
+    # $m * 1e6 $/$m = $
+    dplyr::mutate(GDP = .data$GDP * 1e6)
 
   ## ---- load cement production data ----
   data_cement_production <- calcOutput('Cement', aggregate = FALSE,
@@ -326,9 +317,10 @@ calcIndustry_Value_Added <- function(subtype = 'physical',
              'GDPpC', 'steel.VApt'),
 
     calcOutput(type = 'Steel_Projections',
+               scenarios = scenarios,
                match.steel.historic.values = match.steel.historic.values,
                match.steel.estimates = match.steel.estimates,
-               China_Production = China_Production,
+               do_use_expert_guess = do_use_expert_guess_steel,
                aggregate = FALSE, supplementary = FALSE) %>%
       as.data.frame() %>%
       as_tibble() %>%
