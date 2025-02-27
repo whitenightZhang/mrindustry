@@ -14,7 +14,7 @@ convertAndrew2019 <- function(x) {
   )
   magclass::getItems(x, dim = 1)[which(getItems(x, dim = 1) == "YEMEN")] <- "YEM"
   magclass::getItems(x, dim = 1)[which(getItems(x, dim = 1) == "REPUBLIC OF SUDAN")] <- "SDN"
-  x <- madrat::toolISOhistorical(x, overwrite = FALSE) # probably not needed
+  x <- suppressWarnings(madrat::toolISOhistorical(x, overwrite = FALSE)) # possibly not needed
   x <- madrat::toolCountryFill(x, fill = NA, verbosity = 2, no_remove_warning = no_remove_warning)
   # Puerto Rico is missing in dataset. Probably no problem.
   return(x)

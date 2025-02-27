@@ -7,7 +7,7 @@
 #' @author Bennet Weiss
 readAndrew2019 <- function() {
   path <- file.path("v1", "1. annual_cement_production.csv")
-  data <- readr::read_csv(path)
+  data <- suppressMessages(readr::read_csv(path))
   # clean up data such that the country row becomes a column, too
   data_extracted <- tidyr::pivot_longer(data, -"Year", names_to = "region", values_to = "Value")
   x <- magclass::as.magpie(data_extracted, spatial = 2)
