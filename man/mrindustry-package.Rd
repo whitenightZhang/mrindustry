@@ -25,6 +25,7 @@ Authors:
   \item Simón Moreno-Leiva \email{simon.moreno@pik-potsdam.de}
   \item Lavinia Baumstark \email{lavinia.baumstark@pik-potsdam.de}
   \item Michaja Pehl \email{michaja.pehl@pik-potsdam.de}
+  \item Bennet Weiss \email{bennet.weiss@pik-potsdam.de}
 }
 
 }
