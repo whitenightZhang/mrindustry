@@ -605,11 +605,11 @@ calcFeDemandIndustry <- function(scenarios, use_ODYM_RECC = FALSE, last_empirica
 
     industry_subsectors_ue <- foo4 %>%
       select("iso3c", "year", "scenario", pf = "subsector", "value") %>%
-      as.magpie(spatial = 1, temporal = 2, data = ncol(.))
+      as.magpie(spatial = 1, temporal = 2, datacol = ncol(.))
   } else {
     industry_subsectors_ue <- foo3 %>%
       select("iso3c", "year", "scenario", pf = "subsector", "value") %>%
-      as.magpie(spatial = 1, temporal = 2, data = ncol(.))
+      as.magpie(spatial = 1, temporal = 2, datacol = ncol(.))
   }
 
   ## subsector FE shares ----

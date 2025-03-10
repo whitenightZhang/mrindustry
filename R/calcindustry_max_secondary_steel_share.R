@@ -8,7 +8,7 @@
 #' @param regions A character vector of regions to expand data to.
 #'
 #' @return A list with a [`magpie`][magclass::magclass] object `x`.
-#' 
+#'
 
 #' @export
 calcindustry_max_secondary_steel_share <- function(scenarios = NULL,
@@ -31,6 +31,6 @@ calcindustry_max_secondary_steel_share <- function(scenarios = NULL,
       tool_expand_tibble(scenarios, regions) %>%
       pivot_longer(
         !all_of(names(which('character' == unlist(lapply(., typeof)))))) %>%
-      as.magpie(spatial = 0, temporal = 0, data = ncol(.)),
+      as.magpie(spatial = 0, temporal = 0, datacol = ncol(.)),
     weight = NULL, unit = '', description = ''))
 }

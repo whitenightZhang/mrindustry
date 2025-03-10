@@ -89,7 +89,7 @@ calcODYM_RECC <- function(subtype, smooth = TRUE) {
 
       return(
         list(x = x %>%
-               as.magpie(spatial = 2, temporal = 3, data = ncol(.)),
+               as.magpie(spatial = 2, temporal = 3, datacol = ncol(.)),
              weight = NULL,
              unit = '',
              description = ''))

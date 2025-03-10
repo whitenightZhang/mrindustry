@@ -20,7 +20,7 @@ calcindustry_specific_FE_limits <- function() {
                 filter('absolute' == .data$type) %>%
                 select(-'type') %>%
                 mutate(subsector = paste0('ue_', .data$subsector)) %>%
-                as.magpie(spatial = 0, temporal = 0, data = 2),
+                as.magpie(spatial = 0, temporal = 0, datacol = 2),
               weight = NULL,
               unit = 'GJ/t',
               description = paste('Thermodynamic limits for industry subsector',
