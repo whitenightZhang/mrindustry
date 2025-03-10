@@ -13,7 +13,7 @@ Authors@R: c(
     person(given = "Simón", family = "Moreno-Leiva",
            email = "simon.moreno@pik-potsdam.de", role = "aut"),
     person(given = "Lavinia", family = "Baumstark",
-           email = "lavinia.baumstark@pik-potsdam.de", rol = "aut"),
+           email = "lavinia.baumstark@pik-potsdam.de", role = "aut"),
     person(given = "Michaja", family = "Pehl",
            email = "michaja.pehl@pik-potsdam.de", role = "aut"),
     person(given = "Bennet", family = "Weiss",
