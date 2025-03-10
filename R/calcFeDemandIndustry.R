@@ -193,7 +193,7 @@ calcFeDemandIndustry <- function(scenarios, use_ODYM_RECC = FALSE, last_empirica
   industry_subsectors_ue <- mbind(
     calcOutput(
       type = "Industry_Value_Added",
-      scenario = gdpPopScen,
+      scenarios = gdpPopScen,
       match.steel.historic.values = TRUE,
       match.steel.estimates = "IEA_ETP",
       aggregate = FALSE,
