@@ -8,7 +8,7 @@
 #' @param regions A character vector of regions to expand data to.
 #'
 #' @return A list with a [`magpie`][magclass::magclass] object `x`.
-#' 
+#'
 
 #' @export
 calcindustry_max_secondary_steel_share <- function(scenarios = NULL,
