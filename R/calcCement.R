@@ -47,7 +47,7 @@ calcCement <- function() {
     arrange(!!!syms(c('iso3c', 'year')))
 
   return(list(x = d %>%
-                as.magpie(spatial = 1, temporal = 2, data = ncol(.)) %>%
+                as.magpie(spatial = 1, temporal = 2, datacol = ncol(.)) %>%
                 toolCountryFill(verbosity = 2),
               weight = NULL,
               description = 'historical cement production',

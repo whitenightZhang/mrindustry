@@ -908,7 +908,7 @@ calcSteel_Projections <- function(subtype = 'production',
     # t/year * 1e-6 Gt/t = Gt/year
     mutate(value = .data$value * 1e-9) %>%
     select('scenario', 'iso3c', 'pf', 'year', 'value') %>%
-    as.magpie(spatial = 2, temporal = 4, data = 5)
+    as.magpie(spatial = 2, temporal = 4, datacol = 5)
 
   # match historic values ----
   if (match.steel.historic.values) {
@@ -1014,7 +1014,7 @@ calcSteel_Projections <- function(subtype = 'production',
       # t/year * 1e-9 Gt/t = Gt/year
       mutate(value = .data$value * 1e-9) %>%
       select('scenario', 'iso3c', 'pf', 'year', 'value') %>%
-      as.magpie(spatial = 2, temporal = 4, data = 5)
+      as.magpie(spatial = 2, temporal = 4, datacol = 5)
   }
 
   # match exogenous data for China ----
@@ -1085,7 +1085,7 @@ calcSteel_Projections <- function(subtype = 'production',
       # t/year * 1e-9 Gt/t = Gt/year
       mutate(value = .data$value * 1e-9) %>%
       select('scenario', 'iso3c', 'pf', 'year', 'value') %>%
-      as.magpie(spatial = 2, temporal = 4, data = 5)
+      as.magpie(spatial = 2, temporal = 4, datacol = 5)
   }
 
   # match exogenous estimates ----
@@ -1278,7 +1278,7 @@ calcSteel_Projections <- function(subtype = 'production',
              filter(.data$year %in% unique(quitte::remind_timesteps$period),
                     'Total' != .data$iso3c) %>%
              select('scenario', 'iso3c', 'year', 'share') %>%
-             as.magpie(spatial = 2, temporal = 3, data = 4),
+             as.magpie(spatial = 2, temporal = 3, datacol = 4),
            weight = calcOutput(
              type = 'Steel_Projections',
              scenarios = scenarios,

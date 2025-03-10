@@ -466,7 +466,7 @@ tool_fix_IEA_data_for_Industry_subsectors <- function(data, ieamatch,
     group_by(!!!syms(setdiff(colnames(.), 'value'))) %>%
     summarise(value = sum(.data$value), .groups = 'drop') %>%
     arrange(!!!syms(c('iso3c', 'year', 'product', 'flow'))) %>%
-    as.magpie(spatial = 1, temporal = 2, data = ncol(.))
+    as.magpie(spatial = 1, temporal = 2, datacol = ncol(.))
 
   data_replace[is.na(data_replace)] <- 0
 
@@ -664,7 +664,7 @@ tool_fix_IEA_data_for_Industry_subsectors <- function(data, ieamatch,
       c('iso3c', 'region', 'year', 'product', 'flow')
     ) %>%
     select('iso3c', 'year', 'product', 'flow', 'value') %>%
-    as.magpie(spatial = 1, temporal = 2, data = 5)
+    as.magpie(spatial = 1, temporal = 2, datacol = 5)
 
   data_industry_fixed_append <- data_industry_fixed %>%
     anti_join(
@@ -678,7 +678,7 @@ tool_fix_IEA_data_for_Industry_subsectors <- function(data, ieamatch,
              year = getYears(data, as.integer = TRUE),
              fill = list(value = 0)) %>%
     select('iso3c', 'year', 'product', 'flow', 'value') %>%
-    as.magpie(spatial = 1, temporal = 2, data = 5)
+    as.magpie(spatial = 1, temporal = 2, datacol = 5)
 
   data[getRegions(data_industry_fixed_overwrite),
        getYears(data_industry_fixed_overwrite),

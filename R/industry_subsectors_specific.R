@@ -181,6 +181,6 @@ calcindustry_subsectors_specific <- function(subtype = NULL, scenarios = NULL,
       pivot_longer(
         !all_of(names(which('character' == unlist(lapply(., typeof)))))
       ) %>%
-      as.magpie(spatial = 0, temporal = 0, data = ncol(.)),
+      as.magpie(spatial = 0, temporal = 0, datacol = ncol(.)),
     weight = NULL, unit = '', description = ''))
 }
