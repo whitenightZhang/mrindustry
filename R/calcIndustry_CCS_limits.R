@@ -90,14 +90,15 @@ calcIndustry_CCS_limits <- function(
 
   ## read SSP2 industry activity ----
   ### Pass the scenarios argument to FEdemand to optimize madrat caching.
-  ind_activity <- calcOutput("FEdemand",
-                             scenario = unique(c(scenarios, "SSP2")),
+  ind_activity <- calcOutput("FeDemandIndustry",
+                             scenarios = unique(c(scenarios, "SSP2")),
+                             warnNA = FALSE,
                              aggregate = FALSE,
                              years = remind_timesteps) %>%
     `[`(,,paste0('SSP2.', c('ue_cement', 'ue_chemicals', 'ue_steel_primary'))) %>%
     magclass_to_tibble() %>%
     mutate(subsector = sub('ue_([^_]+).*', '\\1', .data$item), .keep = 'unused') %>%
-    select(iso3c = 'region', 'subsector', period= 'year',  activity = 'value')
+    select(iso3c = 'region', 'subsector', period = 'year',  activity = 'value')
 
   ## set/check region mapping ----
   iso3c_list <- read_delim(
