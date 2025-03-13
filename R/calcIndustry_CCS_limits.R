@@ -89,7 +89,7 @@ calcIndustry_CCS_limits <- function(
   remind_timesteps <- unique(quitte::remind_timesteps$period)
 
   ## read SSP2 industry activity ----
-  ### Pass the scenarios argument to FEdemand to optimize madrat caching.
+  ### Pass the scenarios argument to FeDemandIndustry to optimize madrat caching.
   ind_activity <- calcOutput("FeDemandIndustry",
                              scenarios = unique(c(scenarios, "SSP2")),
                              warnNA = FALSE,
