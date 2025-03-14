@@ -10,15 +10,15 @@
 #' @importFrom assertr assert not_na verify
 #' @importFrom dplyr anti_join arrange as_tibble between bind_rows case_when
 #'   distinct filter first full_join group_by inner_join left_join
-#'   matches mutate n rename right_join select semi_join summarise ungroup
+#'   matches mutate n pull rename right_join select semi_join summarise ungroup
 #' @importFrom magrittr %>%
 #' @importFrom quitte as.quitte cartesian character.data.frame
 #'   interpolate_missing_periods interpolate_missing_periods_ madrat_mule
 #'   magclass_to_tibble overwrite seq_range
 #' @importFrom rlang .data sym syms !!! !!
 #' @importFrom tibble tribble
-#' @importFrom tidyr complete extract nesting
-#'   pivot_longer pivot_wider replace_na separate unite
+#' @importFrom tidyr complete expand_grid extract nesting pivot_longer
+#'   pivot_wider replace_na separate unite
 #' @importFrom magclass getNames<- getItems getSets mselect add_dimension
 #' @importFrom tidyselect all_of
 #' @author Michaja Pehl
