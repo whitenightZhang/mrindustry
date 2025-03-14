@@ -1287,7 +1287,64 @@ calcFeDemandIndustry <- function(scenarios, use_ODYM_RECC = FALSE, last_empirica
     ungroup() %>%
     mutate(value = .data$value * .data$share) %>%
     select("scenario", region = "iso3c", "year", item = "pf", "value") %>%
-    verify(expr = is.finite(.data$value), description = "Finite industry_subsectors_en values") %>%
+    verify(expr = is.finite(.data$value),
+           description = "Finite industry_subsectors_en values")
+
+  ### bespoke CHA electricity 2025 ----
+  industry_subsectors_en <- overwrite(
+      industry_subsectors_en %>%
+        # select countries in CHA region
+        semi_join(
+          region_mapping_21 %>%
+            filter('CHA' == .data$region),
+
+          c('region' = 'iso3c')) %>%
+        # select electricity
+        filter(grepl('^feel', .data$item)) %>%
+        # interpolate between last_empirical_year and 2025
+        # (last_empirical_year might not be present in
+        # industry_subsectors_en)
+        interpolate_missing_periods_(
+          periods = list(
+            year = c(.$year,
+                     seq(from = last_empirical_year, to = 2025, by = 1)) %>%
+              unique())) %>%
+        left_join(
+          # calculate missing electricity "delta" as per Robert's napkin
+          # (target: 20.2 EJ in 2025)
+          industry_subsectors_en %>%
+            semi_join(
+              region_mapping_21 %>%
+                filter('CHA' == .data$region),
+
+              c('region' = 'iso3c')
+            ) %>%
+            filter(grepl('^feel', .data$item),
+                   2025 == .data$year) %>%
+            group_by(.data$scenario) %>%
+            summarise(delta = max(0, 20.2 - sum(.data$value)),
+                      .groups = 'drop'),
+
+          'scenario'
+        ) %>%
+        # scale delta to 0 in last empirical year and constant after 2025
+        mutate(delta = ( .data$delta
+                         * (.env$last_empirical_year - .data$year)
+                         / (.env$last_empirical_year - 2025)
+        ) %>%
+          pmax(0) %>%
+          pmin(.data$delta)) %>%
+        group_by(.data$scenario, .data$year) %>%
+        # add (scaled) delta according to country/subsector shares
+        mutate(value = .data$value * (1 + .data$delta / sum(.data$value)),
+               .keep = 'unused') %>%
+        ungroup(),
+
+      industry_subsectors_en,
+
+      except = 'value')
+
+  industry_subsectors_en <- industry_subsectors_en %>%
     as.magpie(spatial = 2, temporal = 3, datacol = 5)
 
 
