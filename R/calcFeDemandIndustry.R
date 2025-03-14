@@ -1254,7 +1254,8 @@ calcFeDemandIndustry <- function(scenarios, use_ODYM_RECC = FALSE, last_empirica
   industry_subsectors_en <- inner_join(
     industry_subsectors_specific_energy %>%
       # expand regions to iso3c
-      full_join(region_mapping_21, "region") %>%
+      full_join(region_mapping_21, by = "region",
+                relationship = 'many-to-many') %>%
       select(-"region"),
 
     industry_subsectors_ue %>%
@@ -1275,7 +1276,8 @@ calcFeDemandIndustry <- function(scenarios, use_ODYM_RECC = FALSE, last_empirica
     assert(is.finite, "value") %>%
     inner_join(
       industry_subsectors_en_shares %>%
-        full_join(region_mapping_21, "region") %>%
+        full_join(region_mapping_21, by = "region",
+                  relationship = 'many-to-many') %>%
         select(-"region"),
 
       c("scenario", "iso3c", "year", "subsector")
