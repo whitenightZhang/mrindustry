@@ -1291,6 +1291,9 @@ calcFeDemandIndustry <- function(scenarios, use_ODYM_RECC = FALSE, last_empirica
            description = "Finite industry_subsectors_en values")
 
   ### bespoke CHA electricity 2025 ----
+  # increase 2025 China industry electricity demand so that it matches
+  # extrapolation of 2018-2022 IEA data. This increase is then kept constant
+  # for all following time steps
   industry_subsectors_en <- overwrite(
       industry_subsectors_en %>%
         # select countries in CHA region
