@@ -58,7 +58,7 @@ calcCementShare <- function() {
       year = unique(quitte::remind_timesteps$period),
       expand.values = TRUE) %>%
     select('iso3c', 'year', 'fety', 'value') %>%
-    as.magpie(spatial = 1, temporal = 2, data = 4),
+    as.magpie(spatial = 1, temporal = 2, datacol = 4),
 
   weight = calcOutput('GDP', scenario = "SSP2", naming = "scenario", aggregate = FALSE) %>%
     `[`(, unique(quitte::remind_timesteps$period), ) %>%

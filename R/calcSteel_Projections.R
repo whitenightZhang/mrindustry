@@ -1265,7 +1265,7 @@ calcSteel_Projections <- function(subtype = 'production',
       # t/year * 1e-9 Gt/t = Gt/year
       mutate(value = .data$value * 1e-9) %>%
       select('scenario', 'iso3c', 'pf', 'year', 'value') %>%
-      as.magpie(spatial = 2, temporal = 4, data = 5)
+      as.magpie(spatial = 2, temporal = 4, datacol = 5)
   } else if ('none' != match.steel.estimates) {
     stop('Unknown setting \'', match.steel.estimates,
          '\' for match.steel.estimates')
