@@ -1314,7 +1314,7 @@ calcFeDemandIndustry <- function(scenarios, use_ODYM_RECC = FALSE, last_empirica
               unique())) %>%
         left_join(
           # calculate missing electricity "delta" as per Robert's napkin
-          # (target: 20.2 EJ in 2025)
+          # (target: 21 EJ in 2025)
           industry_subsectors_en %>%
             semi_join(
               region_mapping_21 %>%
@@ -1325,7 +1325,7 @@ calcFeDemandIndustry <- function(scenarios, use_ODYM_RECC = FALSE, last_empirica
             filter(grepl('^feel', .data$item),
                    2025 == .data$year) %>%
             group_by(.data$scenario) %>%
-            summarise(delta = max(0, 20.2 - sum(.data$value)),
+            summarise(delta = max(0, 21 - sum(.data$value)),
                       .groups = 'drop'),
 
           'scenario'
