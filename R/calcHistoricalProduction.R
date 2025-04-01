@@ -2,7 +2,7 @@
 #'
 #' @param subtype Either 'cement' or 'steel'
 #'
-#' @author Falk Benke
+#' @author Michaja Pehl, Falk Benke
 calcHistoricalProduction <- function(subtype) {
 
   if (subtype == "cement") {
@@ -93,6 +93,9 @@ calcHistoricalProduction <- function(subtype) {
                       fill = list(value = 0)
       ) %>%
       as.magpie(spatial = 4, temporal = 1, datacol = ncol(.data))
+
+    getSets(x)[3] <- "model"
+    getSets(x)[4] <- "variable"
     description = "Historical steel production based on WorldSteel"
     unit = "Mt/yr"
   } else {
