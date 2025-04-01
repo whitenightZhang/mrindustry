@@ -1,4 +1,8 @@
-
+#' Calculate historical production data for steel (Worldsteel) and cement (USGS)
+#'
+#' @param subtype Either 'cement' or 'steel'
+#'
+#' @author Falk Benke
 calcHistoricalProduction <- function(subtype) {
 
   if (subtype == "cement") {
