@@ -1,14 +1,7 @@
 #' Calculate Steel Stock from Mueller steel stock per capita and WDI population
 #'
-#' @md
-#' @return A [`magpie`][magclass::magclass] object.
-#'
 #' @author Falk Benke
-#'
-#' @importFrom dplyr filter select mutate left_join
-#' @export
-
-calcSteelStock <- function() {
+calcHistoricalSteelStock <- function() {
   steel_stock_per_capita <- readSource("Mueller", "stocks", convert = TRUE)[, , "Steel stock per-capita|med (t)"]
   population <- calcOutput("PopulationPast", pastData = "UN_PopDiv", aggregate = FALSE)
 

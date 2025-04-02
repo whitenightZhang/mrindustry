@@ -192,7 +192,6 @@ readUSGS <- function(subtype = 'cement') {
         left_join(
           calcOutput("GDP",
                      scenario = "SSP2",
-                     naming = "scenario",
                      aggregate = FALSE,
                      average2020 = FALSE,
                      years = unique(to_estimate$year)) %>%
