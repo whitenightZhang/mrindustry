@@ -1,9 +1,11 @@
-#' Calculate historical production data for steel (Worldsteel) and cement (USGS)
+#' Calculate historical basic material production data for
+#' steel (Worldsteel) and cement (USGS)
 #'
 #' @param subtype Either 'cement' or 'steel'
 #'
 #' @author Michaja Pehl, Falk Benke
-calcHistoricalProduction <- function(subtype) {
+#'
+calcHistoricalBasicMaterialProduction <- function(subtype) {
 
   if (subtype == "cement") {
 
