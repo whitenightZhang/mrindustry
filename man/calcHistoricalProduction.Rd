@@ -13,5 +13,5 @@ calcHistoricalProduction(subtype)
 Calculate historical production data for steel (Worldsteel) and cement (USGS)
 }
 \author{
-Falk Benke
+Michaja Pehl, Falk Benke
 }
