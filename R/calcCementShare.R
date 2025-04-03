@@ -64,7 +64,7 @@ calcCementShare <- function() {
     `[`(, unique(quitte::remind_timesteps$period), ) %>%
     dimSums(dim = 3),
 
-  unit = 'share',
+  unit = 'fraction',
   description = 'Share of Cement in NONMET FE use',
   min = 0, max = 1)
 }
