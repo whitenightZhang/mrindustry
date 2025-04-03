@@ -96,7 +96,7 @@ calcChemicalFeedstocksShare <- function()
 
     weight = weight[,unique(quitte::remind_timesteps$period),],
 
-    unit = 'share',
+    unit = 'fraction',
     description = 'Share of feedstocks in chemicals FE input',
     min = 0, max = 1)
   )
