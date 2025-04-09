@@ -84,7 +84,7 @@ calcChemicalFeedstocksShare <- function()
     select('iso3c', 'year', 'share') %>%
     assert(not_na, everything())
 
-  weight <- calcOutput('GDP', scenario = "SSP2", naming = "scenario", aggregate = FALSE) %>%
+  weight <- calcOutput('GDP', scenario = "SSP2", aggregate = FALSE) %>%
     dimSums(dim = 3)
 
   return(
