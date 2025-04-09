@@ -9,9 +9,6 @@
 #'     - `INDSTAT4`: read INDSTAT 4 data from [https://stat.unido.org/data/download?dataset=indstat&revision=4]
 #'       INDSTAT 4 data quality has not been vetted and should not be used for
 #'       production.
-#' @param exclude Exclude faulty data (`TRUE`, default) or not.  Return a tibble
-#'     of country/subsector/year combinations for `exclude = 'return'`.
-#'     (Work-in-progress)
 #' @param x result from `readUNIDO()` as passed to `convertUNIDO()`
 #'
 #' @return A [`magpie`][magclass::magclass] object.
@@ -154,7 +151,7 @@ readUNIDO <- function(subtype = 'INDSTAT3')
 
 #' @rdname UNIDO
 #' @export
-convertUNIDO <- function(x, subtype = 'INDSTAT3', exclude = TRUE)
+convertUNIDO <- function(x, subtype = 'INDSTAT3')
 {
     harmonise_column_names <- function(d, subtype)
     {
@@ -415,17 +412,13 @@ convertUNIDO <- function(x, subtype = 'INDSTAT3', exclude = TRUE)
                 replace_NAs = 'with_USA')
     }
 
-    # process data ----
-    if ('return' == exclude)
-        return(to_exclude(madrat_mule(x), subtype))
-
     x %>%
         madrat_mule() %>%
         harmonise_column_names(subtype) %>%
         drop_na('value') %>%
         select_subsectors() %>%
         add_iso3c(subtype) %>%
-        exclude_subsectors(subtype, isTRUE(exclude)) %>%
+        exclude_subsectors(subtype) %>%
         convert_dollarbucks(subtype) %>%
         most_recent_value() %>%
         drop_duplicates() %>%
