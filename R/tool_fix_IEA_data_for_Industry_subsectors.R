@@ -684,7 +684,14 @@ tool_fix_IEA_data_for_Industry_subsectors <- function(data, ieamatch,
        getYears(data_industry_fixed_overwrite),
        getNames(data_industry_fixed_overwrite)] <- data_industry_fixed_overwrite
 
-  data <- mbind(data, data_industry_fixed_append)
+
+  existing_names <- intersect(getNames(data), getNames(data_industry_fixed_append))
+  added_names <- setdiff(getNames(data_industry_fixed_append), getNames(data))
+  tmp <- data[, , existing_names]
+  tmp[is.na(tmp)] <- 0
+  data[, , existing_names] <- tmp + data_industry_fixed_append[, , existing_names]
+
+  data <- mbind(data, data_industry_fixed_append[, , added_names])
 
   return(data)
 }
