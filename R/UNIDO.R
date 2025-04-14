@@ -385,17 +385,15 @@ convertUNIDO <- function(x, subtype = 'INDSTAT3')
         )
     }
 
-    exclude_subsectors <- function(d, subtype, exclude = TRUE)
+    exclude_subsectors <- function(d, subtype)
     {
+          d <- d %>%
+              anti_join(
+                  to_exclude(d, subtype),
 
-        if (isTRUE(exclude)) {
-            d <- d %>%
-                anti_join(
-                    to_exclude(d, subtype),
+                  c('iso3c', 'year', 'subsector')
+              )
 
-                    c('iso3c', 'year', 'subsector')
-                )
-        }
         return(d)
     }
 
@@ -411,6 +409,8 @@ convertUNIDO <- function(x, subtype = 'INDSTAT3')
                 unit_out = mrdrivers::toolGetUnitDollar(),
                 replace_NAs = 'with_USA')
     }
+
+    # process data ----
 
     x %>%
         madrat_mule() %>%
