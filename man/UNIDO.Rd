@@ -8,7 +8,7 @@
 \usage{
 readUNIDO(subtype = "INDSTAT3")
 
-convertUNIDO(x, subtype = "INDSTAT3", exclude = TRUE)
+convertUNIDO(x, subtype = "INDSTAT3")
 
 calcUNIDO(subtype = "INDSTAT3")
 }
@@ -21,10 +21,6 @@ INDSTAT 4 data quality has not been vetted and should not be used for
 production.}
 
 \item{x}{result from \code{readUNIDO()} as passed to \code{convertUNIDO()}}
-
-\item{exclude}{Exclude faulty data (\code{TRUE}, default) or not.  Return a tibble
-of country/subsector/year combinations for \code{exclude = 'return'}.
-(Work-in-progress)}
 }
 \value{
 A \code{\link[magclass:magclass-package]{magpie}} object.
