@@ -1,7 +1,6 @@
 #' Calculates global cement production as from Andrew's 2019 paper.
 #' @author Bennet Weiss
-#' @param x magclass object
-calcCementProduction <- function(x) {
+calcCementProduction <- function() {
   x <- readSource("Andrew2019", convert = TRUE)
   x[is.na(x)] <- 0 # TODO implement smarter way to fill NA values
   x <- x * 1e3 # convert to tonnes
