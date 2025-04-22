@@ -2,8 +2,7 @@
 #' https://github.com/PhilippVerpoort/posted
 #' Data sources can be found in Posted
 #' @author Bennet Weiss
-#' @param subtype End-use type of construction. Can be either "Res", "NonRes" or "Civ".
-readPostedLifetimes <- function(subtype) {
+readPostedLifetimes <- function() {
     path <- file.path("v1", "buildings_and_infrastructure_lifetime.csv")
     data <- suppressMessages(readr::read_csv(path))
 
@@ -26,12 +25,8 @@ readPostedLifetimes <- function(subtype) {
     expanded_data$start_year <- NULL
     expanded_data$end_year <- NULL
 
-    ordered_data <- expanded_data[, c("region", "time", "value", "end_use")]
+    ordered_data <- expanded_data[, c("region", "time", "end_use", "value")]
 
-    # split data into different end uses
-    type_data <- ordered_data[ordered_data$end_use == subtype, ]
-    type_data$end_use <- NULL
-
-    x <- magclass::as.magpie(type_data, spatial=1, temporal=2)
+    x <- magclass::as.magpie(ordered_data, spatial=1, temporal=2)
     return(x)
 }

@@ -1,16 +1,19 @@
 #' Calculates the lifetimes of residential and non-residential buildings, as well as of civil engeneering.
 #' @author Bennet Weiss
-#' @param x magclass object
-calcBuildingLifetimes <- function(x) {
-    res <- readSource("PostedLifetimes", convert = TRUE, subtype = "Res")
-    nonres <- readSource("PostedLifetimes", convert = TRUE, subtype = "NonRes")
-    civ <- readSource("PostedLifetimes", convert = TRUE, subtype = "Civ")
-    combined <- mbind(res, nonres, civ)
-
-    # examples: 
-    # 1. set nonres value from china to its res value
-    # 2. set OAS to average of China, India and Japan
-
-
-    # return the combination of res, nonres, civ.
+calcBuildingLifetimes <- function() {
+    data <- readSource("PostedLifetimes")
+    unit <- "years (a)"
+    description <- paste(
+        "Lifetimes of residential and non-residential buildings, as well as of civil engeneering.",
+        "Aggregated data from literature research.",
+        "Documentation can be found in Posted (https://github.com/PhilippVerpoort/posted)"
+    )
+    weight <- data
+    weight[,,] <- 1
+    output <- list(
+        x = data, 
+        weight = weight,
+        unit = unit,
+        description = description)
+    return(output)
 }
