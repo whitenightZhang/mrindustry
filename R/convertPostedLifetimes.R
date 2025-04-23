@@ -25,9 +25,9 @@ convertPostedLifetimes <- function(x) {
     x_out[neu_countries,,] <- x["Europe",,]
 
     # LAM
-    # "Rest of South America" values
+    # "Rest of South America" Residential values
     lam_countries <- getRegionCountries(x_out, "LAM", regionmapping)
-    x_out[lam_countries,,] <- x["Rest of South America",,]
+    x_out[lam_countries,,] <- x["Rest of South America",,"Res"]
     
     # CHN 
     # fill all years before 1950 with 1950 value and all years after 2015 with 2015 value
@@ -37,6 +37,11 @@ convertPostedLifetimes <- function(x) {
     x_out["CHN",,"Res"][magclass::getYears(x_out, as.integer=TRUE) < 1950] <- first_non_na
     x_out["CHN",,"Res"][magclass::getYears(x_out, as.integer=TRUE) > 2015] <- last_non_na
     x_out["CHN",,"NonRes"] <- x_out["CHN",,"Res"]
+
+    # CHA
+    # copy CHN values
+    cha_countries <- getRegionCountries(x_out, "CHA", regionmapping)
+    x_out[cha_countries,,] <- x_out["CHN",,]
 
     # OAS
     # average of China, India and Japan
