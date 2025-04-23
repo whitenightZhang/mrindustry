@@ -31,7 +31,7 @@ convertPostedLifetimes <- function(x) {
     
     # CHN 
     # fill all years before 1950 with 1950 value and all years after 2015 with 2015 value
-    # fill non-residential with residential values
+    # fill non-residential with residential values (following Cao 2019)
     first_non_na <- x_out["CHN", 1950 ,"Res"]
     last_non_na <- x_out["CHN", 2015 ,"Res"]
     x_out["CHN",,"Res"][magclass::getYears(x_out, as.integer=TRUE) < 1950] <- first_non_na
