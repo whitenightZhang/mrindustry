@@ -2,7 +2,7 @@
 #' https://github.com/PhilippVerpoort/posted
 #' Data sources can be found in Posted
 #' @author Bennet Weiss
-readPostedLifetimes <- function() {
+readPostedBuiltLifespan <- function() {
     path <- file.path("v1", "buildings_and_infrastructure_lifetime.csv")
     data <- suppressMessages(readr::read_csv(path))
 

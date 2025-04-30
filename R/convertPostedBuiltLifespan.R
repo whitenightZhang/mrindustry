@@ -1,7 +1,7 @@
 #' convert data from PostedLifetimes
 #' @author Bennet Weiss
 #' @param x Magpie object
-convertPostedLifetimes <- function(x) {
+convertPostedBuiltLifespan <- function(x) {
     # convert country name to iso3 if applicable, other region names stay untouched
     regions <- magclass::getItems(x, dim = 1)
     isocodes <- madrat::toolCountry2isocode(regions)
