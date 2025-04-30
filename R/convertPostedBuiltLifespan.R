@@ -1,4 +1,4 @@
-#' convert data from PostedLifetimes
+#' Convert data from PostedBuiltLifespan. Lifetimes are assigned to region based on regionmapping.
 #' @author Bennet Weiss
 #' @param x Magpie object
 convertPostedBuiltLifespan <- function(x) {

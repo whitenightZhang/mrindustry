@@ -1,6 +1,6 @@
-#' Read Data as prepared by Posted
+#' Read Data as prepared by Posted:
 #' https://github.com/PhilippVerpoort/posted
-#' Data sources can be found in Posted
+#' Data sources can be found in Posted.
 #' @author Bennet Weiss
 readPostedBuiltLifespan <- function() {
   path <- file.path("v1", "buildings_and_infrastructure_lifetime.csv")
