@@ -4,10 +4,7 @@
 \alias{calcCementProduction}
 \title{Calculates global cement production as from Andrew's 2019 paper.}
 \usage{
-calcCementProduction(x)
-}
-\arguments{
-\item{x}{magclass object}
+calcCementProduction()
 }
 \description{
 Calculates global cement production as from Andrew's 2019 paper.

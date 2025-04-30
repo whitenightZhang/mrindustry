@@ -20,7 +20,7 @@ readPostedBuiltLifespan <- function() {
     cleaned_data$end_year
   )
   # expand this year sequence into separate rows
-  expanded_data <- unnest(cleaned_data, cols = c(time))
+  expanded_data <- unnest(cleaned_data, cols = c(all_of("time")))
 
   # remove unnecessary columns
   expanded_data$time_range <- NULL
