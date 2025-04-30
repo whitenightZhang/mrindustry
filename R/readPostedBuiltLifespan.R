@@ -3,30 +3,32 @@
 #' Data sources can be found in Posted
 #' @author Bennet Weiss
 readPostedBuiltLifespan <- function() {
-    path <- file.path("v1", "buildings_and_infrastructure_lifetime.csv")
-    data <- suppressMessages(readr::read_csv(path))
+  path <- file.path("v1", "buildings_and_infrastructure_lifetime.csv")
+  data <- suppressMessages(readr::read_csv(path))
 
-    # remove unnecessary colums
-    cleaned_data <- data %>%
-        select(-period, -unit, -variable)
-    
-    # expand time range into individual years
-    cleaned_data <- separate(cleaned_data, time_range, into = c("start_year", "end_year"), sep = "-")
-    # create a sequence of years for each row
-    cleaned_data$time <- mapply(function(start, end) seq(start, end), 
-                            cleaned_data$start_year, 
-                            cleaned_data$end_year, 
-                            SIMPLIFY = FALSE)
-    # expand this year sequence into separate rows
-    expanded_data <- unnest(cleaned_data, cols = c(time))
+  # remove unnecessary colums
+  cleaned_data <- data %>%
+    select(-all_of(c("period", "unit", "variable")))
 
-    # remove unnecessary columns
-    expanded_data$time_range <- NULL
-    expanded_data$start_year <- NULL
-    expanded_data$end_year <- NULL
+  # expand time range into individual years
+  cleaned_data <- cleaned_data %>%
+    separate(all_of("time_range"), into = c("start_year", "end_year"), sep = "-")
+  # create a sequence of years for each row
+  cleaned_data$time <- Map(
+    seq,
+    cleaned_data$start_year,
+    cleaned_data$end_year
+  )
+  # expand this year sequence into separate rows
+  expanded_data <- unnest(cleaned_data, cols = c(time))
 
-    ordered_data <- expanded_data[, c("region", "time", "end_use", "value")]
+  # remove unnecessary columns
+  expanded_data$time_range <- NULL
+  expanded_data$start_year <- NULL
+  expanded_data$end_year <- NULL
 
-    x <- magclass::as.magpie(ordered_data, spatial=1, temporal=2)
-    return(x)
+  ordered_data <- expanded_data[, c("region", "time", "end_use", "value")]
+
+  x <- magclass::as.magpie(ordered_data, spatial = 1, temporal = 2)
+  return(x)
 }
