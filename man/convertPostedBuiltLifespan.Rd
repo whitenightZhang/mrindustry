@@ -2,7 +2,7 @@
 % Please edit documentation in R/convertPostedBuiltLifespan.R
 \name{convertPostedBuiltLifespan}
 \alias{convertPostedBuiltLifespan}
-\title{convert data from PostedLifetimes}
+\title{Convert data from PostedBuiltLifespan. Lifetimes are assigned to region based on regionmapping.}
 \usage{
 convertPostedBuiltLifespan(x)
 }
@@ -10,7 +10,7 @@ convertPostedBuiltLifespan(x)
 \item{x}{Magpie object}
 }
 \description{
-convert data from PostedLifetimes
+Convert data from PostedBuiltLifespan. Lifetimes are assigned to region based on regionmapping.
 }
 \author{
 Bennet Weiss
