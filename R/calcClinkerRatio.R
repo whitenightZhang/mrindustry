@@ -1,6 +1,6 @@
 #' Calculates global clinker ratio by employing cement and clinker production from Andrew's 2019 paper.
 #' @author Bennet Weiss
-calcCementProduction <- function() {
+calcClinkerRatio <- function() {
   clinker <- readSource("Andrew2019", subtype = "clinker")
   cement <- readSource("Andrew2019", subtype = "cement")
   # remove values from before 1900 to align time dimensions
