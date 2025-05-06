@@ -60,11 +60,11 @@ calcSteel_Projections <- function(subtype = 'production',
     }
   }
 
-  if (   do_use_expert_guess
-      && match.steel.estimates != 'IEA_ETP'
-      && "SSP2IndiaHigh" %in% scenarios){
-      stop('SSP2IndiaHigh ExpertGuess corections only implemented for IEA-ETP matching')
-  }
+  # if (   do_use_expert_guess
+  #     && match.steel.estimates != 'IEA_ETP'
+  #     && "SSP2IndiaHigh" %in% scenarios){
+  #     stop('SSP2IndiaHigh ExpertGuess corections only implemented for IEA-ETP matching')
+  # }
 
   produce_plots_and_tables <- TRUE
 
@@ -335,12 +335,19 @@ calcSteel_Projections <- function(subtype = 'production',
       }) %>%
     # calculate steel stock estimates using logistic function
     mutate(
+      scal = ifelse(.data$iso3c == 'IND' & .data$scenario %in% c('SSP2IndiaHigh', 'SSP2IndiaMedium'), 1.4*.data$scal, .data$scal),
+      # Asym = ifelse(.data$iso3c == 'IND', 1.3*.data$Asym, .data$Asym),
       value = SSlogis(input = .data$GDP / .data$population,
                       Asym = .data$Asym, xmid = .data$xmid, scal = .data$scal),
+      value = ifelse(.data$iso3c == 'IND' & .data$scenario %in% c('SSP2IndiaHigh', 'SSP2IndiaMedium'), 
+                     .data$value * (1.0 + SSlogis(input = .data$year, Asym = 0.8, xmid = 2050, scal = 20)), 
+                     .data$value),
       source = 'computation') %>%
     select('scenario', 'iso3c', 'year', 'value', 'source') %>%
     assert(not_na, everything())
 
+  
+  
   steel_stock_estimates <- bind_rows(
     steel_stock_estimates,
 
@@ -1199,7 +1206,8 @@ calcSteel_Projections <- function(subtype = 'production',
         arrange('scenario', 'region', 'iso3c', 'year', 'variable')
     } else {
       IEA_ETP_matched <- tmp %>%
-        filter('CHN' != .data$iso3c) %>%
+        # filter out CHN and IND
+        filter(!(.data$iso3c %in% c('CHN', 'IND'))) %>%
         mutate(OECD.region = ifelse(.data$iso3c %in% OECD_iso3c,
                                     'OECD', 'Non-OECD')) %>%
         full_join(scaling_factor, c('year', 'OECD.region' = 'region')) %>%
@@ -1207,7 +1215,7 @@ calcSteel_Projections <- function(subtype = 'production',
         select(-'factor', -'OECD.region') %>%
         bind_rows(
           tmp %>%
-            filter('CHN' == .data$iso3c)
+            filter(.data$iso3c %in% c('CHN', 'IND'))
         ) %>%
         complete(nesting(!!!syms(c('scenario', 'region', 'iso3c', 'variable'))),
                  year = unique(.$year),
@@ -1216,38 +1224,46 @@ calcSteel_Projections <- function(subtype = 'production',
     }
 
     # merge inida expert guess
-    if (do_use_expert_guess) {
-      IEA_ETP_matched <- bind_rows(
-        IEA_ETP_matched %>%
-          filter('IND' != .data$iso3c | 'SSP2IndiaHigh' != .data$scenario),
-
-        IEA_ETP_matched %>%
-          filter('IND' == .data$iso3c & 'SSP2IndiaHigh' == .data$scenario) %>%
-          pivot_wider(names_from = 'variable') %>%
-          left_join(expert_guess_india, c('year' = 'period')) %>%
-          # only primary changed
-          mutate(
-            primary.factor = ifelse(
-              is.na(.data$total.production),
-              1.,
-              (.data$total.production - .data$secondary.production)/.data$primary.production)) %>%
-          # same share as before
-          mutate(total.factor = .data$total.production / (.data$primary.production + .data$secondary.production)) %>%
-          mutate(total.factor = ifelse(is.na(.data$total.factor), 1, .data$total.factor)) %>%
-          # weight approaches 50-50
-          mutate(primary.production = .data$primary.production * (.data$primary.factor + .data$total.factor)/2.,
-                 secondary.production = .data$secondary.production * (1. + .data$total.factor)/2.) %>%
-          select(-'primary.factor', -'total.factor', -'total.production') %>%
-          pivot_longer(cols = c('primary.production', 'secondary.production'),
-                       names_to = 'variable')
-      ) %>%
-        verify(!is.na(.data$value),
-               description = paste('Exogenous Indian production merge is valid'))
-    }
-
-    ## update max secondary steel share ----
-    secondary.steel.max.share <- update.secondary.steel.max.share(
-      IEA_ETP_matched, secondary.steel.max.share)
+    # if (do_use_expert_guess) {
+    #   # derive factors for india high
+    #   india_factors <- IEA_ETP_matched %>%
+    #     filter('IND' == .data$iso3c & 'SSP2' == .data$scenario) %>%
+    #     pivot_wider(names_from = 'variable') %>%
+    #     left_join(expert_guess_india, c('year' = 'period')) %>%
+    #     # only primary changed
+    #     mutate(
+    #       primary.factor = ifelse(
+    #         is.na(.data$total.production),
+    #         1.,
+    #         (.data$total.production - .data$secondary.production)/.data$primary.production)) %>%
+    #     # same share as before
+    #     mutate(total.factor = .data$total.production / (.data$primary.production + .data$secondary.production)) %>%
+    #     mutate(total.factor = ifelse(is.na(.data$total.factor), 1, .data$total.factor)) %>%
+    #     select(-'secondary.production', -'primary.production', -'total.production', -'scenario', -'region', -'iso3c')
+    # 
+    # 
+    #   # apply factors to all scenarios
+    #   IEA_ETP_matched <- bind_rows(
+    #     IEA_ETP_matched %>%
+    #       filter('IND' != .data$iso3c),
+    # 
+    #     IEA_ETP_matched %>%
+    #       filter('IND' == .data$iso3c) %>%
+    #       pivot_wider(names_from = 'variable') %>%
+    #       left_join(india_factors, c('year')) %>%
+    #       mutate(primary.production = .data$primary.production * (.data$primary.factor + .data$total.factor)/2.,
+    #              secondary.production = .data$secondary.production * (1. + .data$total.factor)/2.) %>%
+    #       select(-'primary.factor', -'total.factor') %>%
+    #       pivot_longer(cols = c('primary.production', 'secondary.production'),
+    #                    names_to = 'variable')
+    #   ) %>%
+    #     verify(!is.na(.data$value),
+    #            description = paste('Exogenous Indian production merge is valid'))
+    # }
+    # 
+    # ## update max secondary steel share ----
+    # secondary.steel.max.share <- update.secondary.steel.max.share(
+    #   IEA_ETP_matched, secondary.steel.max.share)
 
     ## construct output ----
     x <- IEA_ETP_matched %>%
@@ -1333,6 +1349,43 @@ calcSteel_Projections <- function(subtype = 'production',
     write_rds(x = p,
               file = file.path(save.plots,
                                '6_Steel_production.rds'))
+    
+    # p <- ggplot() +
+    #   geom_area(
+    #     data = x %>%
+    #       as_tibble() %>%
+    #       filter('IND' == .data$iso3c) %>%
+    #       full_join(
+    #         tibble(
+    #           pf = c('ue_steel_primary', 'ue_steel_secondary'),
+    #           production = factor(c('Primary Production',
+    #                                 'Secondary Production'),
+    #                               rev(c('Primary Production',
+    #                                     'Secondary Production')))),
+    #         
+    #         'pf'
+    #       ),
+    #     mapping = aes(x = !!sym('year'), y = !!sym('value') * 1e3,
+    #                   fill = !!sym('production'))) +
+    #   facet_wrap(~ scenario, scales = 'free_y') +
+    #   labs(x = NULL, y = 'Mt Steel/year') +
+    #   scale_fill_manual(values = c('Primary Production' = 'orange',
+    #                                'Secondary Production' = 'brown'),
+    #                     name = NULL) +
+    #   coord_cartesian(xlim = c(NA, 2100), expand = FALSE) +
+    #   theme_minimal() +
+    #   theme(legend.position = c(1, 0),
+    #         legend.justification = c(1, 0))
+    # 
+    # ggsave(plot = p, filename = '6_IND_Steel_production.png',
+    #        device = 'png', path = save.plots, bg = 'white',
+    #        width = 18, height = 14, units = 'cm', scale = 1.73)
+    # 
+    # write_rds(x = p,
+    #           file = file.path(save.plots,
+    #                            '6_Steel_production.rds'))
+    
+    
   }
 
   # return statement ----
