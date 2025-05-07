@@ -2,14 +2,11 @@
 % Please edit documentation in R/readPostedBuiltLifespan.R
 \name{readPostedBuiltLifespan}
 \alias{readPostedBuiltLifespan}
-\title{Read Data as prepared by Posted:
-https://github.com/PhilippVerpoort/posted
-Data sources can be found in Posted.}
+\title{Read Data as prepared by Posted}
 \usage{
 readPostedBuiltLifespan()
 }
 \description{
-Read Data as prepared by Posted:
 https://github.com/PhilippVerpoort/posted
 Data sources can be found in Posted.
 }
