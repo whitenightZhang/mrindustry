@@ -7,7 +7,7 @@
 #' Earth System Science Data 11, 1675–1710. https://doi.org/10.5194/essd-11-1675-2019.
 #' @author Bennet Weiss
 #' @param subtype Material subtype. Can be "cement" or "clinker".
-readAndrew2019 <- function(subtype = "cement") {
+readAndrew2019 <- function(subtype) {
   if(subtype == "cement") {
     path <- file.path("v1", "1. annual_cement_production.csv")
   } else if (subtype == "clinker") {
