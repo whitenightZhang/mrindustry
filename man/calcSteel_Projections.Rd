@@ -40,7 +40,8 @@ until 2060, and original growth rates after that.
 directories to.}
 
 \item{do_use_expert_guess}{Whether or not to overwrite steel productions with
-expert guesses from input data in the sources folder.}
+expert guesses from input data in the sources folder (for China),
+and exempt India from IEA_ETP scaling, if applied}
 }
 \value{
 A list with a \code{\link[magclass:magclass-package]{magpie}} object \code{x}, \code{weight},
