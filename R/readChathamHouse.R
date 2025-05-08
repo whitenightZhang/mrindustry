@@ -1,4 +1,4 @@
-#' Read cement and clinker trade data from Chatham House. Get net import.
+#' Read cement and clinker trade data from Chatham House. Get net trade (export).
 #'
 #' Chatham House (2024), ‘resourcetrade.earth’, https://resourcetrade.earth/.
 #' Accessed: 29.04.2025.
@@ -47,7 +47,7 @@ readChathamHouse <- function(subtype) {
     net_list[[i]] <- data.frame(
       region = net_trade$region,
       time   = year,
-      value  = net_trade$weight.imp - net_trade$weight.exp
+      value  = net_trade$weight.exp - net_trade$weight.imp
     )
   }
 
