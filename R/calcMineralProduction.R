@@ -1,8 +1,7 @@
 #' Calculates global cement production as from Andrew's 2019 paper.
 #' @author Bennet Weiss
-#' @param x magclass object
 #' @param subtype Material subtype. Can be "cement or "clinker".
-calcMineralProduction <- function(x, subtype) {
+calcCementProduction <- function(subtype) {
   x <- readSource("Andrew2019", subtype)
   x[is.na(x)] <- 0
   x <- x * 1e3 # convert to tonnes
