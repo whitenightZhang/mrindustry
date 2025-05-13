@@ -40,25 +40,25 @@ calcClinkerRatio <- function() {
   all_years <- getYears(ratio)
   # looping through regions is necessary as each region might have different temporal gaps
   # optimization for country_mask regions could be possible.
-  for (i in seq_along(regions)){
-    print(i)
+  for (i in seq_along(all_regions)){
     region_ratio <- toolRemoveNA(ratio[all_regions[i],])
     years_to_interpolate <- all_years[!all_years %in% getYears(region_ratio)]
-    ratio[regions[i],] <- time_interpolate(region_ratio,
+    ratio[all_regions[i],] <- time_interpolate(region_ratio,
                                            years_to_interpolate,
                                            integrate_interpolated_years = T)
   }
 
-  ratx[is.na(x)] <- 0
+  weight <- prod_cement
+  # until 1970 clinker ratio is the same everywhere, anyways
+  weight[,getYears(weight, as.integer = T) <= 1970] <- 1
   unit <- "ratio"
   description <- paste(
-    "Annual clinker-to-cement ratio as by cement and clinker production data from",
-    "Andrew, R.M., 2019. Global CO2 emissions from cement production, 1928-2018.",
-    "Earth System Science Data 11, 1675-1710. https://doi.org/10.5194/essd-11-1675-2019.",
-    "Data reported on https://zenodo.org/records/11207133.",
-    "Accessed: 24.02.2025."
+    "Annual clinker-to-cement ratio, calculated similiar as by Andrew (2019).",
+    "Calculated by (apparent clinker consumption) / (cement production).",
+    "For data gaps, use GNR data. Before 1970, assume constant clinker ratio of 0.95.",
+    "Remaining gaps filled by linear extrapolation."
   )
-  output <- list(x = ratio, weight = NULL, unit = unit, description = description)
+  output <- list(x = ratio, weight = weight, unit = unit, description = description)
   return(output)
 }
 
