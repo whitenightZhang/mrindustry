@@ -1,13 +1,55 @@
 #' Calculates global clinker ratio by employing cement and clinker production from Andrew's 2019 paper.
+#'
 #' @author Bennet Weiss
 calcClinkerRatio <- function() {
-  clinker <- readSource("Andrew2019", subtype = "clinker")
-  cement <- readSource("Andrew2019", subtype = "cement")
+  ratio_GNR <- readSource("GNR", subtype = "clinker_ratio")
+  # Production
+  prod_cement <- calcOutput("MineralProduction", subtype = "cement", aggregate = F)
+  prod_clinker <- calcOutput("MineralProduction", subtype = "clinker", aggregate = F)
   # remove values from before 1900 to align time dimensions
-  cement <- cement[,magclass::getYears(cement, as.integer = TRUE) >= 1900,]
-  ratio <- clinker / cement
+  # prod_cement <- prod_cement[,magclass::getYears(prod_cement, as.integer = TRUE) >= 1900,]
 
-  x[is.na(x)] <- 0 # TODO implement smarter way to fill NA values
+  # Trade
+  #trade_cement <- calcOutput("MineralTrade", subtype = "cement")
+  trade_clinker <- calcOutput("MineralTrade", subtype = "clinker", aggregate = F)
+
+  consum_clinker <- prod_clinker
+  consum_clinker[,getYears(trade_clinker),] <- consum_clinker[,getYears(trade_clinker),] - trade_clinker
+
+  # initiate clinker ratio by "clinker use" / "cement production"
+  ratio <- new.magpie(cells_and_regions = getRegions(prod_cement),
+                      years = getYears(prod_cement))
+  ratio[,getYears(consum_clinker),] <- consum_clinker / prod_cement[,getYears(consum_clinker),]
+
+  # restrict clinker ratio to realistic values
+  ratio[ratio < 0.6 | ratio > 0.99] <- NA
+  ratio <- replace_non_finite(ratio, NA)
+
+  # replace data with GNR values where not at least n_NA values are available
+  # Andrew (2019) used GNR values where no other data was available
+  country_mask <- toolMaskNACountries(ratio[,getYears(ratio_GNR)], n_noNA = 5)
+  ratio[country_mask,] <- NA
+  ratio[,getYears(ratio_GNR)][country_mask,] <- ratio_GNR[country_mask,]
+
+  # replace data before 1970 with 0.95 (as Andrew 2019)
+  ratio[,getYears(ratio, as.integer = T) <= 1970] <- replace_non_finite(ratio[,getYears(ratio, as.integer = T) <= 1970], 0.95)
+
+  # Linearly extrapolate till available data (as Andrew 2019)
+  # Also extrapolate any other missing data
+  all_regions <- getRegions(ratio)
+  all_years <- getYears(ratio)
+  # looping through regions is necessary as each region might have different temporal gaps
+  # optimization for country_mask regions could be possible.
+  for (i in seq_along(regions)){
+    print(i)
+    region_ratio <- toolRemoveNA(ratio[all_regions[i],])
+    years_to_interpolate <- all_years[!all_years %in% getYears(region_ratio)]
+    ratio[regions[i],] <- time_interpolate(region_ratio,
+                                           years_to_interpolate,
+                                           integrate_interpolated_years = T)
+  }
+
+  ratx[is.na(x)] <- 0
   unit <- "ratio"
   description <- paste(
     "Annual clinker-to-cement ratio as by cement and clinker production data from",
@@ -18,4 +60,26 @@ calcClinkerRatio <- function() {
   )
   output <- list(x = ratio, weight = NULL, unit = unit, description = description)
   return(output)
+}
+
+#' Removes NA values from a Magpie object. Only works if all regions show the same temporal pattern of data scarcity.
+#' @author Bennet Weiss
+#' @param x Magpie object
+toolRemoveNA <- function(x) {
+  df <- as.data.frame(x, rev=3)
+  df_clean <- df[complete.cases(df), ]
+  df_clean <- na.omit(df)
+  x_clean <- as.magpie(df_clean)
+  return(x_clean)
+}
+
+#' Create mask for countries that have >= n_noNA NA values.
+#' @author Bennet Weiss
+#' @param x Magpie object
+#' @param n_noNA Minimum values not NA values of a country to be included in the mask
+toolMaskNACountries <- function(x, n_noNA = 5) {
+  arr <- as.array(x)
+  counts <- apply(!is.na(arr), 1, sum)
+  mask <- names(counts[counts < n_noNA])
+  return(mask)
 }
