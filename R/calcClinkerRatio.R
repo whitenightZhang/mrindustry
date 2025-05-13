@@ -4,14 +4,14 @@
 calcClinkerRatio <- function() {
   ratio_GNR <- readSource("GNR", subtype = "clinker_ratio")
   # Production
-  prod_cement <- calcOutput("MineralProduction", subtype = "cement", aggregate = F)
-  prod_clinker <- calcOutput("MineralProduction", subtype = "clinker", aggregate = F)
+  prod_cement <- calcOutput("BinderProduction", subtype = "cement", aggregate = F)
+  prod_clinker <- calcOutput("BinderProduction", subtype = "clinker", aggregate = F)
   # remove values from before 1900 to align time dimensions
   # prod_cement <- prod_cement[,magclass::getYears(prod_cement, as.integer = TRUE) >= 1900,]
 
   # Trade
-  #trade_cement <- calcOutput("MineralTrade", subtype = "cement")
-  trade_clinker <- calcOutput("MineralTrade", subtype = "clinker", aggregate = F)
+  #trade_cement <- calcOutput("MaterialTrade", subtype = "cement")
+  trade_clinker <- calcOutput("MaterialTrade", subtype = "clinker", aggregate = F)
 
   consum_clinker <- prod_clinker
   consum_clinker[,getYears(trade_clinker),] <- consum_clinker[,getYears(trade_clinker),] - trade_clinker
