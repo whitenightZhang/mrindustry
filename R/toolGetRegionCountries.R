@@ -1,3 +1,5 @@
+#' Get region mask that selects countries of a region based on a region mapping.
+#' 
 #' @author Bennet Weiss
 #' @param x Magpie object
 #' @param region string or vector of strings to identify the region
@@ -7,6 +9,8 @@ toolGetRegionMask <- function(x, region, regionmapping) {
   return(mask)
 }
 
+#' Retrieve countries of a region from a region mapping.
+#' 
 #' @author Bennet Weiss
 #' @param x Magpie object
 #' @param region string or vector of strings to identify the region
