@@ -32,7 +32,7 @@ calcClinkerRatio <- function() {
   ratio[,getYears(ratio_GNR)][country_mask,] <- ratio_GNR[country_mask,]
 
   # replace data before 1970 with 0.95 (as Andrew 2019)
-  ratio[,getYears(ratio, as.integer = T) <= 1970] <- replace_non_finite(ratio[,getYears(ratio, as.integer = T) <= 1970], 0.95)
+  ratio[,getYears(ratio, as.integer = T) <= 1970] <- 0.95
 
   # Linearly extrapolate till available data (as Andrew 2019)
   # Also extrapolate any other missing data
