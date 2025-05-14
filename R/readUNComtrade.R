@@ -57,5 +57,6 @@ readUNComtrade <- function(subtype) {
   net_all <- do.call(rbind, net_list)
 
   x <- magclass::as.magpie(net_all, spatial = 1, temporal = 2)
+  getNames(x) <- NULL
   return(x)
 }

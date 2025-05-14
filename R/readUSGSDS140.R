@@ -14,6 +14,7 @@ readUSGSDS140 <- function() {
   data["value"] <- data$Exports - data$Imports
   x <- data[c("region", "Year", "value")]
 
-  x <- magclass::as.magpie(x, spatial = 1, temporal = 2)
+  x <- magclass::as.magpie(x, spatial = 1, temporal = 2, datacol = 3)
+  getNames(x) <- NULL
   return(x)
 }

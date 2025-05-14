@@ -53,6 +53,7 @@ readGNR <- function(subtype) {
 
   data_list <- do.call(rbind, data_list)
   x <- magclass::as.magpie(data_list, spatial = 1, temporal = 2)
+  getNames(x) <- NULL
   return(x)
 }
 
