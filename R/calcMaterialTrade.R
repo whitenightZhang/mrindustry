@@ -30,7 +30,7 @@ calcMaterialTrade <- function(subtype) {
   unit <- "tonnes (t)"
   description_general <- paste("Net trade (i.e. net export) of ", subtype, ". Data from:")
   description_chatham <- paste(
-    "Chatham House (2024), ‘resourcetrade.earth’, https://resourcetrade.earth/",
+    "Chatham House (2024), 'resourcetrade.earth', https://resourcetrade.earth/",
     "Accessed: 29.04.2025. Data based on UN Comtrade."
   )
   description_comtrade <- paste(

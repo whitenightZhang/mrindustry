@@ -34,8 +34,8 @@ readUNComtrade <- function(subtype) {
     data <- subset(data, data$cmdCode %in% resources)
 
     # sum imports and exports
-    imports <- aggregate(`qty` ~ `reporterISO`, data, sum, subset = data$flowDesc == "Import")
-    exports <- aggregate(`qty` ~ `reporterISO`, data, sum, subset = data$flowDesc == "Export")
+    imports <- stats::aggregate(`qty` ~ `reporterISO`, data, sum, subset = data$flowDesc == "Import")
+    exports <- stats::aggregate(`qty` ~ `reporterISO`, data, sum, subset = data$flowDesc == "Export")
 
     # rename for merge
     imports <- setNames(imports, c("region", "weight.imp"))

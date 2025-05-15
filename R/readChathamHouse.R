@@ -33,8 +33,8 @@ readChathamHouse <- function(subtype) {
     data <- subset(data, data$Resource %in% resources)
 
     # sum imports and exports
-    imports <- aggregate(`Weight (1000kg)` ~ `Importer ISO3`, data, sum)
-    exports <- aggregate(`Weight (1000kg)` ~ `Exporter ISO3`, data, sum)
+    imports <- stats::aggregate(`Weight (1000kg)` ~ `Importer ISO3`, data, sum)
+    exports <- stats::aggregate(`Weight (1000kg)` ~ `Exporter ISO3`, data, sum)
 
     # rename for merge
     imports <- setNames(imports, c("region", "weight.imp"))

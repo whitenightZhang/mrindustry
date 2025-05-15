@@ -4,10 +4,12 @@
 \alias{convertAndrew2019}
 \title{Convert data from Andrew 2019.}
 \usage{
-convertAndrew2019(x)
+convertAndrew2019(x, subtype)
 }
 \arguments{
 \item{x}{Magpie object}
+
+\item{subtype}{Material subtype. Can be "cement" or "clinker".}
 }
 \description{
 Convert data from Andrew 2019.
