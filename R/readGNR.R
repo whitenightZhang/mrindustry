@@ -6,7 +6,7 @@
 #'
 #' @author Bennet Weiss
 #' @param subtype Variable to be read in. Currently, only "clinker_ratio" is supported.
-readGNR <- function(subtype) {
+readGNR <- function(subtype = "clinker_ratio") {
   path <- file.path("v1", "Postdam_GCCA_GNR_2022.xlsx")
   regions <-  readxl::excel_sheets(path) %>%
     setdiff(c("Read me", "GNR Coverage"))
@@ -35,6 +35,9 @@ readGNR <- function(subtype) {
                   "A794:C814",
                   "A951:C971"
   ))
+  if (!subtype %in% names(ranges)){
+    stop("Invalid subtype. Can only be 'clinker_ratio'.")
+  }
   for (i in seq_along(regions)) {
     df <- readxl::read_xlsx(path, sheet = regions[i], range = ranges[[subtype]][i])
     synonyms <- c(
@@ -42,7 +45,7 @@ readGNR <- function(subtype) {
       "United Kingdom" = "United Kingdom of Great Britain and Northern Ireland",
       "United States" = "United States of America"
     )
-    if (!all(clean(df$Region, synonyms) == clean(regions[i], synonyms))) {
+    if (!all(normalize_text(df$Region, synonyms) == normalize_text(regions[i], synonyms))) {
       stop(
         "Sheet name and Region should match:\n  Sheet:  ", regions[i],
         "\n  Region: ", unique(df$Region)
@@ -57,20 +60,23 @@ readGNR <- function(subtype) {
   return(x)
 }
 
-#' Clean strings to make them ready for comparison.
+#' Normalize strings for comparison.
 #'
-#' @author Bennet Weiss
-#' @param x string to be cleaned
-#' @param replace
-clean <- function(x, replace) {
+#' @param strings Character vector to normalize.
+#' @param lookup Named character vector mapping originals to replacements.
+#' @return Character vector of normalized strings.
+normalize_text <- function(strings, lookup) {
 
-  strip <- function (z){
-    z <- tolower(z)
-    z <- gsub("[ /-]", "", z)
-    return(z)
+  normalize <- function (s){
+    s <- tolower(s)
+    return(gsub("[ /-]", "", s))
   }
 
-  y <- ifelse(x %in% names(replace), strip(replace[x]), strip(x))
+  replaced <- ifelse(
+    strings %in% names(lookup),
+    lookup[strings],
+    strings
+  )
 
-  return(y)
+  return(normalize(replaced))
 }
