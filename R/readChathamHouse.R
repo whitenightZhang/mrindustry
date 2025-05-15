@@ -8,7 +8,7 @@
 readChathamHouse <- function(subtype) {
   years <- 2000:2022
   net_list <- vector("list", length(years))
-  for (i in seq_along(years)){
+  for (i in seq_along(years)) {
     year <- years[i]
 
     # get data
@@ -17,23 +17,24 @@ readChathamHouse <- function(subtype) {
     data <- readxl::read_xlsx(path, sheet = "Trades")
 
     # select data of interest
-    data <- subset(data, Year == year) # each excel sheet contains up to 5 years
-    if(subtype == "cement"){
-      resources <- c("Portland cement, other than white cement",
-                    "Portland cement, white or white artificially coloured",
-                    "Other hydraulic cements, except Portland or aluminous",
-                    "Aluminous cement"
-                    )
-    } else if (subtype == "clinker"){
+    data <- subset(data, data$Year == year) # each excel sheet contains up to 5 years
+    if (subtype == "cement") {
+      resources <- c(
+        "Portland cement, other than white cement",
+        "Portland cement, white or white artificially coloured",
+        "Other hydraulic cements, except Portland or aluminous",
+        "Aluminous cement"
+      )
+    } else if (subtype == "clinker") {
       resources <- c("Cement clinkers")
     } else {
       stop("Invalid subtype. Choose either 'cement' or 'clinker'.")
     }
-    data <- subset(data, Resource %in% resources)
+    data <- subset(data, data$Resource %in% resources)
 
     # sum imports and exports
-    imports  <- aggregate(`Weight (1000kg)` ~ `Importer ISO3`, data, sum)
-    exports  <- aggregate(`Weight (1000kg)` ~ `Exporter ISO3`, data, sum)
+    imports <- aggregate(`Weight (1000kg)` ~ `Importer ISO3`, data, sum)
+    exports <- aggregate(`Weight (1000kg)` ~ `Exporter ISO3`, data, sum)
 
     # rename for merge
     imports <- setNames(imports, c("region", "weight.imp"))

@@ -9,7 +9,7 @@
 #' @param subtype Material subtype. Can be "cement" or "clinker".
 readAndrew2019 <- function(subtype) {
   folder <- "v2"
-  if(subtype == "cement") {
+  if (subtype == "cement") {
     path <- file.path(folder, "1. annual_cement_production.csv")
   } else if (subtype == "clinker") {
     path <- file.path(folder, "2. annual_clinker_production.csv")

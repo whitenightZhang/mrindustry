@@ -7,7 +7,7 @@
 readUNComtrade <- function(subtype) {
   years <- c(1988:1999, 2023, 2024)
   net_list <- vector("list", length(years))
-  for (i in seq_along(years)){
+  for (i in seq_along(years)) {
     year <- years[i]
 
     # get data
@@ -16,26 +16,26 @@ readUNComtrade <- function(subtype) {
     data <- suppressMessages(suppressWarnings(readr::read_csv(
       path,
       col_names = TRUE,
-      col_select=c("reporterISO", "flowDesc", "cmdCode", "qtyUnitAbbr", "qty")
+      col_select = c("reporterISO", "flowDesc", "cmdCode", "qtyUnitAbbr", "qty")
     )))
 
-    if (!all(data$qtyUnitAbbr %in% c("kg", "N/A"))){
+    if (!all(data$qtyUnitAbbr %in% c("kg", "N/A"))) {
       stop("All quantities should have unit 'kg'.")
     }
 
     # select relevant HS codes
-    if(subtype == "cement"){
+    if (subtype == "cement") {
       resources <- c(252321, 252329, 252330, 252390)
-    } else if (subtype == "clinker"){
+    } else if (subtype == "clinker") {
       resources <- c(252310)
     } else {
       stop("Invalid subtype. Choose either 'cement' or 'clinker'.")
     }
-    data <- subset(data, cmdCode %in% resources)
+    data <- subset(data, data$cmdCode %in% resources)
 
     # sum imports and exports
-    imports  <- aggregate(`qty` ~ `reporterISO`, data, sum, subset = flowDesc == "Import")
-    exports  <- aggregate(`qty` ~ `reporterISO`, data, sum, subset = flowDesc == "Export")
+    imports <- aggregate(`qty` ~ `reporterISO`, data, sum, subset = data$flowDesc == "Import")
+    exports <- aggregate(`qty` ~ `reporterISO`, data, sum, subset = data$flowDesc == "Export")
 
     # rename for merge
     imports <- setNames(imports, c("region", "weight.imp"))

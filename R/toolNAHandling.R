@@ -2,7 +2,7 @@
 #' @author Bennet Weiss
 #' @param x Magpie object
 toolRemoveNA <- function(x) {
-  df <- as.data.frame(x, rev=3)
+  df <- as.data.frame(x, rev = 3)
   df_clean <- df[complete.cases(df), ]
   df_clean <- na.omit(df)
   x_clean <- as.magpie(df_clean)
