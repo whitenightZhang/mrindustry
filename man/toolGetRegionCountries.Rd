@@ -2,7 +2,7 @@
 % Please edit documentation in R/toolGetRegionCountries.R
 \name{toolGetRegionCountries}
 \alias{toolGetRegionCountries}
-\title{Retrieve countries of a region from a region mapping.}
+\title{Retrieve countries from a Magpie object that belong to a region based on a regionmapping.}
 \usage{
 toolGetRegionCountries(x, region, regionmapping)
 }
@@ -14,7 +14,7 @@ toolGetRegionCountries(x, region, regionmapping)
 \item{regionmapping}{mapping of regions to countries}
 }
 \description{
-Retrieve countries of a region from a region mapping.
+Retrieve countries from a Magpie object that belong to a region based on a regionmapping.
 }
 \author{
 Bennet Weiss

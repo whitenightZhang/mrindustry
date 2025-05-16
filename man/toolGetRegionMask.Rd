@@ -2,7 +2,7 @@
 % Please edit documentation in R/toolGetRegionCountries.R
 \name{toolGetRegionMask}
 \alias{toolGetRegionMask}
-\title{Get region mask that selects countries of a region based on a region mapping.}
+\title{Get region mask for Magpie object that selects countries of a region based on a region mapping.}
 \usage{
 toolGetRegionMask(x, region, regionmapping)
 }
@@ -14,7 +14,7 @@ toolGetRegionMask(x, region, regionmapping)
 \item{regionmapping}{mapping of regions to countries}
 }
 \description{
-Get region mask that selects countries of a region based on a region mapping.
+Get region mask for Magpie object that selects countries of a region based on a region mapping.
 }
 \author{
 Bennet Weiss
