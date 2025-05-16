@@ -3,7 +3,7 @@
 #' @param x Magpie object
 toolRemoveNA <- function(x) {
   df <- as.data.frame(x, rev = 3)
-  df_clean <- df[base::complete.cases(df), ]
+  df_clean <- df[stats::complete.cases(df), ]
   df_clean <- na.omit(df)
   x_clean <- as.magpie(df_clean)
   return(x_clean)
