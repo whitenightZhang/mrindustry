@@ -342,7 +342,7 @@ calcFeDemandIndustry <- function(scenarios, use_ODYM_RECC = FALSE, last_empirica
              description = paste('missing fixing_year for scenario in',
                                  'material_relative')) %>%
       # scale factor in over 15 years
-      mutate(l = pmin(1, pmax(0, (.data$year - .data$fixing_year) / 15)),
+      mutate(l = pmin(1, pmax(0, (.data$year - .data$fixing_year) / .data$phasein)),
              value = .data$specific.production
                    * .data$GDP
                    * (.data$factor * .data$l + 1 * (1 - .data$l))) %>%
