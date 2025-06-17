@@ -2,11 +2,13 @@
 #'
 #' Read-in RMI (Rocky Mountain Institute) "Transforming China Chemicals Industry Pathways and Outlook under the Carbon Neutrality Goal 2022.xlsx"
 #' data from either "ES1-3 China Chemical Demand" or "ES29 China Chemical Structure" sheets as a magclass object.
+#' Data contains chemical demand projections 2020-2050 for ammonia, methanol and ethylene and the feedstock structure for the production of ammonia, methanol and ethylene
+#' in the zero-carbon scenario.
 #'
 #' @param subtype[1] Type of RMI_China data sheet to read. Available types are:
 #'   \itemize{
 #'     \item ChemDemand: ES1-3 China Chemical Demand
-#'     \item ChemStructure: ES29 China Chemical Structure
+#'     \item ChemStructure: ES10 China Chemical Structure
 #'   }
 #' @param subtype[2] The specific product from the RMI_China data to read. Available types are:
 #'   \itemize{
@@ -44,7 +46,7 @@ readRMI_China <- function(subtype) {
       Methanol = "A6:AG9",
       Ethylene = "A10:AG10"
     )
-    countrylist <- "A1:AG1"
+    colnameslist <- "A1:AG1"
     ColumnsRange <- c(3:33)
   } else if (subtype[1] == "ChemStructure") {
     sheet_name <- "ES29 China Chemical Structure"
@@ -53,7 +55,7 @@ readRMI_China <- function(subtype) {
       Methanol = "A8:E16",
       Ethylene = "A17:E25"
     )
-    # No country list is provided for ChemStructure; we'll rely on pivoting.
+    # No colnameslist is provided for ChemStructure; we'll rely on pivoting.
     ColumnsRange <- c(2:5)
   } else {
     stop("Invalid subtype combination")
@@ -71,9 +73,9 @@ readRMI_China <- function(subtype) {
     
     data <- read_excel(filename, sheet = sheet_name, range = range, skip = 0, col_names = FALSE)
     
-    # Read country data and use it as column names.
-    country_data <- as.data.frame(read_excel(filename, sheet = sheet_name, range = countrylist, skip = 0, col_names = FALSE))
-    colnames(data) <- country_data[1, ]
+    # Read first line colnames data and use it as column names.
+    colnames_data <- as.data.frame(read_excel(filename, sheet = sheet_name, range = colnameslist, skip = 0, col_names = FALSE))
+    colnames(data) <- colnames_data[1, ]
     
     # Pivot the data to long format using the specified columns.
     data <- tidyr::pivot_longer(data, names_to = "Year", cols = ColumnsRange)

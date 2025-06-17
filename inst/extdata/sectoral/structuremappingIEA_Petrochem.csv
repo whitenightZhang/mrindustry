@@ -1,0 +1,17 @@
+remind;products;description
+Other oil;HARDCOAL;Hard coal (if no detail)
+Naphtha;BROWN;Brown coal (if no detail)
+Ethane;ANTCOAL;Anthracite
+Bioenergy;COKCOAL;Coking coal
+Coal;BITCOAL;Other bituminous coal
+Natural gas;SUBCOAL;Sub-bituminous coal
+PDH/NCC;LIGNITE;Lignite
+STC heavy;PATFUEL;Patent fuel
+STC light;OVENCOKE;Coke oven coke
+MTO/MTA;GASCOKE;Gas coke
+BDH;COALTAR;Coal tar
+NG SR;BKB;BKB
+COG SR;GASWKSGS;Gas works gas
+Oil SR;COKEOVGS;Coke oven gas
+Coal GS;BLFURGS;Blast furnace gas
+Bio GS;OGASES;Other recovered gases

@@ -1,26 +1,29 @@
 #'
+#' Calculates ammonia production volumes per production route in Mt for 2015-2020
+#' based on IFA total ammonia production volumes (2015-2020) and
+#' shares for different ammonia production routes from IEA (2020 and 2017) and China specific data (2020)
+#'
 #' @author Qianzhi Zhang
 #'
 #' @export
 calcAmmoniaRoute <- function() {
   # ============================================================================
-  # 1. Load and preprocess ammonia production data
-  #    - Convert production values to thousands and select the years 2015-2020.
+  # Get IFA ammonia production volumes in Kt, convert to Mt and select the years 2015-2020.
   # ============================================================================
   ammonia_production <- (calcOutput("IFA_Chem", subtype = "ammonia_statistics_production", aggregate = TRUE) / 1000) %>%
     .[, c("y2015", "y2016", "y2017", "y2018", "y2019", "y2020"), ] %>%
     as.data.frame()
 
   # ============================================================================
-  # 2. Process IEA Ammonia data (Base Year 2020)
-  #    - Exclude certain regions and map technology types to custom categories.
+  # Get IEA shares for different ammonia production routes for the Base Year 2020 (IEA_Ammonia)
   # ============================================================================
   ammonia_share_iea <- calcOutput("IEA_Ammonia", subtype = "BaseYear_2020", aggregate = TRUE)[, "y2020", ] %>%
     as.data.frame() %>%
     # Exclude regions: China (CHA), Japan (JPN), and OAS
+    # There is no data on the Asia Pacific Region in IEA_Ammonia, therefore Japan and OAS are taken from IEA_Petrochem (see below); for China there is more specific data (RMI_China)
     filter(!(.[[2]] %in% c("CHA", "JPN", "OAS")))
 
-  # Map Data1 values to custom categories
+  # Map Data1 values to REMIND categories
   ammonia_share_iea$Category <- case_when(
     ammonia_share_iea$Data1 %in% c("Coal", "Pyrolysis", "CCU") ~ "amSyCoal",
     ammonia_share_iea$Data1 %in% c("Coal_with_CCS") ~ "amSyCoal_cc", # TODO: Decide if CCS tech is needed in the base year
@@ -31,9 +34,8 @@ calcAmmoniaRoute <- function() {
   )
 
   # ---------------------------------------------------------------------------
-  # 2.1 Special handling for the "amSyNG_cc" category:
-  #      - Sum the total amSyNG_cc value across all regions.
-  #      - Reassign the entire total to USA and set the values for other regions to zero.
+  # Gas with CCS route in 2020 is only employed in the US. The aggregation performed in convertIEA_Ammonia assigned it 
+  # to all North American countries. To fix this, the total of "amSyNG_cc" category shares are reassigned to USA and of all other regions set to zero.
   # ---------------------------------------------------------------------------
   am_syngcc_total <- ammonia_share_iea %>%
     filter(Category == "amSyNG_cc") %>%
@@ -45,7 +47,11 @@ calcAmmoniaRoute <- function() {
       ifelse(Category == "amSyNG_cc", 0, Value)
     ))
 
+  # ----------------------------------------------------------------------------
   # Group by Region, Year, and Category, then calculate normalized share (%)
+  #   - the convertIEA_Ammonia function currently disaggregates the shares to the country level in a way that they don't sum up to 1
+  #   - consequently, also for the H12 regions, they don't sum up to 1, this is corrected here
+  # ----------------------------------------------------------------------------
   ammonia_share_iea <- ammonia_share_iea %>%
     group_by(Region, Year, Category) %>%
     summarise(Value = sum(Value, na.rm = TRUE)) %>%
@@ -55,13 +61,13 @@ calcAmmoniaRoute <- function() {
     select(-Value, -Year)
 
   # ============================================================================
-  # 3. Process IEA Petrochem data (for Japan and OAS in 2017)
-  #    - Map technology types to categories and adjust values.
+  # Get IEA shares for different ammonia production routes for Japan and OAS in 2017 (IEA_Petrochem)
+  #   - the output of IEA_Petrochem (subtype="RouteRTS_Ammonia") is Mt of ammonia output per production route
   # ============================================================================
   ammonia_share_ieapetro <- calcOutput("IEA_Petrochem", subtype = "RouteRTS_Ammonia", aggregate = TRUE)[c("JPN", "OAS"), "y2017", ] %>%
     as.data.frame()
 
-  # Map Data1 values to custom categories for petrochemical routes
+  # Map Data1 values to REMIND categories for petrochemical routes
   ammonia_share_ieapetro$Category <- case_when(
     ammonia_share_ieapetro$Data1 %in% c("Coal_GS", "Pyrolysis", "CCU") ~ "amSyCoal",
     ammonia_share_ieapetro$Data1 %in% c("NG_SR", "COG_SR", "Bio_GS") ~ "amSyNG",
@@ -70,7 +76,7 @@ calcAmmoniaRoute <- function() {
 
   # Group by Region, Year, and Category:
   #    - Sum the values, then set amSyCoal values to 0.
-  #    - Normalize the values within each region-year group.
+  #    - calculate the share per production route for each region-year group.
   ammonia_share_ieapetro <- ammonia_share_ieapetro %>%
     group_by(Region, Year, Category) %>%
     summarise(Value = sum(Value, na.rm = TRUE)) %>% # Sum values by group
@@ -81,13 +87,12 @@ calcAmmoniaRoute <- function() {
     select(-Value, -Year)
 
   # ============================================================================
-  # 4. Process China-specific ammonia data (Base Year 2020)
-  #    - Map technology types to custom categories and calculate normalized shares.
+  # Get China-specific ammonia data (Base Year 2020)
   # ============================================================================
   ammonia_share_china <- calcOutput("RMI_China", subtype = "ChemStructure_Ammonia", aggregate = TRUE)["CHA", "y2020", ] %>%
     as.data.frame()
 
-  # Map Data1 values to categories for China data
+  # Map Data1 values to REMIND categories for China data
   ammonia_share_china$Category <- case_when(
     ammonia_share_china$Data1 %in% c("Coal") ~ "amSyCoal",
     ammonia_share_china$Data1 %in% c("Coal + CCS") ~ "amSyCoal_cc",
@@ -106,14 +111,14 @@ calcAmmoniaRoute <- function() {
     select(-Value, -Year)
 
   # ============================================================================
-  # 5. Combine all ammonia share data (IEA, IEA Petrochem, and China)
+  # Combine all ammonia share data (IEA, IEA Petrochem, and China)
   # ============================================================================
   ammonia_share_all <- rbind(ammonia_share_iea, ammonia_share_ieapetro, ammonia_share_china)
 
   # ============================================================================
-  # 6. Calculate actual ammonia route values
-  #    - Join the combined share data with production data.
-  #    - Compute the actual value using the normalized share.
+  # Calculate actual ammonia route values
+  #   - Join the combined share data with production data.
+  #   - Compute the actual value using the normalized share.
   # ============================================================================
   ammonia_route_value <- ammonia_share_all %>%
     left_join(ammonia_production, by = "Region") %>%
@@ -121,23 +126,23 @@ calcAmmoniaRoute <- function() {
     select(-Value, -Cell, -Data1, -normalized_value)
 
   # ============================================================================
-  # 7. Load non-aggregated ammonia production data (for weighting purposes)
+  # Load non-aggregated ammonia production data (for weighting purposes)
   # ============================================================================
   ammonia_production_all <- calcOutput("IFA_Chem", subtype = "ammonia_statistics_production", aggregate = FALSE) %>%
     .[, c("y2015", "y2016", "y2017", "y2018", "y2019", "y2020"), ]
 
   # ============================================================================
-  # 8. Load regional mapping for aggregation from regions to countries
+  # Load regional mapping for aggregation from regions to countries
   # ============================================================================
   map <- toolGetMapping("regionmappingH12.csv", type = "regional", where = "mrindustry")
 
   # ============================================================================
-  # 9. Convert ammonia route data to a magpie object for spatial and temporal analysis
+  # Convert ammonia route data to a magpie object for spatial and temporal analysis
   # ============================================================================
   x <- as.magpie(ammonia_route_value, spatial = 1, temporal = 3)
 
   # ============================================================================
-  # 10. Aggregate regional data to the country level using the mapping and production weights
+  # Aggregate regional data to the country level using the mapping and production weights
   # ============================================================================
   x <- toolAggregate(
     x,
@@ -150,7 +155,7 @@ calcAmmoniaRoute <- function() {
   x[is.na(x)] <- 0 # Replace any NA values with 0
 
   # ============================================================================
-  # 11. Return the final object along with metadata
+  # Return the final object along with metadata
   # ============================================================================
   return(list(
     x = x,

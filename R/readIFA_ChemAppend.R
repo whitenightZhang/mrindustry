@@ -1,6 +1,8 @@
 #' Read IFA
 #'
-#' Read-in IFA (International fertilizer Association) data .xlsx file as a magclass object.
+#' Read-in IFA (International fertilizer Association) data .xlsx file containing
+#' production volumes and/or capacities for ammonium nitrate (AN), ammonium sulphate (AS),
+#' calcium ammonium nitrate (CAN) and urea ammonium nitrate (UAN) as a magclass object.
 #'
 #' @param subtype Character string indicating the IFA product and data type to read.
 #'                Available combinations include:
@@ -8,7 +10,7 @@
 #'                  \item AN_statistics_production
 #'                  \item AS_statistics_production
 #'                  \item CAN_statistics_production
-#'                  \item AN_capacities, AS_capacities, UAN_capacities
+#'                  \item AN_capacities_capacities, AS_capacities_capacities, UAN_capacities_capacities
 #'                }
 #'
 #' @return Magpie object of the IFA data.

@@ -11,7 +11,7 @@ calcIEA_PetrochemEI <- function() {
   return(list(
     x = x,
     weight = weight,
-    unit = "%",
-    description = "Share on ammonia production routes in different regions from IEA Ammonia Technology Roadmap 2021"
+    unit = "GJf/t-output",
+    description = "Country specific energy consumption for the production of key chemicals from the IEA Information Paper Chemical and Petrochemical Sector 2009 "
   ))
 }

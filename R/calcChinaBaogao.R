@@ -8,6 +8,6 @@ calcChinaBaogao <- function() {
     x = x,
     weight = NULL,
     unit = "Mt Production",
-    description = "Methanol capicaity, Production and cunsumption datas in China from ChinaBaogao website"
+    description = "Methanol capacity, Production and consumption data in China from ChinaBaogao website"
   ))
 }

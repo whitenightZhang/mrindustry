@@ -29,7 +29,7 @@ readIEA_Ammonia <- function(subtype) {
   filename <- "IEA Ammonia Technology Roadmap 2021.xlsx"
   data <- read_excel(filename, sheet = "Fig 2.9 Ammonia prod route", range = "A1:Y12", 
                      skip = 0, col_names = FALSE)
-  
+
   # ---------------------------------------------------------------------------
   # 2. Transpose and Set Up Data Frame
   #    - Transpose the data so that rows become columns.

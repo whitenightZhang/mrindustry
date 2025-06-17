@@ -1,6 +1,8 @@
 #' Read IHS_Meth
 #'
 #' Read-in 9TH RUSSIA & CIS OIL & GAS EXECUTIVE SUMMIT 2019 METHANOL INS.xlsx file as a magclass object.
+#' Regional data on Methanol Production, Capacity and Demand from 2018 is combined with temporal coverage of Methanol capacities 2010-2020
+#' to scale the 2018 data in order to estimate production, capacity and demand for 2010-2020.
 #'
 #' @param subtype[1] Type of Methanol data to read. Available types are:
 #'                \itemize{
@@ -41,9 +43,9 @@ readIHS_Meth <- function(subtype) {
   
   # Select the range based on the first component of subtype (e.g., "Production")
   range <- toolSubtypeSelect(subtype[1], ranges)
-  
+  browser()
   # Read country names and rename the column to "Country"
-  country_data <- as.data.frame(read_excel(filename, sheet = sheet_name, range = countrylist, skip = 5))
+  country_data <- as.data.frame(read_excel(filename, sheet = sheet_name, range = countrylist))
   colnames(country_data) <- "Country"
   
   # ---------------------------------------------------------------------------
@@ -51,7 +53,7 @@ readIHS_Meth <- function(subtype) {
   #    - Read the main data from the selected range.
   #    - Combine the country names with the main data.
   # ---------------------------------------------------------------------------
-  data <- as.data.frame(read_excel(filename, sheet = sheet_name, range = range, skip = 0))
+  data <- as.data.frame(read_excel(filename, sheet = sheet_name, range = range))
   data <- cbind(country_data, data)
   
   # ---------------------------------------------------------------------------
@@ -60,7 +62,7 @@ readIHS_Meth <- function(subtype) {
   #    - Filter for the row where Region equals "TOTAL" and pivot the data to long format.
   #    - Compute scaling ratios relative to the 2018 value.
   # ---------------------------------------------------------------------------
-  Total_capacity <- as.data.frame(read_excel(filename, sheet = "Methanol P&D Region IHS", range = "A1:L12", skip = 0))
+  Total_capacity <- as.data.frame(read_excel(filename, sheet = "Methanol P&D Region IHS", range = "A1:L12"))
   Total_capacity <- Total_capacity[Total_capacity$Region == "TOTAL", ]
   Total_capacity <- tidyr::pivot_longer(Total_capacity, names_to = "Year", cols = c(2:12))
   

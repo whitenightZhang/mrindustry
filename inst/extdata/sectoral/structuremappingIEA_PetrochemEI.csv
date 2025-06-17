@@ -1,0 +1,20 @@
+Source,Target,Type
+"Ammonia, fuel & steam",amSyCoal,feso_chemicals
+"Ammonia, fuel & steam",amSyLiq,feli_chemicals
+"Ammonia, fuel & steam",amSyNG,fega_chemicals
+"Methanol, fuel & steam",meSySol,feso_chemicals
+"Methanol, fuel & steam",meSyLiq,feli_chemicals
+"Methanol, fuel & steam",meSyNg,fega_chemicals
+"Steam cracking, fuel & steam",stCrLiq,feli_chemicals
+"Steam cracking, feedstock for NG",stCrNg,feli_chemicals
+"Steam cracking, fuel & steam for NG",stCrNg,fega_chemicals
+amSyCoal electricity,amSyCoal,feelwlth_chemicals
+amSyLiq electricity,amSyLiq,feelwlth_chemicals
+amSyNG electricity,amSyNG,feelwlth_chemicals
+meSySol electricity,meSySol,feelwlth_chemicals
+meSyLiq electricity,meSyLiq,feelwlth_chemicals
+meSyNg electricity,meSyNg,feelwlth_chemicals
+stCrLiq electricity,stCrLiq,feelwlth_chemicals
+stCrNg electricity,stCrNg,feelwlth_chemicals
+mtoMta electricity,mtoMta,feelwlth_chemicals
+fertProd electricity,fertProd,feelwlth_chemicals
