@@ -42,7 +42,7 @@ calcAllChemicalFlow <- function() {
   # 3. Load Total Chemical Production Data for Weighting
   #    - Retrieve the ChemicalTotal data for 2020 to be used as weights.
   # ---------------------------------------------------------------------------
-  Chemcial_Total <- calcOutput("ChemicalTotal", aggregate = FALSE) %>%
+  Chemical_Total <- calcOutput("ChemicalTotal", aggregate = FALSE) %>%
     .[, "y2020", ]
   
   # ---------------------------------------------------------------------------
@@ -54,7 +54,7 @@ calcAllChemicalFlow <- function() {
   map <- toolGetMapping("regionmappingH12.csv", type = "regional", where = "mrindustry")
   x <- as.magpie(AllChemicalRoute_summarized, spatial = 1, temporal = 2)
   x <- toolAggregate(x, rel = map, dim = 1, from = "RegionCode", to = "CountryCode", 
-                     weight = Chemcial_Total[unique(map$CountryCode), , ])
+                     weight = Chemical_Total[unique(map$CountryCode), , ])
   x[is.na(x)] <- 0  # Replace any missing values with 0
   
   # ---------------------------------------------------------------------------
@@ -63,7 +63,7 @@ calcAllChemicalFlow <- function() {
   return(list(
     x = x,
     weight = NULL,
-    unit = "Gt Chemical Flows",
+    unit = "Gt Chemical Flows & GtN (fertilizer)",
     description = "Aggregated chemical flow data recategorized into key sectors (ammonia, methanol, hvc, final outputs, and fertilizer) and aggregated to country level for 2020."
   ))
 }

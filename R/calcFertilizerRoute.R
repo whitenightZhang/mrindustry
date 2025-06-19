@@ -1,4 +1,7 @@
 #'
+#'Calculates the total fertilizer production (MtN, as the sum of urea, AN, CAN and AS) per country 
+#'and the fraction of ammonia production (MtN/MtN) used for fertilizer production based on IFA data.
+#'
 #' @author Qianzhi Zhang
 #'
 #' @export
@@ -7,7 +10,7 @@ calcFertilizerRoute <- function() {
   # ---------------------------------------------------------------------------
   # 1. Load and Preprocess fertilizer Production Data
   #    - Retrieve production data for Urea, AN, CAN, and AS from IFA datasets.
-  #    - Convert the production values by dividing by 1000.
+  #    - Convert the production values from ktN to MtN by dividing by 1000.
   # ---------------------------------------------------------------------------
   
   # 1.1 Urea production data from IFA_ChemN

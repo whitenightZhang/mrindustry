@@ -7,7 +7,7 @@ calcMMSA_Methanol <- function(subtype) {
   return(list(
     x = x,
     weight = NULL,
-    unit = "Mt Production",
-    description = "Methanol production datas in different regions from MMSA Global Methanol Outlook 2023 Growth and Decarbonization"
+    unit = "Mt",
+    description = "Methanol production capacity and demand data in different regions from MMSA Global Methanol Outlook 2023 Growth and Decarbonization"
   ))
 }

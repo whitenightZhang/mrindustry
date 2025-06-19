@@ -3,8 +3,9 @@ readIEA_PetrochemEI <- function() {
   # 1. Read Data from Excel
   #    - Load data from the "Table 12. Petro Regional Coef" sheet of the 
   #      "IEA Chemical and Petrochemical Sector 2009.xlsx" file.
-  #    - Specify the cell range A1:O4 and do not skip any rows.
-  #    - Remove unwanted columns (Benelux, Canada, France, Italy, Korea, Taiwan).
+  #    - Remove unwanted columns (Benelux, Canada, France, Italy, Korea, Taiwan):
+  #       Only retain countries representative for H12 regions, all regions without 
+  #       representative values get assigned the "World value" (e.g. Germany for EUR, World for OAS)
   # ---------------------------------------------------------------------------
   data <- read_excel("IEA Chemical and Petrochemical Sector 2009.xlsx",
                      sheet = "Table 12. Petro Regional Coef",

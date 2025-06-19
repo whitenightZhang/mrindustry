@@ -1,4 +1,8 @@
 #'
+#'Joins magpie objects with ammonia, methanol, HVC (Mt) and fertilizer production routes (MtN),
+#'calculates ammonia and methanol final routes (Mt that are not used for HVC/fertilizer production),
+#'converts from Mt to Gt and returns magpie object for year 2020.
+#'
 #' @author Qianzhi Zhang
 #'
 #' @export
@@ -125,7 +129,7 @@ calcAllChemicalRoute <- function() {
   return(list(
     x = x,
     weight = NULL,
-    unit = "Gt Chemical Routes",
+    unit = "Gt Chemical Routes & GtN (fertilizer)",
     description = "Aggregated chemical route data integrating ammonia, methanol, hvcs, and fertilizer routes. Data are adjusted by conversion factors and aggregated to country level for 2020 (scaled from Mt to Gt)."
   ))
 }

@@ -8,6 +8,6 @@ calcIHS_Meth <- function(subtype) {
     x = x,
     weight = NULL,
     unit = "Mt Product",
-    description = "Methanol production datas in different regions from 9TH RUSSIA & CIS OIL & GAS EXECUTIVE SUMMIT 2019 METHANOL INS"
+    description = "Methanol production/capacity/demand datas in different regions from 9TH RUSSIA & CIS OIL & GAS EXECUTIVE SUMMIT 2019 METHANOL INS"
   ))
 }

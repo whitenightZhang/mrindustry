@@ -64,7 +64,7 @@ readIEA_Petrochem <- function(subtype) {
                      Methanol = "A49:I56"
                    ),
                    ColumnsName = "Year",
-                   ColumnsRange = c(2:8)
+                   ColumnsRange = c(2:9)
                  ),
                  "Feedstock" = list(
                    sheet_name = "Fig 4.5 Petrochem Feedstock",

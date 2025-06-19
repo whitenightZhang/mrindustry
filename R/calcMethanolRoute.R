@@ -1,4 +1,8 @@
 #'
+#' Calculates methanol production volumes per production route in Mt for 2015-2020
+#' based on methanol production volumes (Argus 2018 data, extrapolated to 2015-2020 based on IHS data, and China specific data 2015-2020) and
+#' shares for different methanol production routes from IEA (2017) and China specific data (2020)
+#'
 #' @author Qianzhi Zhang
 #'
 #' @export

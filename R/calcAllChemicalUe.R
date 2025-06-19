@@ -15,6 +15,12 @@ calcAllChemicalUe <- function() {
     mat2ue = c(0.66, 0.73, 0.37, 0.69),  # Conversion factors
     Unit = c("2017$/kg", "2017$/kgN", "2017$/kg", "2017$/kg")
   )
+  #ue_chemicals is measured in value_added (trn$2017), whilst material is measured in Gt
+  #So this is the price of material in trn$2017/Gt = $2017/kg
+  #p37_mat2ue(t,all_regi,"hvc","ue_chemicals") = 0.66; !!2017$/kg Source: https://businessanalytiq.com/procurementanalytics/index/ethylene-price-index/
+  #p37_mat2ue("fertilizer","ue_chemicals") = 0.73; !!2017$/kgN Source: https://farmdocdaily.illinois.edu/wp-content/uploads/2023/06/06132023_fig1,png 2020 Global Average
+  #p37_mat2ue("methFinal","ue_chemicals") = 0.37; !!2017$/kg Source: https://www.methanex.com/about-methanol/pricing/ 2020 Global Average
+  #p37_mat2ue("ammoFinal","ue_chemicals") = 0.69; !!2017$/kg Source: https://businessanalytiq.com/procurementanalytics/index/ammonia-price-index/ 2020 Global Average
   
   
   # ---------------------------------------------------------------------------

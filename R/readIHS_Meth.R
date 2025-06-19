@@ -43,7 +43,7 @@ readIHS_Meth <- function(subtype) {
   
   # Select the range based on the first component of subtype (e.g., "Production")
   range <- toolSubtypeSelect(subtype[1], ranges)
-  browser()
+
   # Read country names and rename the column to "Country"
   country_data <- as.data.frame(read_excel(filename, sheet = sheet_name, range = countrylist))
   colnames(country_data) <- "Country"
