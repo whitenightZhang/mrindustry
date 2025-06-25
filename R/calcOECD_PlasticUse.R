@@ -52,7 +52,7 @@ calcOECD_PlasticUse <- function() {
     "regionmappingH12.csv", type = "regional", where = "mrindustry"
   )
   gdp_weights <- calcOutput(
-    "GDP", average2020 = FALSE, naming = "scenario", aggregate = FALSE
+    "GDP", scenario="SSP2", average2020 = FALSE, naming = "scenario", aggregate = FALSE
   )[, paste0("y", 1990:2019), "SSP2"]
   
   x <- toolAggregate(

@@ -8,9 +8,9 @@
 #' @export
 calcOECD_PlasticUseShare <- function() {
   # ---------------------------------------------------------------------------
-  # 1. Load and preprocess regional use data (2019)
-  #    - Read OECD plastic use outputs at regional level.
-  #    - Exclude total categories and compute sectoral sums and shares.
+  # Calculate share of plastic use by sector (plastics application) from OECD data
+  # - Read OECD plastic use outputs at regional level.
+  # - Exclude total categories and compute sectoral sums (summarise over all polymers) and shares.
   # ---------------------------------------------------------------------------
   regional_df <- calcOutput(
     "OECD_Plastic", subtype = "Use_2019_region", aggregate = TRUE
@@ -24,12 +24,12 @@ calcOECD_PlasticUseShare <- function() {
     dplyr::ungroup()
   
   # ---------------------------------------------------------------------------
-  # 2. Import EU plastic share reference data
-  #    - Read CSV of PlasticEurope shares and reshape to long format.
-  #    - Exclude total demand and convert Year to integer.
+  # Replace shares for EU with EU plastic share reference data
+  # - Read CSV of PlasticEurope shares 
+  # - Map sectors of EU shares to sectors of OECD shares, for mapping "Agriculture" and "Others" to "Others" and "Textiles" use weights from OECD data
   # ---------------------------------------------------------------------------
   eu_share_df <- read.csv(
-    "C:/Data/madrat/sources/PlasticEurope/PlasticShare_EU.csv"
+    "C:/Users/leoniesc/madrat/sources/PlasticEurope/PlasticShare_EU.csv" #C:/Data/madrat/sources/PlasticEurope/PlasticShare_EU.csv
   ) %>%
     tidyr::pivot_longer(
       cols = -Year,
@@ -38,12 +38,7 @@ calcOECD_PlasticUseShare <- function() {
     ) %>%
     dplyr::filter(Type != "Total.Demand..Mt.") %>%
     dplyr::mutate(Year = as.integer(as.character(Year)))
-  
-  # ---------------------------------------------------------------------------
-  # 3. Map EU shares to MagPIE and weight by regional totals
-  #    - Convert EU share dataframe to MagPIE (fraction).
-  #    - Compute EU weights from regional sectoral sums.
-  # ---------------------------------------------------------------------------
+
   sector_map <- toolGetMapping(
     "structuremappingPlasticShare.csv", type = "sectoral", where = "mrindustry"
   )
@@ -52,25 +47,20 @@ calcOECD_PlasticUseShare <- function() {
     regional_df[c("Region", "Year", "Data2", "Value_sum")],
     spatial = 1, temporal = 2
   )
-  
-  # ---------------------------------------------------------------------------
-  # 4. Replace EUR region share with EU reference
-  #    - Aggregate EU shares by sector mapping and assign to EUR for 2019.
-  # ---------------------------------------------------------------------------
-  x_share <- as.magpie(
-    regional_df[c("Region", "Year", "Data2", "share")],
-    spatial = 1, temporal = 2
-  )
   y_agg <- toolAggregate(
     y_eu, rel = sector_map, dim = 3,
     weight = weights_eu["EUR", "y2019", ],
     from = "Source", to = "Target"
   )
+  
+  x_share <- as.magpie(
+    regional_df[c("Region", "Year", "Data2", "share")],
+    spatial = 1, temporal = 2
+  )
   x_share["EUR", "y2019", ] <- y_agg["EUR", "y2019", ]
   
   # ---------------------------------------------------------------------------
-  # 5. Aggregate shares to country level
-  #    - Use regional-to-country mapping to disaggregate region shares.
+  # Aggregate shares to country level
   # ---------------------------------------------------------------------------
   region_map <- toolGetMapping(
     "regionmappingH12.csv", type = "regional", where = "mrindustry"
@@ -81,7 +71,7 @@ calcOECD_PlasticUseShare <- function() {
   )
   
   # ---------------------------------------------------------------------------
-  # 6. Prepare final weight object and return
+  # Prepare final weight object and return
   #    - Set all aggregation weights to 1.
   # ---------------------------------------------------------------------------
   weight <- x_country

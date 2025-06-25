@@ -39,20 +39,20 @@ calcOECD_PlasticIncinRate <- function() {
   #    - Load EU, China, and US EoL CSVs, compute incineration share per region-year.
   # ---------------------------------------------------------------------------
   # (paths and unit conversions may need adjustment)
-  eu <- read.csv("C:/Data/madrat/sources/PlasticEurope/PlasticEol.csv") %>%
+  eu <- read.csv("C:/Users/leoniesc/madrat/sources/PlasticEurope/PlasticEol.csv") %>% #C:/Data/madrat/sources/PlasticEurope/PlasticEol.csv
     dplyr::slice(1:15) %>%
     tidyr::pivot_longer(-Year, names_to = "Treatment", values_to = "Value") %>%
     dplyr::mutate(Region = "EUR", Year = as.integer(Year))
   
-  cn <- read.csv("C:/Data/madrat/sources/China_CNBS/PlasticEol.csv") %>%
+  cn <- read.csv("C:/Users/leoniesc/madrat/sources/China_CNBS/PlasticEol.csv") %>%
     dplyr::select(-Source.) %>%
     tidyr::pivot_longer(-Year, names_to = "Treatment", values_to = "Value") %>%
     dplyr::mutate(Value = Value / 100, Region = "CHA", Year = as.integer(Year))
   
-  us <- read.csv("C:/Data/madrat/sources/US_EPA/PlasticEol.csv") %>%
+  us <- read.csv("C:/Users/leoniesc/madrat/sources/US_EPA/PlasticEol.csv") %>%
     dplyr::slice(1:10) %>%
     tidyr::pivot_longer(-Year, names_to = "Treatment", values_to = "Value") %>%
-    dplyr::mutate(Value = Value / 1000, Region = "USA", Year = as.integer(Year))
+    dplyr::mutate(Value = Value / 1000, Region = "USA", Year = as.integer(Year)) # in thousands of U.S. tons, to convert to metric tons *0.90718
   
   ext_all <- dplyr::bind_rows(eu, cn, us) %>%
     dplyr::filter(Year >= 2005, Year <= 2020) %>%

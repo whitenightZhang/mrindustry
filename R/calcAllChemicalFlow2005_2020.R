@@ -26,7 +26,7 @@ calcAllChemicalFlow2005_2020 <- function() {
     as.data.frame() %>%
     select(-Cell, -Year)
   
-  feIndustry <- calcOutput("FeDemandIndustry", signif = 4, warnNA = FALSE, aggregate = TRUE)[, c("y2005", "y2010", "y2015", "y2020"), "gdp_SSP2.ue_chemicals"] %>%
+  feIndustry <- calcOutput("FeDemandIndustry", scenarios="SSP2",signif = 4, warnNA = FALSE, aggregate = TRUE)[, c("y2005", "y2010", "y2015", "y2020"), "SSP2.ue_chemicals"] %>%
     as.data.frame() %>%
     select(-Cell)
   
@@ -36,7 +36,7 @@ calcAllChemicalFlow2005_2020 <- function() {
     mutate(Material_Flow = Value.x * Value.y / mat2ue)
   
   # ---------------------------------------------------------------------------
-  # 3. Adjust Ammonia Flow Based on fertilizer Conversion Ratio
+  # 3. Calculate Ammonia Flow Based on fertilizer Conversion Ratio and ammoFinal Flow
   #    - Retrieve the NFert_ratio from FertilizerRoute (for year 2020).
   #    - Join the NFert_ratio to AllChemicalFlow (by Region).
   #    - For rows where Data1.x is "ammoFinal", adjust Material_Flow by dividing by (1 - NFert_ratio)
@@ -65,12 +65,12 @@ calcAllChemicalFlow2005_2020 <- function() {
     select(-NFert_ratio)
   
   # ---------------------------------------------------------------------------
-  # 4. Calculate MeFinalratio for Methanol Adjustment
+  # 4. Calculate ratio of methanol (MeFinalratio) that goes to methFinal in order to then calculate methanol flow based on methFinal flow
   #    - Retrieve AllChemicalRoute data for 2020 and remove extra columns.
   #    - From AllChemicalRoute, filter rows for "meToFinal" and "mtoMta".
   #    - Pivot these values wider to have separate columns for meToFinal and mtoMta.
   #    - Calculate MeFinalratio as:
-  #         if meToFinal is 0 then 1, else meToFinal / (mtoMta * 2.624 + meToFinal)
+  #         if meToFinal is 0 then 1(to avoid dividing by 0 later), else meToFinal / (mtoMta * 2.624 + meToFinal)
   # ---------------------------------------------------------------------------
   AllChemicalRoute <- calcOutput("AllChemicalRoute", aggregate = TRUE)[, "y2020", ] %>% 
     as.data.frame() %>%
@@ -85,7 +85,7 @@ calcAllChemicalFlow2005_2020 <- function() {
     select(Region, MeFinalratio)
   
   # ---------------------------------------------------------------------------
-  # 5. Adjust Methanol Flow Using MeFinalratio
+  # 5. Calculate methanol flow based on methFinal flow and MeFinalratio
   #    - Join the MeFinalratio with AllChemicalFlow (by Region).
   #    - For rows where Data1.x is "methFinal", adjust Material_Flow by dividing by MeFinalratio
   #      and rename Data1.x to "methanol".
@@ -116,14 +116,14 @@ calcAllChemicalFlow2005_2020 <- function() {
   FinalOutput <- AllChemicalFlow %>%
     select(Region, Year, Data1.x, Material_Flow)
   
-  Chemcial_Total <- calcOutput("ChemicalTotal", aggregate = FALSE) %>%
+  Chemical_Total <- calcOutput("ChemicalTotal", aggregate = FALSE) %>%
     .[, c("y2005", "y2010", "y2015", "y2020"), ]
   
   map <- toolGetMapping("regionmappingH12.csv", type = "regional", where = "mrindustry")
   
   x <- as.magpie(FinalOutput, spatial = 1, temporal = 2)
   x <- toolAggregate(x, rel = map, dim = 1, from = "RegionCode", to = "CountryCode", 
-                     weight = Chemcial_Total[unique(map$CountryCode), , ])
+                     weight = Chemical_Total[unique(map$CountryCode), , ])
   x[is.na(x)] <- 0
   
   # ---------------------------------------------------------------------------

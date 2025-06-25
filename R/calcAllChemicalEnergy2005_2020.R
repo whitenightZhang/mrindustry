@@ -28,13 +28,17 @@ calcAllChemicalEnergy2005_2020 <- function() {
   #    - Add new rows for various electricity processes and adjust values
   #      where needed.
   # ---------------------------------------------------------------------------
+  
+  # IEA_PetrochemEI data is just used for regional scaling, the energy efficiency values are taken from other sources
+  # for Steamcracking, feedstock from NG the energy inputs for feedstock and fuel&steam are given individually because they are from different energy carriers (liquids and gas)
+  # for all other technologies, the energy input includes feedstocks
   IEA_PetrochemEI <- IEA_PetrochemEI %>%
     bind_rows(
       IEA_PetrochemEI %>% 
         select(Region) %>% distinct() %>%
         mutate(
           Data1 = "Steam cracking, feedstock for NG",
-          Value = 61.275 * (IEA_PetrochemEI %>% filter(Data1 == "Steam cracking, fuel & steam") %>% pull(Value)) / #Source: A. Boulamanti and J. A. Moya, Renew. Sustain. Energy Rev., 2017, 68, 1205–1212. Table 2
+          Value = 61.275 * (IEA_PetrochemEI %>% filter(Data1 == "Steam cracking, fuel & steam") %>% pull(Value)) / #Source: A. Boulamanti and J. A. Moya, Renew. Sustain. Energy Rev., 2017, 68, 1205–1212. Table 2, value for ethane as feedstock
             (IEA_PetrochemEI %>% filter(Region == "USA", Data1 == "Steam cracking, fuel & steam") %>% pull(Value) %>% unique())
         )
     ) %>%
@@ -43,14 +47,14 @@ calcAllChemicalEnergy2005_2020 <- function() {
         select(Region) %>% distinct() %>%
         mutate(
           Data1 = "Steam cracking, fuel & steam for NG",
-          Value = 21 * # Assumption of fuel oil as heating to balance excess oil inputs in the energy balance sheet
+          Value = 21 * #Source: A. Boulamanti and J. A. Moya, Renew. Sustain. Energy Rev., 2017, 68, 1205–1212. Table 2, value for ethane as feedstock
             (IEA_PetrochemEI %>% filter(Data1 == "Steam cracking, fuel & steam") %>% pull(Value)) /
             (IEA_PetrochemEI %>% filter(Region == "USA", Data1 == "Steam cracking, fuel & steam") %>% pull(Value) %>% unique())
         )
     ) %>%
     bind_rows(
       IEA_PetrochemEI %>% select(Region) %>% distinct() %>%
-        mutate(Data1 = "fertProd electricity", Value = 0.18 * 60 / 28 * sm_Mwh_2_GJ) # Source: Palys23 Section 2.3, Page 6
+        mutate(Data1 = "fertProd electricity", Value = 0.18 * 60 / 28 * sm_Mwh_2_GJ) # Source: Palys23 Section 2.3, Page 6; 60/28 is conversion factor tUrea -> tN
     ) %>%
     bind_rows(
       IEA_PetrochemEI %>% select(Region) %>% distinct() %>%
@@ -92,7 +96,7 @@ calcAllChemicalEnergy2005_2020 <- function() {
     mutate(
       Value = ifelse(
         Data1 == "Methanol, fuel & steam",
-        Value * (33.9 / # Source: IEA, The Future of Hydrogen19 PAGE | 5
+        Value * (33.9 / # Source: IEA, The Future of Hydrogen19 PAGE | 5, including feedstock
                    (IEA_PetrochemEI %>% filter(Region == "EUR", Data1 == "Methanol, fuel & steam") %>% pull(Value) %>% unique())), 
         Value
       )
@@ -101,7 +105,7 @@ calcAllChemicalEnergy2005_2020 <- function() {
     mutate(
       Value = ifelse(
         Data1 == "Steam cracking, fuel & steam",
-        Value * (66 / # Source: Spallina17 Table 5
+        Value * (66 / # Source: Spallina17 Table 5, including feedstock
                    (IEA_PetrochemEI %>% filter(Region == "MEA", Data1 == "Steam cracking, fuel & steam") %>% pull(Value) %>% unique())),
         Value
       )
@@ -122,8 +126,8 @@ calcAllChemicalEnergy2005_2020 <- function() {
     mutate(
       Value.y = ifelse(Data1 == "stCrNg" & Type == "feli_chemicals" & Region == "MEA", 61, Value.y), #Same as Global
       Value.y = ifelse(Data1 == "stCrLiq" & Type == "feli_chemicals" & Region == "MEA", 56.5, Value.y), #Same as Global
-      Value.y = ifelse(Data1 == "amSyNG" & Type == "fega_chemicals" & Region == "CHA", 41.6, Value.y), # Should be lower if it is based on NG, Value same as Global
-      Value.y = ifelse(Data1 == "meSyNg" & Type == "fega_chemicals" & Region == "CHA", 33.9, Value.y) # Should be lower if it is based on NG, Value same as Global
+      Value.y = ifelse(Data1 == "amSyNG" & Type == "fega_chemicals" & Region == "CHA", 41.6, Value.y), # Should be lower if it is based on NG, Value same as Global, in the IEA data there is no differentiation between different routes
+      Value.y = ifelse(Data1 == "meSyNg" & Type == "fega_chemicals" & Region == "CHA", 33.9, Value.y) # Should be lower if it is based on NG, Value same as Global, in the IEA data there is no differentiation between different routes
     ) %>%
     filter(!is.na(Source)) %>%
     mutate(Energy_demand = Value.x * Value.y)
@@ -138,11 +142,11 @@ calcAllChemicalEnergy2005_2020 <- function() {
   # ---------------------------------------------------------------------------
   # 6. Load Industry Demand Data for Chemicals
   # ---------------------------------------------------------------------------
-  feIndustry <- calcOutput("FeDemandIndustry", signif = 4, warnNA = FALSE, aggregate = TRUE)[, 
+  feIndustry <- calcOutput("FeDemandIndustry", scenarios=c("SSP2"), signif = 4, warnNA = FALSE, aggregate = TRUE)[, 
                                                                                              c("y2005", "y2010", "y2015", "y2020"),
-                                                                                             c("gdp_SSP2.feelhth_chemicals", "gdp_SSP2.feelwlth_chemicals", 
-                                                                                               "gdp_SSP2.feh2_chemicals", "gdp_SSP2.fega_chemicals", 
-                                                                                               "gdp_SSP2.feli_chemicals", "gdp_SSP2.feso_chemicals")
+                                                                                             c("SSP2.feelhth_chemicals", "SSP2.feelwlth_chemicals", 
+                                                                                               "SSP2.feh2_chemicals", "SSP2.fega_chemicals", 
+                                                                                               "SSP2.feli_chemicals", "SSP2.feso_chemicals")
   ] %>%
     as.data.frame() %>%
     select(-Cell)

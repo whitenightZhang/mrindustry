@@ -63,6 +63,7 @@ calcAmmoniaRoute <- function() {
   # ============================================================================
   # Get IEA shares for different ammonia production routes for Japan and OAS in 2017 (IEA_Petrochem)
   #   - the output of IEA_Petrochem (subtype="RouteRTS_Ammonia") is Mt of ammonia output per production route
+  #   - set amSyCoal to 0 for Japan and OAS because all ammonia production from coal comes from China, by the disaggregation it is falsely allocated to Japan&OAS
   # ============================================================================
   ammonia_share_ieapetro <- calcOutput("IEA_Petrochem", subtype = "RouteRTS_Ammonia", aggregate = TRUE)[c("JPN", "OAS"), "y2017", ] %>%
     as.data.frame()

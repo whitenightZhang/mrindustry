@@ -37,15 +37,15 @@ calcOECD_PlasticMechReRate <- function() {
   # 3. Incorporate external EoL share data (2005–2020)
   #    - Load EU, CNBS, US EPA datasets, compute mechanical recycling share.
   # ---------------------------------------------------------------------------
-  eu <- read.csv("C:/Data/madrat/sources/PlasticEurope/PlasticEol.csv") %>%
+  eu <- read.csv("C:/Users/leoniesc/madrat/sources/PlasticEurope/PlasticEol.csv") %>%
     dplyr::slice(1:15) %>%
     tidyr::pivot_longer(-Year, names_to = "Treatment", values_to = "Value") %>%
     dplyr::mutate(Region = "EUR", Year = as.integer(Year))
-  cn <- read.csv("C:/Data/madrat/sources/China_CNBS/PlasticEol.csv") %>%
+  cn <- read.csv("C:/Users/leoniesc/madrat/sources/China_CNBS/PlasticEol.csv") %>%
     dplyr::select(-Source.) %>%
     tidyr::pivot_longer(-Year, names_to = "Treatment", values_to = "Value") %>%
     dplyr::mutate(Value = Value/100, Region="CHA", Year=as.integer(Year))
-  us <- read.csv("C:/Data/madrat/sources/US_EPA/PlasticEol.csv") %>%
+  us <- read.csv("C:/Users/leoniesc/madrat/sources/US_EPA/PlasticEol.csv") %>%
     dplyr::slice(1:10) %>%
     tidyr::pivot_longer(-Year, names_to = "Treatment", values_to = "Value") %>%
     dplyr::mutate(Value = Value/1000, Region="USA", Year=as.integer(Year))

@@ -39,7 +39,6 @@ calcHVCRoute <- function() {
   # 3. Combine Production Data for HVCs and Interpolate
   #    - Combine the three datasets into one, remove the "X" prefix from year columns,
   #      interpolate missing values, and sum up production by Region and Year.
-  #    - Additionally, adjust the 2020 production for the USA based on 2017 values.
   # ----------------------------------------------------------
   HVCs_total <- bind_rows(
     BTX_IEA %>% mutate(source = "BTX_IEA"),
@@ -128,6 +127,7 @@ calcHVCRoute <- function() {
     mutate(actual_value = normalized_value * value / 100) %>%
     select(-value, -normalized_value, -source)
   
+  ### TODO REMOVE
   HVC_route_value <- HVC_route_value %>%
     group_by(Region, Year) %>%  # Ensure calculations happen per Year
     mutate(

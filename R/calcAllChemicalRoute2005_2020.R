@@ -53,7 +53,6 @@ calcAllChemicalRoute2005_2020 <- function() {
   #    - Join the 2005-2020 flow data with the route shares by Region and Product.
   #    - Compute Routes_Flow as the product of the original flow (Value.x) and the share.
   #    - Set processing flag (opmoPrc) based on route type.
-  #    - Compute the amount to be reduced for both USA (2005) and CHA (2010) to avoid negative value for OtherChem.
   # ---------------------------------------------------------------------------
   AllChemicalRoutes2005_2020 <- AllChemicalFlow2005_2020 %>%
     left_join(AllChemicalRoute, by = c("Region", "Product")) %>%
@@ -64,52 +63,13 @@ calcAllChemicalRoute2005_2020 <- function() {
     select(Region, Year, Data1, opmoPrc, Routes_Flow) %>%
     filter(!is.na(Data1))
   
-  AllChemicalRoutes2005_2020 <- AllChemicalRoutes2005_2020 %>%
-    mutate(
-      # Compute the amount to be reduced for both USA (2005) and CHA (2010)
-      adjustment = case_when(
-        Region == "USA" & Year == 2005 & Data1 == "stCrNg" ~ Routes_Flow * 0.20,
-        Region == "CHA" & Year == 2010 & Data1 == "stCrNg" ~ Routes_Flow * 0.20,
-        TRUE ~ 0  # Default case: no adjustment
-      ),
-      
-      # Reduce Routes_Flow for stCrNg in specified conditions
-      Routes_Flow = case_when(
-        Region == "USA" & Year == 2005 & Data1 == "stCrNg" ~ Routes_Flow * 0.80,
-        Region == "CHA" & Year == 2010 & Data1 == "stCrNg" ~ Routes_Flow * 0.80,
-        TRUE ~ Routes_Flow  # Keep other values unchanged
-      )
-    ) %>%
-    
-    # Adjust stCrLiq within the same Region and Year
-    group_by(Region, Year) %>%  # Group to ensure sum(adjustment) applies correctly
-    mutate(
-      Routes_Flow = dplyr::if_else(Data1 == "stCrLiq", Routes_Flow + sum(adjustment), Routes_Flow)
-    ) %>%
-    ungroup() %>%  # Remove grouping
-    select(-adjustment)  # Remove temporary column
-  
   # ---------------------------------------------------------------------------
-  # 5. Process "OtherChem" Data
-  #    - Retrieve AllChemicalUe data for the "OtherChem" product.
-  #    - Retrieve industry demand data (feIndustry) for chemicals.
-  #    - Join these datasets to compute the Routes_Flow for "OtherChem".
+  # 5. Retrieve "OtherChem" Data
   # ---------------------------------------------------------------------------
-  AllChemicalUe <- calcOutput("AllChemicalUe", aggregate = TRUE)[, , "OtherChem"] %>% 
-    as.data.frame() %>%
-    select(-Cell, -Year)
   
-  feIndustry <- calcOutput("FeDemandIndustry", signif = 4, warnNA = FALSE, aggregate = TRUE)[, c("y2005", "y2010", "y2015", "y2020"), "gdp_SSP2.ue_chemicals"] %>%
-    as.data.frame() %>%
-    select(-Cell)
-  
-  OtherChem <- left_join(feIndustry, AllChemicalUe, by = c("Region")) %>%
-    mutate(
-      Data1 = "chemOld",
-      Routes_Flow = Value.x * Value.y,
-      opmoPrc = "standard"
-    ) %>%
-    select(Region, Year, Data1, opmoPrc, Routes_Flow)
+  OtherChem <- AllChemicalFlow2005_2020 %>% filter(Product=="OtherChem") %>%
+    rename(Data1=Product, Routes_Flow=Value)%>%
+    mutate(opmoPrc = "standard", Data1="chemOld")
   
   # ---------------------------------------------------------------------------
   # 6. Combine Route Data with "OtherChem"

@@ -44,7 +44,7 @@ calcAllChemicalRoute <- function() {
   # ---------------------------------------------------------------------------
   # 3. Process Ammonia Route Data
   #    - Sum ammonia production by Region and Year.
-  #    - Combine with fertilizer conversion ratio to compute the final ammonia fraction.
+  #    - Combine with fertilizer conversion ratio to compute the final ammonia flow
   # ---------------------------------------------------------------------------
   ammonia_total <- ammonia_route %>%
     group_by(Region, Year) %>%
@@ -62,7 +62,8 @@ calcAllChemicalRoute <- function() {
   # ---------------------------------------------------------------------------
   # 4. Process Methanol Route Data
   #    - Sum methanol production by Region and Year.
-  #    - Use hvc data for the 'mtoMta' category to adjust the methanol value.
+  #    - Calculate the final methanol flow by subtracting the methanol flow that is used to produce HVC via mtoMta
+  #       mtoMta flow is in MtHVC and has to be converted to MtCH3OH
   # ---------------------------------------------------------------------------
   methanol_total <- methanol_route %>%
     group_by(Region, Year) %>%
@@ -73,7 +74,7 @@ calcAllChemicalRoute <- function() {
   
   methanol_tofinal <- methanol_total %>%
     left_join(hvc_MTO, by = c("Region", "Year")) %>%   # Join by Region and Year
-    mutate(meToFinal = Total_Methanol - 2.624 * Value) %>%  # Adjust methanol using a fixed conversion factor (2.624)
+    mutate(meToFinal = Total_Methanol - 2.624 * Value) %>%  # Adjust methanol using a fixed conversion factor (2.624) #Dutta2019 Figure 2, Page 196
     select(Region, Year, meToFinal) %>%                  # Keep only relevant columns
     pivot_longer(cols = c(meToFinal), 
                  names_to = "Data1", 

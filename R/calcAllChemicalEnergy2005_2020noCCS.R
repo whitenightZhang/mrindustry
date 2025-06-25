@@ -134,11 +134,11 @@ calcAllChemicalEnergy2005_2020noCCS <- function() {
   # ---------------------------------------------------------------------------
   # 6. Load Industry Demand Data for Chemicals
   # ---------------------------------------------------------------------------
-  feIndustry <- calcOutput("FeDemandIndustry", signif = 4, warnNA = FALSE, aggregate = TRUE)[, 
+  feIndustry <- calcOutput("FeDemandIndustry", scenarios=c("SSP2"), signif = 4, warnNA = FALSE, aggregate = TRUE)[, 
                                                                                              c("y2005", "y2010", "y2015", "y2020"),
-                                                                                             c("gdp_SSP2.feelhth_chemicals", "gdp_SSP2.feelwlth_chemicals", 
-                                                                                               "gdp_SSP2.feh2_chemicals", "gdp_SSP2.fega_chemicals", 
-                                                                                               "gdp_SSP2.feli_chemicals", "gdp_SSP2.feso_chemicals")
+                                                                                             c("SSP2.feelhth_chemicals", "SSP2.feelwlth_chemicals", 
+                                                                                               "SSP2.feh2_chemicals", "SSP2.fega_chemicals", 
+                                                                                               "SSP2.feli_chemicals", "SSP2.feso_chemicals")
   ] %>%
     as.data.frame() %>%
     select(-Cell)

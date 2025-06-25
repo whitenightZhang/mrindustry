@@ -4,7 +4,7 @@
 #' adjust for domestic demand, normalize baselines, and aggregate to country level.
 #'
 #' @author Qianzhi Zhang
-#'
+#' @importFrom dplyr if_else
 #' @export
 calcOECD_PlasticUseTotal <- function() {
   # ---------------------------------------------------------------------------
@@ -39,7 +39,7 @@ calcOECD_PlasticUseTotal <- function() {
   # ---------------------------------------------------------------------------
   prod_region_map <- c(China = "CHA", EU27.3 = "EUR", North.America = "USA")
   prod_data <- read.csv(
-    "C:/Data/madrat/sources/PlasticEurope/PlasticProduction_region.csv"
+    "C:/Users/leoniesc/madrat/sources/PlasticEurope/PlasticProduction_region.csv" #C:/Data/madrat/sources/PlasticEurope/PlasticProduction_region.csv
   ) %>%
     tidyr::pivot_longer(-Year, names_to = "Region", values_to = "production") %>%
     dplyr::mutate(
@@ -59,7 +59,7 @@ calcOECD_PlasticUseTotal <- function() {
     "Canada"                    = "CAN"
   )
   trade_data <- read.csv(
-    "C:/Data/madrat/sources/UNCTAD/UNCTAD_Plastic_Net_Import_by_Region.csv"
+    "C:/Users/leoniesc/madrat/sources/UNCTAD/UNCTAD_Plastic_Net_Import_by_Region.csv" # C:/Data/madrat/sources/UNCTAD/UNCTAD_Plastic_Net_Import_by_Region.csv
   ) %>%
     dplyr::transmute(
       Year       = as.integer(Year),
@@ -134,7 +134,7 @@ calcOECD_PlasticUseTotal <- function() {
   )
   magpie_x <- as.magpie(final_region, spatial = 1, temporal = 2)
   gdp_ssp2 <- calcOutput(
-    "GDP", average2020 = FALSE, naming = "scenario", aggregate = FALSE
+    "GDP", scenario="SSP2", average2020 = FALSE, naming = "scenario", aggregate = FALSE
   )[, paste0("y", 1990:2019), "SSP2"]
   x_final <- toolAggregate(
     magpie_x, rel = map_df, dim = 1,

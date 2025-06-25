@@ -1,6 +1,6 @@
 #' Calculate Country-Level DAC-based Plastic Share Trajectories
 #'
-#' Generate time series of DAC-based plastic share trajectories by sector
+#' Generate time series of Direct-Air-Capture-based plastic share trajectories by sector
 #' and aggregate from regions to countries for 1990–2100.
 #'
 #' @author Qianzhi Zhang

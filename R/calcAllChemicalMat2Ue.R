@@ -23,7 +23,7 @@ calcAllChemicalMat2Ue <- function() {
   #    - Join with the conversion factors and calculate the material-to-UE value.
   # ---------------------------------------------------------------------------
   
-  feIndustry <- calcOutput("FeDemandIndustry", warnNA = FALSE, aggregate = TRUE)[,, "gdp_SSP2.ue_chemicals"] %>%
+  feIndustry <- calcOutput("FeDemandIndustry", scenarios=c("SSP2"), warnNA = FALSE, aggregate = TRUE)[,, "SSP2.ue_chemicals"] %>%
     as.data.frame() %>%
     select(-Cell) %>%
     mutate(Year = as.numeric(as.character(Year))) %>%   # Convert factor to character then numeric
@@ -32,12 +32,6 @@ calcAllChemicalMat2Ue <- function() {
     mutate(Ratio = Value / Value[Year == 2020]) %>%
     ungroup()
   
-  # ---------------------------------------------------------------------------
-  # 2. Calculate Chemical Flow UE for 2020
-  #    - Retrieve AllChemicalFlow data for 2020, remove unwanted columns, and filter out 
-  #      rows for 'ammonia' and 'methanol' (since these are not processed here).
-  #    - Join with the conversion factors and calculate the material-to-UE value.
-  # ---------------------------------------------------------------------------
   IEA_Petrochem_methanol <- calcOutput("IEA_Petrochem", subtype ="production5type_Methanol", aggregate = TRUE)[,,] %>%
     as.data.frame() %>%
     select(-Cell, -Data1) %>%
@@ -80,7 +74,6 @@ calcAllChemicalMat2Ue <- function() {
     mutate(Data1 = "ammonia") %>%
     filter(!Year %in% 2017)
   
-  
   IEA_Petrochem_hvc <- (
     calcOutput("IEA_Petrochem", subtype = "production5type_Ethylene", aggregate = TRUE) +
       calcOutput("IEA_Petrochem", subtype = "production5type_Propylene", aggregate = TRUE) +
@@ -106,7 +99,7 @@ calcAllChemicalMat2Ue <- function() {
     mutate(Data1 = "hvc") %>%
     filter(!Year %in% 2017)
   
-  MagPie_Fert <- readRDS("C:/Data/madrat/sources/MagPie_Result/v39kHRc1000_FSDP_reg.rds")%>%
+  MagPie_Fert <- readRDS("C:/Users/leoniesc/madrat/sources/MagPie_Result/v39kHRc1000_FSDP_reg.rds")%>% # "C:/Data/madrat/sources/MagPie_Result/v39kHRc1000_FSDP_reg.rds"
     select(-model)%>%
     select(-version)%>%
     select(-scenset)%>%
@@ -163,8 +156,8 @@ calcAllChemicalMat2Ue <- function() {
   return(list(
     x = x,
     weight = weight,
-    unit = "2005$/kg or 2005$/kgN",  # Specify units based on conversion factors
-    description = "Calculates the unit energy (UE) share of chemicals by applying material-to-UE conversion factors to chemical flows and comparing them to industry demand. The result, including a residual 'OtherChem' share, is aggregated to the country level for 2020."
+    unit = "2017$/kg or 2017$/kgN",  # Specify units based on conversion factors
+    description = "Calculates the material-to-UE conversion factors for 2020-2050 on country level."
   ))
 }
 
