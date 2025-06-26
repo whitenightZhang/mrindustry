@@ -1,7 +1,7 @@
 #' Calculate Country-Level Plastic Use by Sector
 #'
 #' Combine sectoral use shares and total use to compute absolute plastic use
-#' by sector at country level for 2020.
+#' by sector at country level for 1990-2019.
 #'
 #' @author Qianzhi Zhang
 #'
@@ -68,6 +68,6 @@ calcOECD_PlasticUse <- function() {
     x           = x,
     weight      = NULL,
     unit        = "Mt Plastic",
-    description = "Sectoral plastic use aggregated to country level for 2020."
+    description = "Sectoral plastic use aggregated to country level for 1990-2019."
   ))
 }

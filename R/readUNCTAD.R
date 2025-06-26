@@ -1,33 +1,32 @@
-#' Read ChinaBaogao
+#' Read UNCTAD
 #'
-#' Read-in ChinaBaogao Methanol 2023 .xlsx file as
+#' Read-in US_PlasticsTradebyPartner file as
 #' a magclass object.
 #' 
-#' ChinaBaogao is a Chinese business website that publishes industry analyses.
+#' UNCTAD is United Nations Conference on Trade and Development.
 #'
-#' @return magpie object of the ChinaBaogao data
+#' @return magpie object of the CUNCTAD data
 #'
 #' @author Qianzhi Zhang
 #'
 #' @seealso [readSource()]
 #'
 #' \dontrun{
-#' a <- readSource(type = "ChinaBaogao")
+#' a <- readSource(type = "UNCTAD")
 #' }
 #'
 #' @importFrom readxl read_excel
 #' 
-readChinaBaogao <- function() {
+readUNCTAD <- function() {
+  browser()
   # ---------------------------------------------------------------------------
   # 1. Read Data from Excel
   #    - Load the "ChinaBaogao Methanol 2023.xlsx" file from the "China Methanol P&D" sheet
   #      using the specified cell range.
   # ---------------------------------------------------------------------------
-  data <- read_excel("ChinaBaogao Methanol 2023.xlsx",
-                     sheet = "China Methanol P&D",
-                     range = "A1:J4",
-                     skip = 0)
-  
+  data <- read_csv("US_PlasticsTradebyPartner.csv") %>%
+    select(1,3,5,7,9,10,13)
+  data <- as.magpie(data, spatial = 2, temporal = 1)
   # ---------------------------------------------------------------------------
   # 2. Add Region Information
   #    - Since the data is for China, add a "Region" column with the value "China".

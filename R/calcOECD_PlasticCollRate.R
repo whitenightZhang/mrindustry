@@ -31,6 +31,7 @@ calcOECD_PlasticCollRate <- function() {
   # 2. Apply fixed collection rates for China
   #    - Use reported rates for specific years and interpolate.
   # ---------------------------------------------------------------------------
+  # source: Assessment of Plastic Stocks and Flows in China: 1978-2017; 1-(Untreatment share)
   fixed_years <- c(1990, 2005, 2010, 2015, 2017)
   fixed_vals  <- c(0.65, 0.68, 0.84, 0.96, 0.98)
   

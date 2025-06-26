@@ -68,6 +68,7 @@ calcOECD_PlasticIncinRate <- function() {
   # ---------------------------------------------------------------------------
   # 4. Merge ext shares into incin_ext, replacing where available
   # ---------------------------------------------------------------------------
+  # TODO: interpolate non-OECD data, otherwise only specific years get replaced
   incin_hist <- incin_ext %>%
     dplyr::left_join(ext_all, by = c("Region", "Year")) %>%
     dplyr::mutate(Value = if_else(!is.na(share), share, Value)) %>%
