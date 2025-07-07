@@ -74,7 +74,7 @@ calcUNCTAD_PlasticWaste <- function(subtype) {
   x <- as.magpie(full_df %>% dplyr::select(Region, Year, Data1, Value), spatial = 1, temporal = 2)
   region_map <- toolGetMapping("regionmappingH12.csv", type = "regional", where = "mrindustry")
   
-  gdp_ssp2 <- calcOutput("GDP", average2020 = FALSE, naming = "scenario", aggregate = FALSE)[,"y2019", "SSP2"]
+  gdp_ssp2 <- calcOutput("GDP", scenario="SSP2", average2020 = FALSE, naming = "scenario", aggregate = FALSE)[,"y2019", "SSP2"]
   x <- toolAggregate(x, rel = region_map, dim = 1, from = "RegionCode", to = "CountryCode", weight = gdp_ssp2[unique(region_map$CountryCode), , ])
   
   # ---------------------------------------------------------------------------

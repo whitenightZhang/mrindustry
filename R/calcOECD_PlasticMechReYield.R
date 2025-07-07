@@ -25,6 +25,7 @@ calcOECD_PlasticMechReYield <- function() {
   # 2. Define time horizon and yield bounds
   #    - Years: 1990–2100
   #    - Start and end yield fixed at 79% for all sectors.
+  #      Source: weighted average (based on waste generation) of yields for different polymers, see POSTED
   # ---------------------------------------------------------------------------
   years <- 1990:2100
   bounds <- data.frame(

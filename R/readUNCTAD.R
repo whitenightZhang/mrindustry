@@ -21,10 +21,8 @@ readUNCTAD <- function() {
   browser()
   # ---------------------------------------------------------------------------
   # 1. Read Data from Excel
-  #    - Load the "ChinaBaogao Methanol 2023.xlsx" file from the "China Methanol P&D" sheet
-  #      using the specified cell range.
   # ---------------------------------------------------------------------------
-  data <- read_csv("US_PlasticsTradebyPartner.csv") %>%
+  data <- read_csv("C:/Users/leoniesc/madrat/sources/UNCTAD/US_PlasticsTradebyPartner.csv") %>%
     select(1,3,5,7,9,10,13)
   data <- as.magpie(data, spatial = 2, temporal = 1)
   # ---------------------------------------------------------------------------

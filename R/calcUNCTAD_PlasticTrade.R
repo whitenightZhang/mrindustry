@@ -23,7 +23,7 @@ calcUNCTAD_PlasticTrade <- function(subtype) {
   # ---------------------------------------------------------------------------
   # 1. Setup: file paths, mappings, and weights
   # ---------------------------------------------------------------------------
-  trade_file     <- "C:/Data/madrat/sources/UNCTAD/US_PlasticsTradebyPartner.csv"
+  trade_file     <- "C:/Users/leoniesc/madrat/sources/UNCTAD/US_PlasticsTradebyPartner.csv"
   map_file       <- "regionmappingH12.csv"
   recode_regions <- c(
     "European Union (2020 …)" = "EUR",
@@ -40,7 +40,7 @@ calcUNCTAD_PlasticTrade <- function(subtype) {
   )
   raw_data <- read.csv(trade_file)
   map_df   <- toolGetMapping(map_file, type = "regional", where = "mrindustry")
-  gdp_ssp2 <- calcOutput("GDP", average2020 = FALSE, naming = "scenario", aggregate = FALSE)[,paste0("y", 2005:2022), "SSP2"]
+  gdp_ssp2 <- calcOutput("GDP", scenario="SSP2",average2020 = FALSE, naming = "scenario", aggregate = FALSE)[,paste0("y", 2005:2022), "SSP2"]
   
   # ---------------------------------------------------------------------------
   # 2. Helper: aggregate MagPIE object to country level
@@ -55,9 +55,10 @@ calcUNCTAD_PlasticTrade <- function(subtype) {
   # 3. Helper: build region-level flows for given product and tag
   # ---------------------------------------------------------------------------
   build_region_flow <- function(prod_label, data2_tag) {
+    # get data on country level and aggregate to region
     df_c <- raw_data %>%
       dplyr::filter(Product.Label == prod_label,
-                    Partner.Label == "World") %>%
+                    Partner.Label == "World") %>% # World is all trading partners aggregated
       tidyr::replace_na(list(Metric.tons.in.thousands = 0)) %>%
       dplyr::mutate(Year = as.integer(as.character(Year))) %>%
       dplyr::select(Country = Economy.Label, Year,
@@ -69,6 +70,7 @@ calcUNCTAD_PlasticTrade <- function(subtype) {
     m_r <- toolAggregate(m_c, rel = map_df, dim = 1,
                          from = "CountryCode", to = "RegionCode")
     m_r[is.na(m_r)] <- 0
+    # get data directly on regional level and use this instead of aggregated data if available
     df_ov <- raw_data %>%
       dplyr::filter(Economy.Label %in% names(recode_regions),
                     Product.Label == prod_label,
@@ -87,7 +89,7 @@ calcUNCTAD_PlasticTrade <- function(subtype) {
       dplyr::select(Region, Year, Data2, Data1, Value)
     m_f <- as.magpie(df_f, spatial = 1, temporal = 2); m_f[is.na(m_f)] <- 0
     x <- agg_to_country(m_f)
-    return(x / 1000)
+    return(x / 1000) # thousand tons to Mt
   }
   
   # ---------------------------------------------------------------------------
@@ -141,7 +143,7 @@ calcUNCTAD_PlasticTrade <- function(subtype) {
     getItems(m_x,1) <- toolCountry2isocode(getItems(m_x,1), mapping = code_map)
     m_x <- m_x[!is.na(getItems(m_x,1)), , ]
     m_x <- toolCountryFill(m_x, fill = 0); m_x[is.na(m_x)] <- 0
-    return(m_x / 1000)
+    return(m_x / 1000) # thousand tons to Mt
   }
   
   # ---------------------------------------------------------------------------
@@ -204,7 +206,7 @@ calcUNCTAD_PlasticTrade <- function(subtype) {
     m_x <- m_x[!is.na(getItems(m_x,1)), , ]
     m_x <- toolCountryFill(m_x, fill = 0); m_x[is.na(m_x)] <- 0
     return(list(
-      x           = m_x / 1000,
+      x           = m_x / 1000, # thousand tons to Mt
       weight      = NULL,
       unit        = "Mt",
       description = "Country-level plastic waste flows"

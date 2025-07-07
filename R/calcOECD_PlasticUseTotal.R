@@ -111,7 +111,7 @@ calcOECD_PlasticUseTotal <- function() {
   
   # ---------------------------------------------------------------------------
   # 8. Combine with other regions & apply EU scaling
-  #    - Adjust EUR entries based on 2019 European overview reference.
+  #    - Adjust EUR entries based on 2018 European plastics consumption (55.4 Mt according to Plastics Europe 2024 circular economy report).
   # ---------------------------------------------------------------------------
   final_region <- dplyr::bind_rows(updated_target, use_other)
   eur_2018_value <- final_region %>%

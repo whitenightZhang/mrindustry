@@ -69,7 +69,7 @@ calcUNCTAD_PlasticOutput <- function(
     dplyr::left_join(base_2005, by = c("Region", "Data1"))
   
   # ---------------------------------------------------------------------------
-  # 5. Combine original, historical, and future data, then sort by year
+  # 5. Combine original, and historical data, then sort by year
   # ---------------------------------------------------------------------------
   core_df <- flow_df %>%
     dplyr::filter(!Year %in% hist_years) %>%
@@ -89,7 +89,7 @@ calcUNCTAD_PlasticOutput <- function(
     "regionmappingH12.csv", type = "regional", where = "mrindustry"
   )
   gdp_ssp2 <- calcOutput(
-    "GDP", average2020 = FALSE, naming = "scenario", aggregate = FALSE
+    "GDP", scenario="SSP2", average2020 = FALSE, naming = "scenario", aggregate = FALSE
   )[, paste0("y", 1990:2022), "SSP2"]
   x <- toolAggregate(
     x,
