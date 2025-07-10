@@ -28,7 +28,7 @@ calcEmissionFactorsFeedstocks <- function() {
   iea <- iea[!remove, , ]
 
   # read in emissions from UNFCCC and convert from kt CO2 to GtC
-  emi <- readSource("UNFCCC", convert = F)[, , "Table2(I)s1|Total industrial processes|Chemical industry|CO2.kt CO2"] * 1e-6 / 3.666666666667
+  emi <- readSource("UNFCCC", convert = F)[, , "2_B_ Chemical industry|CO2"] * 1e-6 / 3.666666666667
   remove <- magpply(emi, function(y) all(is.na(y)), MARGIN = 1)
   emi <- emi[!remove, , ]
 
