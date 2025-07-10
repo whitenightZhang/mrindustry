@@ -2,8 +2,8 @@ cff-version: 1.2.0
 message: If you use this software, please cite it using the metadata from this file.
 type: software
 title: 'mrindustry: input data generation for the REMIND industry module'
-version: 0.24.2
-date-released: '2025-05-28'
+version: 0.24.3
+date-released: '2025-07-10'
 abstract: The mrindustry packages contains data preprocessing for the REMIND model.
 authors:
 - family-names: Benke
