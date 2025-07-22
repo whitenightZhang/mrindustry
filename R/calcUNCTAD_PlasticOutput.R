@@ -22,7 +22,7 @@ calcUNCTAD_PlasticOutput <- function(
     flow     = c("Exports", "Imports")
 ) {
   # ---------------------------------------------------------------------------
-  # 1. Match inputs and map to UNCTAD subtype identifier
+  # Match inputs and map to UNCTAD subtype identifier
   # ---------------------------------------------------------------------------
   category <- match.arg(category)
   flow     <- match.arg(flow)
@@ -35,7 +35,7 @@ calcUNCTAD_PlasticOutput <- function(
   subtype_region <- subtype_map[[category]]
   
   # ---------------------------------------------------------------------------
-  # 2. Load regional trade data for the selected category
+  # Load regional trade data for the selected category
   # ---------------------------------------------------------------------------
   region_df <- calcOutput(
     "UNCTAD_PlasticTrade", subtype = subtype_region
@@ -44,7 +44,7 @@ calcUNCTAD_PlasticOutput <- function(
     dplyr::select(Region, Year, Data2, Data1, Value)
   
   # ---------------------------------------------------------------------------
-  # 3. Filter by export or import flows
+  # Filter by export or import flows
   # ---------------------------------------------------------------------------
   flow_label <- ifelse(flow == "Exports",
                        "Imports",
@@ -54,7 +54,7 @@ calcUNCTAD_PlasticOutput <- function(
     dplyr::select(-Data2)
   
   # ---------------------------------------------------------------------------
-  # 4. Fill missing historical years (1990–2004) using 2005 values
+  # Fill missing historical years (1990–2004) using 2005 values
   # ---------------------------------------------------------------------------
   base_2005 <- flow_df %>%
     dplyr::filter(Year == 2005) %>%
@@ -69,7 +69,7 @@ calcUNCTAD_PlasticOutput <- function(
     dplyr::left_join(base_2005, by = c("Region", "Data1"))
   
   # ---------------------------------------------------------------------------
-  # 5. Combine original, and historical data, then sort by year
+  # Combine original, and historical data, then sort by year
   # ---------------------------------------------------------------------------
   core_df <- flow_df %>%
     dplyr::filter(!Year %in% hist_years) %>%
@@ -79,7 +79,7 @@ calcUNCTAD_PlasticOutput <- function(
     dplyr::arrange(Year)
   
   # ---------------------------------------------------------------------------
-  # 6. Convert to MagPIE and aggregate to country level using GDP weights
+  # Convert to MagPIE and aggregate to country level using GDP weights
   # ---------------------------------------------------------------------------
   x <- as.magpie(
     full_df %>% dplyr::select(Region, Year, Data1, Value),
@@ -101,7 +101,7 @@ calcUNCTAD_PlasticOutput <- function(
   )
   
   # ---------------------------------------------------------------------------
-  # 7. Return results
+  # Return results
   # ---------------------------------------------------------------------------
   list(
     x           = x,

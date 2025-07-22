@@ -9,7 +9,7 @@
 calcMethanolRoute <- function() {
   
   # ---------------------------------------------------------------------------
-  # 1. Load Methanol Production Data (Non-China)
+  # Load Methanol Production Data (Non-China)
   #    - Get production data from "IHS_Meth" for years 2015-2020.
   #    - Exclude China ("CHA") and mark the data with a production identifier.
   # ---------------------------------------------------------------------------
@@ -20,7 +20,7 @@ calcMethanolRoute <- function() {
     mutate(Data1 = "Production")
   
   # ---------------------------------------------------------------------------
-  # 2. Load Methanol Production Data for China
+  # Load Methanol Production Data for China
   #    - Retrieve production data for China ("CHA") from the specified file.
   # ---------------------------------------------------------------------------
   methanol_production_china <- calcOutput("ChinaBaogao", aggregate = TRUE) %>%
@@ -28,7 +28,7 @@ calcMethanolRoute <- function() {
     as.data.frame()
   
   # ---------------------------------------------------------------------------
-  # 3. Load and Process IEA Petrochemical Methanol Route Data
+  # Load and Process IEA Petrochemical Methanol Route Data
   #    - Retrieve route data for 2017 from "IEA_Petrochem".
   #    - Exclude China ("CHA") and map technology types to custom categories.
   # ---------------------------------------------------------------------------
@@ -53,7 +53,7 @@ calcMethanolRoute <- function() {
     select(-Value, -Year)
   
   # ---------------------------------------------------------------------------
-  # 4. Load and Process China-Specific Methanol Share Data
+  # Load and Process China-Specific Methanol Share Data
   #    - Retrieve methanol share data for China ("CHA") from "RMI_China" for 2020.
   #    - Map technology types to custom categories.
   # ---------------------------------------------------------------------------
@@ -79,7 +79,7 @@ calcMethanolRoute <- function() {
     select(-Value, -Year)
   
   # ---------------------------------------------------------------------------
-  # 5. Combine Share Data and Production Data
+  # Combine Share Data and Production Data
   #    - Merge IEA and China share data.
   #    - Combine production data from non-China and China sources.
   # ---------------------------------------------------------------------------
@@ -93,13 +93,13 @@ calcMethanolRoute <- function() {
     select(-Value, -Cell, -Data1, -normalized_value)
   
   # ---------------------------------------------------------------------------
-  # 6. Load Non-Aggregated Methanol Production Data (for Weighting)
+  # Load Non-Aggregated Methanol Production Data (for Weighting)
   # ---------------------------------------------------------------------------
   methanol_production_all <- calcOutput("IHS_Meth", subtype = "Production_2010-2020", aggregate = FALSE) %>%
     .[, c("y2015", "y2016", "y2017", "y2018", "y2019", "y2020"), ]
   
   # ---------------------------------------------------------------------------
-  # 7. Load Regional Mapping and Aggregate Data to Country Level
+  # Load Regional Mapping and Aggregate Data to Country Level
   #    - Convert the data to a magpie object.
   #    - Aggregate regional data to country level using production weights.
   # ---------------------------------------------------------------------------
@@ -116,7 +116,7 @@ calcMethanolRoute <- function() {
   x[is.na(x)] <- 0  # Replace any NA values with 0
   
   # ---------------------------------------------------------------------------
-  # 8. Return the Final Aggregated Object and Metadata
+  # Return the Final Aggregated Object and Metadata
   # ---------------------------------------------------------------------------
   return(list(
     x = x,

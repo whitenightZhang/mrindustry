@@ -1,4 +1,8 @@
-#'
+#' Calculates shares of ammoFinal, methFinal, HVC, fertilizer and OtherChem
+#' of total chemical UE for 2020-2050 based on the UE shares in 2020 and the 
+#' projected relative increases in production (IEA The Future of Petrochemicals) and 
+#' total chemical UE (FeDemandIndustry)
+#' 
 #' @author Qianzhi Zhang
 #'
 #' @export
@@ -170,7 +174,7 @@ calcAllChemicalMat2Ue <- function() {
     x = x,
     weight = weight,
     unit = "share", 
-    description = "Calculates the material ue shares for 2020-2050 on country level."
+    description = "Material ue shares for 2020-2050 on country level."
   ))
 }
 

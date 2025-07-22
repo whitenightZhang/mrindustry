@@ -14,18 +14,18 @@
 #' @importFrom magpiesets findset
 convertIFA_ChemAppend <- function(x) {
   # ---------------------------------------------------------------------------
-  # 1. Extract Subtype Information
+  # Extract Subtype Information
   #    - Retrieve the subtype from the comment attached to x.
   #    - Split the subtype string (e.g., "AN_statistics_production") into its components.
   # ---------------------------------------------------------------------------
   subtype <- unlist(strsplit(getComment(x), "_"))
 
   # ---------------------------------------------------------------------------
-  # 2. Process Based on Subtype: Capacities vs. Statistics
+  # Process Based on Subtype: Capacities vs. Statistics
   # ---------------------------------------------------------------------------
   if (subtype[2] == "capacities") {
     # ------------------------------
-    # 2a. Capacities Subtype Processing
+    # Capacities Subtype Processing
     # ------------------------------
     # Define "Others" regions to aggregate
     others <- c(
@@ -84,7 +84,7 @@ convertIFA_ChemAppend <- function(x) {
     
   } else if (subtype[2] == "statistics") {
     # ------------------------------
-    # 2b. Statistics Subtype Processing
+    # Statistics Subtype Processing
     # ------------------------------
     # Define "Others" regions for statistics
     others <- c(
@@ -146,7 +146,7 @@ convertIFA_ChemAppend <- function(x) {
   }
   
   # ---------------------------------------------------------------------------
-  # 3. Finalize Output: Fill Missing Country Data with 0
+  # Finalize Output: Fill Missing Country Data with 0
   # ---------------------------------------------------------------------------
   x <- toolCountryFill(x, fill = 0)
   

@@ -9,7 +9,7 @@
 #' 
 calcOECD_PlasticMechLoss <- function() {
   # ---------------------------------------------------------------------------
-  # 1. Define sectors and regions
+  # Define sectors and regions
   #    - Retrieve manufacturing sectors (excluding 'Total') and regional codes.
   # ---------------------------------------------------------------------------
   sector_map <- toolGetMapping(
@@ -22,7 +22,7 @@ calcOECD_PlasticMechLoss <- function() {
   regions <- unique(region_map$RegionCode)
   
   # ---------------------------------------------------------------------------
-  # 2. Define time horizon and loss bounds
+  # Define time horizon and loss bounds
   #    - Years: 1990–2100
   #    - Start loss (pre-2020): 0%
   #    - End loss (2100): 5%
@@ -36,7 +36,7 @@ calcOECD_PlasticMechLoss <- function() {
   )
   
   # ---------------------------------------------------------------------------
-  # 3. Construct full dataset and compute loss trajectories
+  # Construct full dataset and compute loss trajectories
   #    - Expand grid Year × Target × Region
   #    - Merge bounds and interpolate values beyond 2020 to 2100
   # ---------------------------------------------------------------------------
@@ -55,7 +55,7 @@ calcOECD_PlasticMechLoss <- function() {
   traj_df <- dplyr::select(traj_df, Region, Year, Target, value)
   
   # ---------------------------------------------------------------------------
-  # 4. Convert to MagPIE and aggregate to countries
+  # Convert to MagPIE and aggregate to countries
   # ---------------------------------------------------------------------------
   x <- as.magpie(traj_df, spatial = 1, temporal = 2)
   x <- toolAggregate(
@@ -64,7 +64,7 @@ calcOECD_PlasticMechLoss <- function() {
   )
   
   # ---------------------------------------------------------------------------
-  # 5. Prepare weight object and return
+  # Prepare weight object and return
   # ---------------------------------------------------------------------------
   weight <- x
   weight[,] <- 1

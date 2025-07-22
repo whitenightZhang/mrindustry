@@ -20,19 +20,19 @@
 readUNCTAD <- function() {
   browser()
   # ---------------------------------------------------------------------------
-  # 1. Read Data from Excel
+  # Read Data from Excel
   # ---------------------------------------------------------------------------
   data <- read_csv("C:/Users/leoniesc/madrat/sources/UNCTAD/US_PlasticsTradebyPartner.csv") %>%
     select(1,3,5,7,9,10,13)
   data <- as.magpie(data, spatial = 2, temporal = 1)
   # ---------------------------------------------------------------------------
-  # 2. Add Region Information
+  # Add Region Information
   #    - Since the data is for China, add a "Region" column with the value "China".
   # ---------------------------------------------------------------------------
   data <- cbind(Region = "China", data)
   
   # ---------------------------------------------------------------------------
-  # 3. Reshape Data to Long Format
+  # Reshape Data to Long Format
   #    - Pivot the data so that the years (from 2015 to 2023) become a single "Year" column,
   #      and the corresponding values go into a "Value" column.
   # ---------------------------------------------------------------------------
@@ -44,19 +44,19 @@ readUNCTAD <- function() {
   )
   
   # ---------------------------------------------------------------------------
-  # 4. Convert to MagPIE Object
+  # Convert to MagPIE Object
   #    - Convert the reshaped data frame to a magpie object with the appropriate spatial and temporal dimensions.
   # ---------------------------------------------------------------------------
   data <- as.magpie(data, spatial = 1, temporal = 3)
   
   # ---------------------------------------------------------------------------
-  # 5. Final Cleanup
+  # Final Cleanup
   #    - Replace any NA values in the magpie object with 0.
   # ---------------------------------------------------------------------------
   data[is.na(data)] <- 0
   
   # ---------------------------------------------------------------------------
-  # 6. Return the Processed MagPIE Object
+  # Return the Processed MagPIE Object
   # ---------------------------------------------------------------------------
   return(data)
 }

@@ -14,14 +14,14 @@
 #' @importFrom magpiesets findset
 convertIFA_Chem <- function(x) {
   # ---------------------------------------------------------------------------
-  # 1. Extract Subtype Information
+  # Extract Subtype Information
   #    - Retrieve the "data" dimension name from x and split it by underscore.
   #    - This helps determine the processing route (ammonia vs. urea, statistics vs. capacities).
   # ---------------------------------------------------------------------------
   subtype <- unlist(strsplit(getNames(x, dim = "data"), "_"))
 
   # ---------------------------------------------------------------------------
-  # 2. Process Ammonia Data
+  # Process Ammonia Data
   # ---------------------------------------------------------------------------
   if (subtype[1] == "ammonia") {
     
@@ -75,7 +75,7 @@ convertIFA_Chem <- function(x) {
     }
     
     # ---------------------------------------------------------------------------
-    # 3. Process Urea Data
+    # Process Urea Data
     # ---------------------------------------------------------------------------
   } else if (subtype[1] == "urea") {
     
@@ -132,14 +132,14 @@ convertIFA_Chem <- function(x) {
     }
     
     # ---------------------------------------------------------------------------
-    # 4. Handle Invalid Subtype Combination
+    # Handle Invalid Subtype Combination
     # ---------------------------------------------------------------------------
   } else {
     stop("Invalid subtype combination")
   }
   
   # ---------------------------------------------------------------------------
-  # 5. Return the Processed MagPIE Object
+  # Return the Processed MagPIE Object
   # ---------------------------------------------------------------------------
   return(x)
 }

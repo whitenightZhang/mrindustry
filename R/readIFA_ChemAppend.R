@@ -26,7 +26,7 @@
 #' @importFrom readxl read_excel
 readIFA_ChemAppend <- function(subtype) {
   # ---------------------------------------------------------------------------
-  # 1. Parse the Input Subtype
+  # Parse the Input Subtype
   #    - Split the subtype string (e.g., "AN_statistics_production") into its components.
   #    - Construct a key using the first two components to select file parameters.
   # ---------------------------------------------------------------------------
@@ -34,7 +34,7 @@ readIFA_ChemAppend <- function(subtype) {
   key <- paste(subtype[1], subtype[2], sep = "_")
   
   # ---------------------------------------------------------------------------
-  # 2. Select File Parameters Based on the Key
+  # Select File Parameters Based on the Key
   #    - Use a switch statement to choose the appropriate file name, sheet,
   #      data ranges, and country list based on the key.
   # ---------------------------------------------------------------------------
@@ -98,7 +98,7 @@ readIFA_ChemAppend <- function(subtype) {
   range <- toolSubtypeSelect(subtype[3], ranges)
   
   # ---------------------------------------------------------------------------
-  # 3. Read Data from Excel Based on the Data Sheet Type
+  # Read Data from Excel Based on the Data Sheet Type
   #    - For "statistics" subtypes:
   #         * Read the country list.
   #         * Read the specified data (production, export, import, consumption).
@@ -138,7 +138,7 @@ readIFA_ChemAppend <- function(subtype) {
   }
   
   # ---------------------------------------------------------------------------
-  # 4. Convert the Data to a MagPIE Object and Finalize
+  # Convert the Data to a MagPIE Object and Finalize
   #    - Convert the reshaped data to a magpie object with spatial and temporal dimensions.
   #    - Replace NA values with 0.
   #    - Set a comment (dimension name) based on the subtype key.
@@ -148,7 +148,7 @@ readIFA_ChemAppend <- function(subtype) {
   getComment(data) <- paste(subtype[1], subtype[2], subtype[3], sep = "_")
   
   # ---------------------------------------------------------------------------
-  # 5. Return the Processed Data
+  # Return the Processed Data
   # ---------------------------------------------------------------------------
   return(data)
 }

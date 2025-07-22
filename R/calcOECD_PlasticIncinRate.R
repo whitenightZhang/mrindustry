@@ -9,7 +9,7 @@
 #' 
 calcOECD_PlasticIncinRate <- function() {
   # ---------------------------------------------------------------------------
-  # 1. Define sectors and regions
+  # Define sectors and regions
   #    - Retrieve manufacturing sectors (excluding 'Total') and regional codes.
   # ---------------------------------------------------------------------------
   sector_map <- toolGetMapping("structuremappingPlasticManu.csv", type = "sectoral", where = "mrindustry")
@@ -19,7 +19,7 @@ calcOECD_PlasticIncinRate <- function() {
   regions <- unique(region_map$RegionCode)
   
   # ---------------------------------------------------------------------------
-  # 2. Load OECD incineration data and extend to 2020
+  # Load OECD incineration data and extend to 2020
   #    - Filter for 'Incinerated' fate and replicate 2019 to 2020.
   # ---------------------------------------------------------------------------
   incin_df <- calcOutput("OECD_PlasticEoL", aggregate = TRUE) %>%
@@ -35,7 +35,7 @@ calcOECD_PlasticIncinRate <- function() {
   )
   
   # ---------------------------------------------------------------------------
-  # 3. Compute historical share from external datasets (2005–2020)
+  # Compute historical share from external datasets (2005–2020)
   #    - Load EU, China, and US EoL CSVs, compute incineration share per region-year.
   # ---------------------------------------------------------------------------
   # (paths and unit conversions may need adjustment)
@@ -66,7 +66,7 @@ calcOECD_PlasticIncinRate <- function() {
     dplyr::select(Region, Year, share)
   
   # ---------------------------------------------------------------------------
-  # 4. Merge ext shares into incin_ext, replacing where available
+  # Merge ext shares into incin_ext, replacing where available
   # ---------------------------------------------------------------------------
   # TODO: interpolate non-OECD data, otherwise only specific years get replaced
   incin_hist <- incin_ext %>%
@@ -75,7 +75,7 @@ calcOECD_PlasticIncinRate <- function() {
     dplyr::select(Region, Year, Value)
   
   # ---------------------------------------------------------------------------
-  # 5. Fill 1990–2000 for non-CHA regions and extend to 2100
+  # Fill 1990–2000 for non-CHA regions and extend to 2100
   #    - Copy Year 2000 value to 1990–1999; linearly interpolate from 2020 to 2100 to reach target 30%.
   # ---------------------------------------------------------------------------
   # Base 2000
@@ -108,13 +108,13 @@ calcOECD_PlasticIncinRate <- function() {
   )
   
   # ---------------------------------------------------------------------------
-  # 6. Convert to MagPIE and aggregate to countries
+  # Convert to MagPIE and aggregate to countries
   # ---------------------------------------------------------------------------
   x <- as.magpie(final_df, spatial = 1, temporal = 2)
   x <- toolAggregate(x, rel = region_map, dim = 1, from = "RegionCode", to = "CountryCode")
   
   # ---------------------------------------------------------------------------
-  # 7. Prepare weight object and return
+  # Prepare weight object and return
   # ---------------------------------------------------------------------------
   weight <- x
   weight[,] <- 1

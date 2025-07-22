@@ -15,7 +15,7 @@
 #' @importFrom magpiesets findset
 convertOECD_Plastic <- function(x) {
   # ---------------------------------------------------------------------------
-  # 1. Extract subtype information and validate
+  # Extract subtype information and validate
   #    - Retrieve comment string and split to derive subtype components.
   # ---------------------------------------------------------------------------
   comment_str <- getComment(x)
@@ -26,7 +26,7 @@ convertOECD_Plastic <- function(x) {
   subtype <- paste(parts[1], parts[2], parts[3], sep = "_")  # e.g. "Use_1990-2019_region"
   
   # ---------------------------------------------------------------------------
-  # 2. Disaggregate regional data to country level
+  # Disaggregate regional data to country level
   #    - Use different mappings and GDP weighting per subtype case.
   # ---------------------------------------------------------------------------
   if (subtype == "Use_1990-2019_region") {
@@ -86,13 +86,13 @@ convertOECD_Plastic <- function(x) {
     
   } else {
     # -------------------------------------------------------------------------
-    # 3. Error handling for unsupported subtypes
+    # Error handling for unsupported subtypes
     # -------------------------------------------------------------------------
     stop("Invalid subtype combination: ", subtype)
   }
   
   # ---------------------------------------------------------------------------
-  # 4. Finalize data
+  # Finalize data
   #    - Fill missing country entries with zeros for completeness.
   # ---------------------------------------------------------------------------
   x <- toolCountryFill(x, fill = 0)

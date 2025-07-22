@@ -1,4 +1,6 @@
-#'
+#' Retrieve Methanol capacity, Production and consumption data in China from ChinaBaogao 
+#' (Chinese business website that publishes industry analyses.)
+#' 
 #' @author Qianzhi Zhang
 #'
 #' @export

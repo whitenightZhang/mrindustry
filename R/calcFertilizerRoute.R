@@ -8,43 +8,43 @@
 calcFertilizerRoute <- function() {
   
   # ---------------------------------------------------------------------------
-  # 1. Load and Preprocess fertilizer Production Data
+  # Load and Preprocess fertilizer Production Data
   #    - Retrieve production data for Urea, AN, CAN, and AS from IFA datasets.
   #    - Convert the production values from ktN to MtN by dividing by 1000.
   # ---------------------------------------------------------------------------
   
-  # 1.1 Urea production data from IFA_ChemN
-  Urea_IFA <- calcOutput("IFA_ChemN", subtype = "urea_statistics_production", aggregate = TRUE) %>%
+  # Urea production data from IFA_ChemN
+  Urea_IFA <- calcOutput("IFA_Chem", subtype = "urea_statistics_production", unitNitrogen=TRUE, aggregate = TRUE) %>%
     .[, c("y2015", "y2016", "y2017", "y2018", "y2019", "y2020"), ] %>%
     as.data.frame() %>%
     mutate(Value = Value / 1000)  # Scale down values
   
-  # 1.2 Ammonium Nitrate (AN) production data from IFA_ChemNAppend
-  AN_IFA <- calcOutput("IFA_ChemNAppend", subtype = "AN_statistics_production", aggregate = TRUE) %>%
+  # Ammonium Nitrate (AN) production data from IFA_ChemNAppend
+  AN_IFA <- calcOutput("IFA_ChemAppend", subtype = "AN_statistics_production", unitNitrogen=TRUE, aggregate = TRUE) %>%
     .[, c("y2015", "y2016", "y2017", "y2018", "y2019", "y2020"), ] %>%
     as.data.frame() %>%
     mutate(Value = Value / 1000)
   
-  # 1.3 Calcium Ammonium Nitrate (CAN) production data from IFA_ChemNAppend
-  CAN_IFA <- calcOutput("IFA_ChemNAppend", subtype = "CAN_statistics_production", aggregate = TRUE) %>%
+  # Calcium Ammonium Nitrate (CAN) production data from IFA_ChemNAppend
+  CAN_IFA <- calcOutput("IFA_ChemAppend", subtype = "CAN_statistics_production", unitNitrogen=TRUE, aggregate = TRUE) %>%
     .[, c("y2015", "y2016", "y2017", "y2018", "y2019", "y2020"), ] %>%
     as.data.frame() %>%
     mutate(Value = Value / 1000)
   
-  # 1.4 Ammonium Sulfate (AS) production data from IFA_ChemNAppend
-  AS_IFA <- calcOutput("IFA_ChemNAppend", subtype = "AS_statistics_production", aggregate = TRUE) %>%
+  # Ammonium Sulfate (AS) production data from IFA_ChemNAppend
+  AS_IFA <- calcOutput("IFA_ChemAppend", subtype = "AS_statistics_production", unitNitrogen=TRUE, aggregate = TRUE) %>%
     .[, c("y2015", "y2016", "y2017", "y2018", "y2019", "y2020"), ] %>%
     as.data.frame() %>%
     mutate(Value = Value / 1000)
   
   
   # ---------------------------------------------------------------------------
-  # 2. Load and Preprocess Ammonia Production Data
+  # Load and Preprocess Ammonia Production Data
   #    - Retrieve ammonia production data from IFA_ChemN.
   #    - Convert the production value and change the 'Year' column to numeric.
   # ---------------------------------------------------------------------------
   
-  Ammonia_IFA <- calcOutput("IFA_ChemN", subtype = "ammonia_statistics_production", aggregate = TRUE) %>%
+  Ammonia_IFA <- calcOutput("IFA_Chem", subtype = "ammonia_statistics_production", unitNitrogen=TRUE, aggregate = TRUE) %>%
     .[, c("y2015", "y2016", "y2017", "y2018", "y2019", "y2020"), ] %>%
     as.data.frame() %>%
     mutate(
@@ -55,7 +55,7 @@ calcFertilizerRoute <- function() {
   
   
   # ---------------------------------------------------------------------------
-  # 3. Combine fertilizer Production Data
+  # Combine fertilizer Production Data
   #    - Bind Urea, AN, CAN, and AS datasets.
   #    - Convert the 'Year' column to numeric, remove extra columns,
   #      and calculate the total fertilizer production per Region and Year.
@@ -78,7 +78,7 @@ calcFertilizerRoute <- function() {
   
   
   # ---------------------------------------------------------------------------
-  # 4. Calculate fertilizer Conversion Ratio
+  # Calculate fertilizer Conversion Ratio
   #    - Join ammonia production data with total fertilizer production.
   #    - Compute the fertilizer ratio as NFert_production / NAmmonia_production, capped at 1.
   # ---------------------------------------------------------------------------
@@ -92,16 +92,16 @@ calcFertilizerRoute <- function() {
   
   
   # ---------------------------------------------------------------------------
-  # 5. Load Weighting Data
+  # Load Weighting Data
   #    - Retrieve non-aggregated Urea production data for the year 2020.
   # ---------------------------------------------------------------------------
   
-  Urea_IFA_all <- calcOutput("IFA_ChemN", subtype = "urea_statistics_production", aggregate = FALSE) %>%
+  Urea_IFA_all <- calcOutput("IFA_Chem", subtype = "urea_statistics_production", unitNitrogen=TRUE, aggregate = FALSE) %>%
     .[, c("y2020"), ]
   
   
   # ---------------------------------------------------------------------------
-  # 6. Aggregate Data to Country Level
+  # Aggregate Data to Country Level
   #    - Retrieve regional mapping.
   #    - Convert NFert_output to a magpie object and aggregate regional data to country level
   #      using the production data as weights.
@@ -121,7 +121,7 @@ calcFertilizerRoute <- function() {
   
   
   # ---------------------------------------------------------------------------
-  # 7. Return Final Aggregated Object and Metadata
+  # Return Final Aggregated Object and Metadata
   # ---------------------------------------------------------------------------
   
   return(list(

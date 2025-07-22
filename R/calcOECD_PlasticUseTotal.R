@@ -8,7 +8,7 @@
 #' @export
 calcOECD_PlasticUseTotal <- function() {
   # ---------------------------------------------------------------------------
-  # 1. Load & clean regional use data (1990–2019)
+  # Load & clean regional use data (1990–2019)
   #    - Read and flatten OECD plastic use by region.
   # ---------------------------------------------------------------------------
   use_region <- calcOutput(
@@ -19,7 +19,7 @@ calcOECD_PlasticUseTotal <- function() {
     dplyr::mutate(Year = as.integer(as.character(Year)))
   
   # ---------------------------------------------------------------------------
-  # 2. Compute baseline ratios for target vs. other regions
+  # Compute baseline ratios for target vs. other regions
   #    - Define target regions and calculate per-region 2005 baseline ratios.
   # ---------------------------------------------------------------------------
   target_regions <- c("CHA", "EUR", "USA", "CAN")
@@ -34,7 +34,7 @@ calcOECD_PlasticUseTotal <- function() {
   use_other <- use_region %>% dplyr::filter(!Region %in% target_regions)
   
   # ---------------------------------------------------------------------------
-  # 3. Load & reshape production data
+  # Load & reshape production data
   #    - Read regional production and map region names to codes.
   # ---------------------------------------------------------------------------
   prod_region_map <- c(China = "CHA", EU27.3 = "EUR", North.America = "USA")
@@ -49,7 +49,7 @@ calcOECD_PlasticUseTotal <- function() {
     dplyr::filter(Region %in% target_regions)
   
   # ---------------------------------------------------------------------------
-  # 4. Load & reshape trade data (net imports)
+  # Load & reshape trade data (net imports)
   #    - Read UNCTAD net import data and convert to t.
   # ---------------------------------------------------------------------------
   trade_region_map <- c(
@@ -69,7 +69,7 @@ calcOECD_PlasticUseTotal <- function() {
     dplyr::filter(Region %in% target_regions)
   
   # ---------------------------------------------------------------------------
-  # 5. Compute regional total use = production + net imports
+  # Compute regional total use = production + net imports
   # ---------------------------------------------------------------------------
   use_calc <- prod_data %>%
     dplyr::left_join(trade_data, by = c("Region", "Year")) %>%
@@ -77,7 +77,7 @@ calcOECD_PlasticUseTotal <- function() {
     dplyr::mutate(use = production + net_import)
   
   # ---------------------------------------------------------------------------
-  # 6. Adjust USA demand by Canada domestic demand
+  # Adjust USA demand by Canada domestic demand
   #    - Subtract Canada's net import-adjusted demand from USA.
   # ---------------------------------------------------------------------------
   can_data <- calcOutput(
@@ -92,7 +92,7 @@ calcOECD_PlasticUseTotal <- function() {
     dplyr::transmute(Year, can_demand = Value - net_import)
   
   # ---------------------------------------------------------------------------
-  # 7. Merge & update target region values
+  # Merge & update target region values
   #    - Apply adjustment for USA and baseline ratio for pre-2005 values.
   # ---------------------------------------------------------------------------
   updated_target <- use_target %>%
@@ -110,7 +110,7 @@ calcOECD_PlasticUseTotal <- function() {
     dplyr::select(dplyr::all_of(names(use_region)))
   
   # ---------------------------------------------------------------------------
-  # 8. Combine with other regions & apply EU scaling
+  # Combine with other regions & apply EU scaling
   #    - Adjust EUR entries based on 2018 European plastics consumption (55.4 Mt according to Plastics Europe 2024 circular economy report).
   # ---------------------------------------------------------------------------
   final_region <- dplyr::bind_rows(updated_target, use_other)
@@ -127,7 +127,7 @@ calcOECD_PlasticUseTotal <- function() {
     )
   
   # ---------------------------------------------------------------------------
-  # 9. Aggregate to country level by GDP weights
+  # Aggregate to country level by GDP weights
   # ---------------------------------------------------------------------------
   map_df <- toolGetMapping(
     "regionmappingH12.csv", type = "regional", where = "mrindustry"
@@ -143,7 +143,7 @@ calcOECD_PlasticUseTotal <- function() {
   )
   
   # ---------------------------------------------------------------------------
-  # 10. Return final output
+  # Return final output
   # ---------------------------------------------------------------------------
   return(list(
     x           = x_final,

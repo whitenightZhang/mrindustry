@@ -25,7 +25,7 @@
 #' @importFrom readxl read_excel
 readIFA_Chem <- function(subtype) {
   # ---------------------------------------------------------------------------
-  # 1. Parse Input and Determine File Parameters
+  # Parse Input and Determine File Parameters
   #    - Split the input subtype (e.g., "ammonia_statistics_production") into components.
   #    - Construct a key using the first two components.
   # ---------------------------------------------------------------------------
@@ -33,7 +33,7 @@ readIFA_Chem <- function(subtype) {
   key <- paste(subtype[1], subtype[2], sep = "_")
 
   # ---------------------------------------------------------------------------
-  # 2. Select File Parameters Based on Key
+  # Select File Parameters Based on Key
   #    - Use a switch to choose the appropriate file, sheet name, cell ranges, and country list.
   # ---------------------------------------------------------------------------
   File <- switch(key,
@@ -80,7 +80,7 @@ readIFA_Chem <- function(subtype) {
   range <- toolSubtypeSelect(subtype[3], ranges)
   
   # ---------------------------------------------------------------------------
-  # 3. Read Data from Excel Based on the Selected Subtype
+  # Read Data from Excel Based on the Selected Subtype
   #    - For "statistics" type: read country names and data, then combine them.
   #    - For "capacities" type: read the data directly.
   # ---------------------------------------------------------------------------
@@ -100,7 +100,7 @@ readIFA_Chem <- function(subtype) {
   }
   
   # ---------------------------------------------------------------------------
-  # 4. Clean and Reshape Data
+  # Clean and Reshape Data
   #    - Remove rows with missing country names.
   #    - Reshape the data from wide to long format.
   # ---------------------------------------------------------------------------
@@ -113,7 +113,7 @@ readIFA_Chem <- function(subtype) {
   )
   
   # ---------------------------------------------------------------------------
-  # 5. Convert Data to Magpie Object and Final Adjustments
+  # Convert Data to Magpie Object and Final Adjustments
   #    - Convert the cleaned data frame into a magpie object for further processing.
   #    - Replace NA values with 0.
   #    - Set the dimension name based on the key.

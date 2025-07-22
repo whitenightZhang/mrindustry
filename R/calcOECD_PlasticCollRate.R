@@ -9,7 +9,7 @@
 #' 
 calcOECD_PlasticCollRate <- function() {
   # ---------------------------------------------------------------------------
-  # 1. Load and clean regional EoL data
+  # Load and clean regional EoL data
   #    - Read end-of-life outputs and exclude non-collection categories.
   # ---------------------------------------------------------------------------
   eol_df <- calcOutput(
@@ -28,7 +28,7 @@ calcOECD_PlasticCollRate <- function() {
     )
   
   # ---------------------------------------------------------------------------
-  # 2. Apply fixed collection rates for China
+  # Apply fixed collection rates for China
   #    - Use reported rates for specific years and interpolate.
   # ---------------------------------------------------------------------------
   # source: Assessment of Plastic Stocks and Flows in China: 1978-2017; 1-(Untreatment share)
@@ -44,7 +44,7 @@ calcOECD_PlasticCollRate <- function() {
   eol_df$collected[china_idx] <- interp_china
   
   # ---------------------------------------------------------------------------
-  # 3. Fill 1990–2000 for other regions with 2000 level
+  # Fill 1990–2000 for other regions with 2000 level
   #    - For non-CHA regions, assign 2000 value to 1990–2000 period.
   # ---------------------------------------------------------------------------
   non_cha <- dplyr::filter(eol_df, Region != "CHA")
@@ -63,7 +63,7 @@ calcOECD_PlasticCollRate <- function() {
     dplyr::select(-val2000)
   
   # ---------------------------------------------------------------------------
-  # 4. Extend series to 2100 with linear growth to 100%
+  # Extend series to 2100 with linear growth to 100%
   #    - Duplicate 2019 as 2020, then interpolate to reach 1.00 by 2100.
   # ---------------------------------------------------------------------------
   base2019 <- eol_df %>% dplyr::filter(Year == 2019)
@@ -95,7 +95,7 @@ calcOECD_PlasticCollRate <- function() {
   )
   
   # ---------------------------------------------------------------------------
-  # 5. Convert to MagPIE and aggregate to countries
+  # Convert to MagPIE and aggregate to countries
   #    - Map regions to countries with equal weights.
   # ---------------------------------------------------------------------------
   x <- as.magpie(final_df, spatial = 1, temporal = 2)
@@ -108,7 +108,7 @@ calcOECD_PlasticCollRate <- function() {
   )
   
   # ---------------------------------------------------------------------------
-  # 6. Prepare weight object and return
+  # Prepare weight object and return
   #    - Equal weights (1) for all entries
   # ---------------------------------------------------------------------------
   weight <- x

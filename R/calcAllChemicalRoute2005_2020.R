@@ -1,4 +1,7 @@
-#'
+#' Calculates chemical route flows (including OtherChem) from 2005 to 2020 
+#' from total chemical flows based on 2020 route shares.
+#' Flows are aggregated to the country level.
+#' 
 #' @author Qianzhi Zhang
 #'
 #' @export
@@ -116,7 +119,7 @@ calcAllChemicalRoute2005_2020 <- function(CCS=FALSE) {
     x = x,
     weight = NULL,
     unit = "Gt Chemical Routes",
-    description = "Aggregates chemical route flows from 2005 to 2020 by recategorizing routes into key product groups, computing internal shares, merging with 'OtherChem' unit energy data, and aggregating the results to the country level."
+    description = "Chemical route flows from 2005 to 2020 including 'OtherChem'."
   ))
 }
 

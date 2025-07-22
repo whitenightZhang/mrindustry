@@ -9,7 +9,7 @@
 #' 
 calcOECD_PlasticLandfillRe <- function() {
   # ---------------------------------------------------------------------------
-  # 1. Define sectors and regions
+  # Define sectors and regions
   #    - Retrieve manufacturing sectors (excluding 'Total') and regional codes.
   # ---------------------------------------------------------------------------
   sector_map <- toolGetMapping(
@@ -22,7 +22,7 @@ calcOECD_PlasticLandfillRe <- function() {
   regions <- unique(region_map$RegionCode)
   
   # ---------------------------------------------------------------------------
-  # 2. Load OECD landfill data and extend to 2020
+  # Load OECD landfill data and extend to 2020
   #    - Filter 'Landfilled' fate and replicate 2019 to 2020.
   # ---------------------------------------------------------------------------
   landfill_df <- calcOutput("OECD_PlasticEoL", aggregate = TRUE) %>%
@@ -37,7 +37,7 @@ calcOECD_PlasticLandfillRe <- function() {
   )
   
   # ---------------------------------------------------------------------------
-  # 3. Define target bounds for interpolation
+  # Define target bounds for interpolation
   #    - End share for 2100 set to 20% for all sectors.
   # ---------------------------------------------------------------------------
   bounds <- data.frame(
@@ -48,7 +48,7 @@ calcOECD_PlasticLandfillRe <- function() {
   landfill_ext <- merge(landfill_ext, bounds, by = NULL)
   
   # ---------------------------------------------------------------------------
-  # 4. Build final trajectory dataset (1990–2100)
+  # Build final trajectory dataset (1990–2100)
   #    - Keep 1990–2019 values, then interpolate 2020–2100 to 'end'.
   # ---------------------------------------------------------------------------
   pre2020 <- landfill_ext %>% dplyr::filter(Year < 2020)
@@ -74,7 +74,7 @@ calcOECD_PlasticLandfillRe <- function() {
     dplyr::select(Region, Year, Target, Value)
   
   # ---------------------------------------------------------------------------
-  # 5. Convert to MagPIE and aggregate to countries
+  # Convert to MagPIE and aggregate to countries
   # ---------------------------------------------------------------------------
   x <- as.magpie(final_df, spatial = 1, temporal = 2)
   x <- toolAggregate(
@@ -83,7 +83,7 @@ calcOECD_PlasticLandfillRe <- function() {
   )
   
   # ---------------------------------------------------------------------------
-  # 6. Prepare weight object and return
+  # Prepare weight object and return
   # ---------------------------------------------------------------------------
   weight <- x
   weight[,] <- 1

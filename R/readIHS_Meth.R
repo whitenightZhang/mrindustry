@@ -2,7 +2,7 @@
 #'
 #' Read-in 9TH RUSSIA & CIS OIL & GAS EXECUTIVE SUMMIT 2019 METHANOL INS.xlsx file as a magclass object.
 #' Regional data on Methanol Production, Capacity and Demand from 2018 is combined with temporal coverage of Methanol capacities 2010-2020
-#' to scale the 2018 data in order to estimate production, capacity and demand for 2010-2020.
+#' from IHS Markit to scale the 2018 data in order to estimate production, capacity and demand for 2010-2020.
 #'
 #' @param subtype[1] Type of Methanol data to read. Available types are:
 #'                \itemize{
@@ -26,13 +26,13 @@
 #' @importFrom readxl read_excel
 readIHS_Meth <- function(subtype) {
   # ---------------------------------------------------------------------------
-  # 1. Parse the Input Subtype
+  # Parse the Input Subtype
   #    - Split the input string into components.
   # ---------------------------------------------------------------------------
   subtype <- unlist(strsplit(subtype, "_"))
   
   # ---------------------------------------------------------------------------
-  # 2. Define File Parameters and Read Country Data
+  # Define File Parameters and Read Country Data
   #    - Set the file name, sheet name, and cell ranges for production, capacity, or demand.
   #    - Read the list of countries from the specified range.
   # ---------------------------------------------------------------------------
@@ -49,7 +49,7 @@ readIHS_Meth <- function(subtype) {
   colnames(country_data) <- "Country"
   
   # ---------------------------------------------------------------------------
-  # 3. Read Main Data and Combine with Country Data
+  # Read Main Data and Combine with Country Data
   #    - Read the main data from the selected range.
   #    - Combine the country names with the main data.
   # ---------------------------------------------------------------------------
@@ -57,7 +57,7 @@ readIHS_Meth <- function(subtype) {
   data <- cbind(country_data, data)
   
   # ---------------------------------------------------------------------------
-  # 4. Read and Process Total Capacity Data for Scaling
+  # Read and Process Total Capacity Data for Scaling
   #    - Read the total capacity data from a separate sheet.
   #    - Filter for the row where Region equals "TOTAL" and pivot the data to long format.
   #    - Compute scaling ratios relative to the 2018 value.
@@ -71,7 +71,7 @@ readIHS_Meth <- function(subtype) {
     dplyr::mutate(Ratio = .data$value / .data$value[.data$Year == "2018"])
   
   # ---------------------------------------------------------------------------
-  # 5. Expand Data for the Years 2010-2020 Using Scaling Ratios
+  # Expand Data for the Years 2010-2020 Using Scaling Ratios
   #    - Generate a complete dataset for each country and year using crossing.
   #    - Join with the capacity data to obtain scaling ratios.
   #    - Compute Adjusted_Value by scaling the 2018 data.
@@ -83,7 +83,7 @@ readIHS_Meth <- function(subtype) {
     dplyr::select(Country, Year, Adjusted_Value)
   
   # ---------------------------------------------------------------------------
-  # 6. Convert Data to a Magpie Object Based on Temporal Coverage
+  # Convert Data to a Magpie Object Based on Temporal Coverage
   #    - If subtype[2] is "2010-2020", use the expanded dataset.
   #    - Otherwise, if subtype[2] is "2018", force all data to the year 2018.
   # ---------------------------------------------------------------------------
@@ -96,7 +96,7 @@ readIHS_Meth <- function(subtype) {
   }
   
   # ---------------------------------------------------------------------------
-  # 7. Final Cleanup
+  # Final Cleanup
   #    - Replace NA values with 0.
   #    - Add the concatenated subtype string as a comment.
   # ---------------------------------------------------------------------------
@@ -105,7 +105,7 @@ readIHS_Meth <- function(subtype) {
   getComment(data) <- subtype
   
   # ---------------------------------------------------------------------------
-  # 8. Return the Processed Magpie Object
+  # Return the Processed Magpie Object
   # ---------------------------------------------------------------------------
   return(data)
 }

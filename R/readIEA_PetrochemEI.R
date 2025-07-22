@@ -1,6 +1,12 @@
+#' Read-in specific energy consumption (SEC) for the production of key chemicals (2006)
+#' from IEA Information Paper Chemical and Petrochemical Sector 2009 (Table 12)
+#' 
+#' @author Qianzhi Zhang
+#'
+#' @export
 readIEA_PetrochemEI <- function() {
   # ---------------------------------------------------------------------------
-  # 1. Read Data from Excel
+  # Read Data from Excel
   #    - Load data from the "Table 12. Petro Regional Coef" sheet of the 
   #      "IEA Chemical and Petrochemical Sector 2009.xlsx" file.
   #    - Remove unwanted columns (Benelux, Canada, France, Italy, Korea, Taiwan):
@@ -14,7 +20,7 @@ readIEA_PetrochemEI <- function() {
     select(-Benelux, -Canada, -France, -Italy, -Korea, -Taiwan)
   
   # ---------------------------------------------------------------------------
-  # 2. Clean and Convert Data
+  # Clean and Convert Data
   #    - Replace any "N/A" entries with 0 and convert the affected columns to numeric.
   # ---------------------------------------------------------------------------
   data <- data %>%
@@ -24,7 +30,7 @@ readIEA_PetrochemEI <- function() {
     ))
   
   # ---------------------------------------------------------------------------
-  # 3. Reshape Data from Wide to Long Format
+  # Reshape Data from Wide to Long Format
   #    - Rename the first column from "Region" to "Product".
   #    - Pivot the columns (2:9) into long format, where the new column "Country"
   #      holds the original column names and "Value" holds the corresponding values.
@@ -38,7 +44,7 @@ readIEA_PetrochemEI <- function() {
     )
   
   # ---------------------------------------------------------------------------
-  # 4. Convert Data to a MagPIE Object and Finalize
+  # Convert Data to a MagPIE Object and Finalize
   #    - Convert the long-format data frame into a magpie object (using spatial dim 2).
   #    - Replace any remaining NA values with 0.
   # ---------------------------------------------------------------------------
@@ -46,7 +52,7 @@ readIEA_PetrochemEI <- function() {
   data[is.na(data)] <- 0
   
   # ---------------------------------------------------------------------------
-  # 5. Return the Processed MagPIE Object
+  # Return the Processed MagPIE Object
   # ---------------------------------------------------------------------------
   return(data)
 }

@@ -1,4 +1,8 @@
-#'
+#' Calculates chemical energy demand from 2005 to 2020 from chemical production per route (AllChemicalRoute2005_2020) 
+#' and specific energy consumption for the different routes (retrieved from IEA_PetrochemEI and other literature sources).
+#' The energy demand for OtherChem is calculated as the remaining share of total chemical industry energy demand. 
+#' Results are aggregated to the country level.
+#' 
 #' @author Qianzhi Zhang
 #'
 #' @export
@@ -135,7 +139,7 @@ calcAllChemicalEnergy2005_2020 <- function(CCS=FALSE) {
     mutate(Energy_demand = Value.x * Value.y)
   
   # ---------------------------------------------------------------------------
-  # Summarize Energy Demand by Region, Year, and Process Type
+  # Summarize Energy Demand by Region, Year, and Energy carrier
   # ---------------------------------------------------------------------------
   energy_summary <- result %>%
     group_by(Region, Year, Type) %>%
@@ -227,6 +231,6 @@ calcAllChemicalEnergy2005_2020 <- function(CCS=FALSE) {
     x = x,
     weight = NULL,
     unit = "EJ",
-    description = "Aggregates chemical energy demand from 2005 to 2020 by calculating energy intensities for various processes, adjusting values for specific regions, merging with industry demand data, and aggregating the results to the country level."
+    description = "Chemical energy demand from 2005 to 2020 per process and final energy carrier"
   ))
 }
