@@ -25,9 +25,9 @@ calcAmmoniaRoute <- function() {
 
   # Map Data1 values to REMIND categories
   ammonia_share_iea$Category <- case_when(
-    ammonia_share_iea$Data1 %in% c("Coal", "Pyrolysis", "CCU") ~ "amSyCoal",
+    ammonia_share_iea$Data1 %in% c("Coal", "CCU") ~ "amSyCoal",
     ammonia_share_iea$Data1 %in% c("Coal_with_CCS") ~ "amSyCoal_cc", # TODO: Decide if CCS tech is needed in the base year
-    ammonia_share_iea$Data1 %in% c("Gas", "Gas_with_CCU") ~ "amSyNG",
+    ammonia_share_iea$Data1 %in% c("Gas", "Gas_with_CCU", "Pyrolysis") ~ "amSyNG", # Methane pyrolysis: H2 is produced for ammonia production and black carbon for other potential uses
     ammonia_share_iea$Data1 %in% c("Gas_with_CCS") ~ "amSyNG_cc",
     ammonia_share_iea$Data1 %in% c("Oil") ~ "amSyLiq",
     ammonia_share_iea$Data1 %in% c("Electrolysis") ~ "amSyH2"
@@ -70,8 +70,8 @@ calcAmmoniaRoute <- function() {
 
   # Map Data1 values to REMIND categories for petrochemical routes
   ammonia_share_ieapetro$Category <- case_when(
-    ammonia_share_ieapetro$Data1 %in% c("Coal_GS", "Pyrolysis", "CCU") ~ "amSyCoal",
-    ammonia_share_ieapetro$Data1 %in% c("NG_SR", "COG_SR", "Bio_GS") ~ "amSyNG",
+    ammonia_share_ieapetro$Data1 %in% c("Coal_GS", "CCU") ~ "amSyCoal",
+    ammonia_share_ieapetro$Data1 %in% c("NG_SR", "COG_SR", "Bio_GS", "Pyrolysis") ~ "amSyNG",
     ammonia_share_ieapetro$Data1 %in% c("Oil_SR") ~ "amSyLiq"
   )
 

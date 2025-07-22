@@ -122,7 +122,6 @@ calcHVCRoute <- function() {
   # Calculate Actual HVC Route Values
   #    - Join the combined share data with the total production data.
   #    - Compute the actual production values based on the normalized shares.
-  #    - Adjusting CAZ stCrNg share.
   # ----------------------------------------------------------
   HVC_route_value <- HVC_share_all %>%
     left_join(HVCs_total, by = "Region") %>%
