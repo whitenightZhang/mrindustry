@@ -128,27 +128,6 @@ calcHVCRoute <- function() {
     left_join(HVCs_total, by = "Region") %>%
     mutate(actual_value = normalized_value * value / 100) %>%
     select(-value, -normalized_value, -source)
-  
-  ### TODO REMOVE
-  HVC_route_value <- HVC_route_value %>%
-    group_by(Region, Year) %>%  # Ensure calculations happen per Year
-    mutate(
-      # Compute the amount to be reduced for stCrNg in the CAZ region, for each Year separately
-      # Adjustments for harmonization with IEA energy consumption data
-      adjustment = dplyr::if_else(Region == "CAZ" & Category == "stCrNg", actual_value * 0.5, 0),
-      
-      # Reduce actual_value by 50% for stCrNg in the CAZ region
-      actual_value = dplyr::if_else(Region == "CAZ" & Category == "stCrNg", actual_value * 0.5, actual_value)
-    ) %>%
-    
-    # Adjust stCrLiq within the same Region and Year
-    mutate(
-      actual_value = dplyr::if_else(Region == "CAZ" & Category == "stCrLiq", actual_value + sum(adjustment), actual_value)
-    ) %>%
-    
-    ungroup() %>%  # Remove grouping to avoid affecting further operations
-    select(-adjustment)  # Remove temporary column
-  
 
   # ----------------------------------------------------------
   # Load Non-Aggregated HVC Total Production Data for Weighting
