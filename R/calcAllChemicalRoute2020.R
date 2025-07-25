@@ -8,7 +8,7 @@
 #' 
 calcAllChemicalRoute2020 <- function(CCS=FALSE) {
   
-  AllChemicalRoute2020<- calcOutput("AllChemicalRoute2005_2020",warnNA = FALSE, aggregate = TRUE)[,"y2020",]%>% 
+  AllChemicalRoute2020<- calcOutput("AllChemicalRoute2005_2020",CCS=CCS,warnNA = FALSE, aggregate = TRUE)[,"y2020",]%>% 
     as.data.frame() %>%
     select(-Cell)
   
