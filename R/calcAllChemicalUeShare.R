@@ -6,7 +6,7 @@
 #' @author Qianzhi Zhang
 #'
 #' @export
-calcAllChemicalMat2Ue <- function() {
+calcAllChemicalUeShare <- function() {
 
   # ---------------------------------------------------------------------------
   # Retrieve baseline ue shares for 2020
