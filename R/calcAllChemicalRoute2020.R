@@ -1,10 +1,12 @@
-#'
+#' Filters chemical route flows from calcAllChemicalRoute2005_2020 for the year 2020
+#' can be removed if calcAllChemicalRoute2005_2020 is read into REMIND
+#' 
 #' @author Qianzhi Zhang
 #'
 #' @export
 #' @param CCS boolean parameter whether CCS technologies are considered as such in 2020 or assumed to be technologies without CCS
 #' 
-calcAllChemicalRoute2020withCCS <- function(CCS=FALSE) {
+calcAllChemicalRoute2020 <- function(CCS=FALSE) {
   
   AllChemicalRoute2020<- calcOutput("AllChemicalRoute2005_2020",warnNA = FALSE, aggregate = TRUE)[,"y2020",]%>% 
     as.data.frame() %>%
