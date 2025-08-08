@@ -13,25 +13,25 @@ calcFertilizerRoute <- function() {
   #    - Convert the production values from ktN to MtN by dividing by 1000.
   # ---------------------------------------------------------------------------
   
-  # Urea production data from IFA_ChemN
+  # Urea production data from IFA_Chem
   Urea_IFA <- calcOutput("IFA_Chem", subtype = "urea_statistics_production", unitNitrogen=TRUE, aggregate = TRUE) %>%
     .[, c("y2015", "y2016", "y2017", "y2018", "y2019", "y2020"), ] %>%
     as.data.frame() %>%
     mutate(Value = Value / 1000)  # Scale down values
   
-  # Ammonium Nitrate (AN) production data from IFA_ChemNAppend
+  # Ammonium Nitrate (AN) production data from IFA_ChemAppend
   AN_IFA <- calcOutput("IFA_ChemAppend", subtype = "AN_statistics_production", unitNitrogen=TRUE, aggregate = TRUE) %>%
     .[, c("y2015", "y2016", "y2017", "y2018", "y2019", "y2020"), ] %>%
     as.data.frame() %>%
     mutate(Value = Value / 1000)
   
-  # Calcium Ammonium Nitrate (CAN) production data from IFA_ChemNAppend
+  # Calcium Ammonium Nitrate (CAN) production data from IFA_ChemAppend
   CAN_IFA <- calcOutput("IFA_ChemAppend", subtype = "CAN_statistics_production", unitNitrogen=TRUE, aggregate = TRUE) %>%
     .[, c("y2015", "y2016", "y2017", "y2018", "y2019", "y2020"), ] %>%
     as.data.frame() %>%
     mutate(Value = Value / 1000)
   
-  # Ammonium Sulfate (AS) production data from IFA_ChemNAppend
+  # Ammonium Sulfate (AS) production data from IFA_ChemAppend
   AS_IFA <- calcOutput("IFA_ChemAppend", subtype = "AS_statistics_production", unitNitrogen=TRUE, aggregate = TRUE) %>%
     .[, c("y2015", "y2016", "y2017", "y2018", "y2019", "y2020"), ] %>%
     as.data.frame() %>%
