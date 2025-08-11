@@ -90,7 +90,7 @@ convertIFA_Chem <- function(x) {
       # --- Statistics ---
     } else if (subtype[2] == "statistics") {
       # Define "Others" regions for urea data.
-      others <- c("Others West Europe", "Others Central Europe", "Others EECA",
+      others <- c("Others West Europe", "Others Central Europe", "Kosovo","Others EECA",
                   "Others Latin America", "Others Africa", "Others West Asia",
                   "Others Oceania", "Others East Asia", "Others", "Others Caribbean")
       
@@ -103,13 +103,15 @@ convertIFA_Chem <- function(x) {
       xReg["Others", , ] <- xReg["Others", , ] +
         xReg["Others Oceania", , ] +
         xReg["Others EECA", , ] +
-        xReg["Others Central Europe", , ]
+        xReg["Others Central Europe", , ] +
+        xReg["Kosovo", , ] +
+        xReg["Others West Asia", , ]
       
       # Remove aggregated rows.
-      xReg <- xReg[!(rownames(xReg) %in% c("Others Caribbean", "Others Oceania", "Others EECA", "Others Central Europe")), , drop = FALSE]
+      xReg <- xReg[!(rownames(xReg) %in% c("Others Caribbean", "Others Oceania", "Others EECA", "Others Central Europe","Kosovo", "Others West Asia")), , drop = FALSE]
       
-      # Extract individual country-level data (plus Kosovo).
-      xCtry <- x[c(others, "Kosovo"), invert = TRUE]
+      # Extract individual country-level data.
+      xCtry <- x[others, invert = TRUE]
       # Convert country names to ISO codes.
       getItems(xCtry, dim = 1) <- toolCountry2isocode(getItems(xCtry, dim = 1),
                                                       mapping = c("Taiwan, China" = "TWN"))

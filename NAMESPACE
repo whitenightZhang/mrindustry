@@ -3,6 +3,7 @@
 export(calcAllChemicalEnergy2005_2020)
 export(calcAllChemicalFlow)
 export(calcAllChemicalFlow2005_2020)
+export(calcAllChemicalMat2Ue)
 export(calcAllChemicalRoute)
 export(calcAllChemicalRoute2005_2020)
 export(calcAllChemicalRoute2020)

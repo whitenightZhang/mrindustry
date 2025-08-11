@@ -17,10 +17,11 @@ calcAllChemicalMat2Ue <- function() {
   )
   
   # ---------------------------------------------------------------------------
-  # 2. Calculate Chemical Flow UE for 2020
-  #    - Retrieve AllChemicalFlow data for 2020, remove unwanted columns, and filter out 
-  #      rows for 'ammonia' and 'methanol' (since these are not processed here).
-  #    - Join with the conversion factors and calculate the material-to-UE value.
+  # Retrieve Chemical production projections for 2020-2050 (extrapolate between 2017 and 2025 if 2020 is missing)
+  # - total Chemical UE projection from calcFeDemandIndustry
+  # - Methanol, HVC & Ammonia projections from IEA_Petrochem
+  # - Fertilizer demand projections from MagPie
+  # and calculate change compared to baseline year
   # ---------------------------------------------------------------------------
   
   feIndustry <- calcOutput("FeDemandIndustry", scenarios=c("SSP2"), warnNA = FALSE, aggregate = TRUE)[,, "SSP2.ue_chemicals"] %>%
@@ -122,7 +123,9 @@ calcAllChemicalMat2Ue <- function() {
     mutate(Ratio = Value / Value[Year == 2020]) %>%
     ungroup()
   
-  # Compute new_mat2ue by merging in the conversion factors and replacing NaN fe_change with 1
+  # ---------------------------------------------------------------------------
+  # Compute future mat2ue by dividing the baseline by the relative change in UE chemicals demand of the respective chemical
+  # ---------------------------------------------------------------------------
   merged_data <- rbind(IEA_Petrochem_methanol, IEA_Petrochem_ammonia, IEA_Petrochem_hvc, MagPie_Fert_249) %>%
     dplyr::left_join(feIndustry, by = c("Region", "Year"), suffix = c("", ".fe")) %>%
     dplyr::mutate(fe_change = ifelse(is.nan(Ratio / Ratio.fe), 1, Ratio / Ratio.fe)) %>%
@@ -146,7 +149,7 @@ calcAllChemicalMat2Ue <- function() {
   x <- toolAggregate(x, rel = mapH12, dim = 1, from = "RegionCode", to = "CountryCode")
   
   # ---------------------------------------------------------------------------
-  # 7. Set Weighting and Return Final Output
+  # Set Weighting and Return Final Output
   #    - Create a weight object with the same dimensions as 'x' (all values set to 1).
   #    - Return the aggregated magpie object along with metadata.
   # ---------------------------------------------------------------------------

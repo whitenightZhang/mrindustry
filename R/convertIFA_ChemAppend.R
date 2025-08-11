@@ -126,7 +126,8 @@ convertIFA_ChemAppend <- function(x) {
           rel = map,
           from = "IFAReg",
           to = "CountryCode",
-          weight = urea[, weight_col, drop = FALSE][unique(map$CountryCode), , drop = FALSE]
+          weight = urea[, weight_col, drop = FALSE][unique(map$CountryCode), , drop = FALSE],
+          zeroWeight = "allow" # urea statistics production of countries mapped to "Total Various" is 0, therefore the weight sum is zero; but so is the fertilizer production 
         )
         if (year == start_year) {
           xNew <- aggregated_result
