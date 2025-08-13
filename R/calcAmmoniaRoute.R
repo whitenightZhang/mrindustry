@@ -25,32 +25,16 @@ calcAmmoniaRoute <- function() {
 
   # Map Data1 values to REMIND categories
   ammonia_share_iea$Category <- case_when(
-    ammonia_share_iea$Data1 %in% c("Coal", "Pyrolysis", "CCU") ~ "amSyCoal",
-    ammonia_share_iea$Data1 %in% c("Coal_with_CCS") ~ "amSyCoal_cc", # TODO: Decide if CCS tech is needed in the base year
-    ammonia_share_iea$Data1 %in% c("Gas", "Gas_with_CCU") ~ "amSyNG",
+    ammonia_share_iea$Data1 %in% c("Coal", "CCU") ~ "amSyCoal",
+    ammonia_share_iea$Data1 %in% c("Coal_with_CCS") ~ "amSyCoal_cc", 
+    ammonia_share_iea$Data1 %in% c("Gas", "Gas_with_CCU", "Pyrolysis") ~ "amSyNG", # Methane pyrolysis: H2 is produced for ammonia production and black carbon for other potential uses
     ammonia_share_iea$Data1 %in% c("Gas_with_CCS") ~ "amSyNG_cc",
     ammonia_share_iea$Data1 %in% c("Oil") ~ "amSyLiq",
     ammonia_share_iea$Data1 %in% c("Electrolysis") ~ "amSyH2"
   )
 
-  # ---------------------------------------------------------------------------
-  # Gas with CCS route in 2020 is only employed in the US. The aggregation performed in convertIEA_Ammonia assigned it 
-  # to all North American countries. To fix this, the total of "amSyNG_cc" category shares are reassigned to USA and of all other regions set to zero.
-  # ---------------------------------------------------------------------------
-  am_syngcc_total <- ammonia_share_iea %>%
-    filter(Category == "amSyNG_cc") %>%
-    summarise(total_value = sum(Value, na.rm = TRUE)) %>%
-    pull(total_value)
-
-  ammonia_share_iea <- ammonia_share_iea %>%
-    mutate(Value = ifelse(Category == "amSyNG_cc" & Region == "USA", am_syngcc_total,
-      ifelse(Category == "amSyNG_cc", 0, Value)
-    ))
-
   # ----------------------------------------------------------------------------
   # Group by Region, Year, and Category, then calculate normalized share (%)
-  #   - the convertIEA_Ammonia function currently disaggregates the shares to the country level in a way that they don't sum up to 1
-  #   - consequently, also for the H12 regions, they don't sum up to 1, this is corrected here
   # ----------------------------------------------------------------------------
   ammonia_share_iea <- ammonia_share_iea %>%
     group_by(Region, Year, Category) %>%
@@ -70,8 +54,8 @@ calcAmmoniaRoute <- function() {
 
   # Map Data1 values to REMIND categories for petrochemical routes
   ammonia_share_ieapetro$Category <- case_when(
-    ammonia_share_ieapetro$Data1 %in% c("Coal_GS", "Pyrolysis", "CCU") ~ "amSyCoal",
-    ammonia_share_ieapetro$Data1 %in% c("NG_SR", "COG_SR", "Bio_GS") ~ "amSyNG",
+    ammonia_share_ieapetro$Data1 %in% c("Coal_GS", "CCU") ~ "amSyCoal",
+    ammonia_share_ieapetro$Data1 %in% c("NG_SR", "COG_SR", "Bio_GS", "Pyrolysis") ~ "amSyNG",
     ammonia_share_ieapetro$Data1 %in% c("Oil_SR") ~ "amSyLiq"
   )
 

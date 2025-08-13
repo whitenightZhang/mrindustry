@@ -26,7 +26,7 @@
 #' 
 readOECD_Plastic <- function(subtype) {
   # ---------------------------------------------------------------------------
-  # 1. Parse input and validate
+  # Parse input and validate
   parts <- strsplit(subtype, "_")[[1]]
   if (length(parts) < 3) {
     stop("Subtype must have at least three components, e.g. 'Use_2019_region'.")
@@ -35,7 +35,7 @@ readOECD_Plastic <- function(subtype) {
   level <- parts[3]                             # e.g., "region" or "world"
   
   # ---------------------------------------------------------------------------
-  # 2. Map key to Excel file parameters
+  # Map key to Excel file parameters
   params <- switch(key,
                    "Use_2019" = list(
                      file   = "Plastics Use.xlsx",
@@ -61,7 +61,7 @@ readOECD_Plastic <- function(subtype) {
   )
   
   # ---------------------------------------------------------------------------
-  # 3. Read raw data from Excel
+  # Read raw data from Excel
   raw_df <- read_excel(
     path  = params$file,
     sheet = params$sheet,
@@ -70,7 +70,7 @@ readOECD_Plastic <- function(subtype) {
   )
   
   # ---------------------------------------------------------------------------
-  # 4. Select and filter columns based on subtype
+  # Select and filter columns based on subtype
   df <- switch(
     subtype,
     # Plastic use or waste by region
@@ -96,7 +96,7 @@ readOECD_Plastic <- function(subtype) {
   )
   
   # ---------------------------------------------------------------------------
-  # 5. Convert to magpie object and clean missing values
+  # Convert to magpie object and clean missing values
   # ---------------------------------------------------------------------------
   magpie_data <- as.magpie(df, spatial = 1, temporal = 4)
   magpie_data[is.na(magpie_data)] <- 0

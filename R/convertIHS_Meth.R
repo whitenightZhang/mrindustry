@@ -14,7 +14,7 @@
 #' @importFrom magpiesets findset
 convertIHS_Meth <- function(x) {
   # ---------------------------------------------------------------------------
-  # 1. Extract Subtype Information
+  # Extract Subtype Information
   #    - Retrieve the subtype string from the comment attached to x.
   #    - Split the subtype string to determine the temporal resolution (2010-2020 vs. 2018)
   #      and the data type (Production, Capacity, or Demand).
@@ -23,7 +23,7 @@ convertIHS_Meth <- function(x) {
   subtype <- unlist(strsplit(strsplit(getComment(x), " ")[[1]][3], "_"))
   
   # ---------------------------------------------------------------------------
-  # 2. Separate China-specific Data from Other Countries
+  # Separate China-specific Data from Other Countries
   #    - xReg: Data for China.
   #    - xCtry: Data for all other countries.
   # ---------------------------------------------------------------------------
@@ -31,12 +31,12 @@ convertIHS_Meth <- function(x) {
   xCtry <- x["China", , invert = TRUE]  # All other countries
   
   # ---------------------------------------------------------------------------
-  # 3. Convert Country Names in xReg to ISO Codes
+  # Convert Country Names in xReg to ISO Codes
   # ---------------------------------------------------------------------------
   getItems(xReg, dim = 1) <- toolCountry2isocode(getItems(xReg, dim = 1))
   
   # ---------------------------------------------------------------------------
-  # 4. Load Regional-to-Country Mapping
+  # Load Regional-to-Country Mapping
   #    - Load the mapping file for IHS_Meth (assumed for IEA or similar)
   #    - Exclude regions labeled as "rest"
   # ---------------------------------------------------------------------------
@@ -45,7 +45,7 @@ convertIHS_Meth <- function(x) {
     dplyr::filter(.data$IFAReg != "rest")
   
   # ---------------------------------------------------------------------------
-  # 5. Aggregate Data Based on Temporal Resolution
+  # Aggregate Data Based on Temporal Resolution
   #    - For the 2010-2020 case: Loop over each year from 2010 to 2020.
   #    - For each year, retrieve the appropriate weighting data and aggregate xCtry.
   #    - For the Demand case, use FE data as weights.
@@ -133,7 +133,7 @@ convertIHS_Meth <- function(x) {
   }
   
   # ---------------------------------------------------------------------------
-  # 6. Finalize and Return the Aggregated Data
+  # Finalize and Return the Aggregated Data
   #    - Fill missing country entries with 0.
   # ---------------------------------------------------------------------------
   x <- toolCountryFill(x, fill = 0)

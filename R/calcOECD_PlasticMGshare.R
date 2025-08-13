@@ -9,7 +9,7 @@
 #' 
 calcOECD_PlasticMGshare <- function() {
   # ---------------------------------------------------------------------------
-  # 1. Load and filter regional use data (2019)
+  # Load and filter regional use data (2019)
   #    - Read regional use output, exclude 'Total' categories.
   # ---------------------------------------------------------------------------
   use_df <- calcOutput(
@@ -20,7 +20,7 @@ calcOECD_PlasticMGshare <- function() {
     dplyr::filter(Data1 != "Total", Data2 != "Total")
   
   # ---------------------------------------------------------------------------
-  # 2. Compute material shares by good
+  # Compute material shares by good
   #    - Group by region, year, and good (Data2), then calculate share of each subcategory (Data1).
   # ---------------------------------------------------------------------------
   ratio_df <- use_df %>%
@@ -33,7 +33,7 @@ calcOECD_PlasticMGshare <- function() {
     dplyr::select(Region, Year, Data2, Data1, MaterialShare)
   
   # ---------------------------------------------------------------------------
-  # 3. Aggregate shares to country level
+  # Aggregate shares to country level
   #    - Convert to MagPIE and map regional codes to country codes.
   # ---------------------------------------------------------------------------
   region_map <- toolGetMapping(
@@ -46,7 +46,7 @@ calcOECD_PlasticMGshare <- function() {
   )
   
   # ---------------------------------------------------------------------------
-  # 4. Prepare weight object and return
+  # Prepare weight object and return
   #    - Use equal weights for aggregation.
   # ---------------------------------------------------------------------------
   weight <- x

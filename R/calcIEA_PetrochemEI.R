@@ -1,4 +1,6 @@
-#'
+#' Retrieve specific energy consumption (SEC) for the production of key chemicals (2006)
+#' from IEA Information Paper Chemical and Petrochemical Sector 2009 (Table 12)
+#' 
 #' @author Qianzhi Zhang
 #'
 #' @export

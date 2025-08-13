@@ -27,14 +27,14 @@
 #' @importFrom tidyr pivot_longer pivot_wider
 readRMI_China <- function(subtype) {
   # ---------------------------------------------------------------------------
-  # 1. Parse the Input Subtype
+  # Parse the Input Subtype
   #    - Split the provided subtype string (e.g., "ChemDemand_Ammonia")
   #      into its components.
   # ---------------------------------------------------------------------------
   subtype <- unlist(strsplit(subtype, "_"))
 
   # ---------------------------------------------------------------------------
-  # 2. Define File and Parameter Settings Based on the First Subtype Component
+  # Define File and Parameter Settings Based on the First Subtype Component
   #    - For "ChemDemand", we use the "ES1-3 China Chemical Demand" sheet.
   #    - For "ChemStructure", we use the "ES29 China Chemical Structure" sheet.
   # ---------------------------------------------------------------------------
@@ -62,12 +62,12 @@ readRMI_China <- function(subtype) {
   }
   
   # ---------------------------------------------------------------------------
-  # 3. Select the Data Range Based on the Second Subtype Component
+  # Select the Data Range Based on the Second Subtype Component
   # ---------------------------------------------------------------------------
   range <- toolSubtypeSelect(subtype[2], ranges)
   
   # ---------------------------------------------------------------------------
-  # 4. Process Data Differently for ChemDemand and ChemStructure
+  # Process Data Differently for ChemDemand and ChemStructure
   # ---------------------------------------------------------------------------
   if (subtype[1] == "ChemDemand") {
     
@@ -96,7 +96,7 @@ readRMI_China <- function(subtype) {
   }
   
   # ---------------------------------------------------------------------------
-  # 5. Convert the Data into a MagPIE Object
+  # Convert the Data into a MagPIE Object
   #    - Convert the data frame to a magpie object with appropriate spatial and temporal dimensions.
   #    - Replace NA values with 0.
   # ---------------------------------------------------------------------------
@@ -104,7 +104,7 @@ readRMI_China <- function(subtype) {
   data[is.na(data)] <- 0
   
   # ---------------------------------------------------------------------------
-  # 7. Return the Processed MagPIE Object
+  # Return the Processed MagPIE Object
   # ---------------------------------------------------------------------------
   return(data)
 }

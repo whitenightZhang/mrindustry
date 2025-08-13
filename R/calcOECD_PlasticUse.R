@@ -8,7 +8,7 @@
 #' @export
 calcOECD_PlasticUse <- function() {
   # ---------------------------------------------------------------------------
-  # 1. Load and clean sectoral share data
+  # Load and clean sectoral share data
   #    - Read share output and prepare dataframe, rename Data2 to Data1 to align dimensions.
   # ---------------------------------------------------------------------------
   share_df <- calcOutput(
@@ -18,7 +18,7 @@ calcOECD_PlasticUse <- function() {
     dplyr::select(-Cell,-Year)
   
   # ---------------------------------------------------------------------------
-  # 2. Load and clean total use data
+  # Load and clean total use data
   #    - Read total use output and prepare dataframe.
   # ---------------------------------------------------------------------------
   total_df <- calcOutput(
@@ -29,7 +29,7 @@ calcOECD_PlasticUse <- function() {
     dplyr::mutate(Year = as.integer(as.character(Year)))
   
   # ---------------------------------------------------------------------------
-  # 3. Combine shares and totals to compute sectoral use
+  # Combine shares and totals to compute sectoral use
   #    - Join on Region, Year, and Data1, calculate Value = Share * Total.
   # ---------------------------------------------------------------------------
   combined <- share_df %>%
@@ -43,7 +43,7 @@ calcOECD_PlasticUse <- function() {
     dplyr::select(Region, Year, Data1, Value)
   
   # ---------------------------------------------------------------------------
-  # 4. Convert to MagPIE and aggregate to country level
+  # Convert to MagPIE and aggregate to country level
   #    - Map regions to countries using GDP weights.
   # ---------------------------------------------------------------------------
   x <- as.magpie(combined, spatial = 1, temporal = 2)
@@ -62,7 +62,7 @@ calcOECD_PlasticUse <- function() {
   )
   
   # ---------------------------------------------------------------------------
-  # 5. Return output and metadata
+  # Return output and metadata
   # ---------------------------------------------------------------------------
   return(list(
     x           = x,

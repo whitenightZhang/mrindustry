@@ -16,7 +16,7 @@
 convertIEA_Ammonia <- function(x) {
   
   # ---------------------------------------------------------------------------
-  # 1. Define "Others" Regions
+  # Define "Others" Regions
   #    - These regions represent aggregated regions from the dataset.
   # ---------------------------------------------------------------------------
   others <- c(
@@ -24,7 +24,7 @@ convertIEA_Ammonia <- function(x) {
   )
   
   # ---------------------------------------------------------------------------
-  # 2. Separate Regional and Country-level Data
+  # Separate Regional and Country-level Data
   #    - xReg: Extract data corresponding to the aggregated "others" regions.
   #    - xCtry: Extract individual country data by excluding the "others" regions.
   # ---------------------------------------------------------------------------
@@ -32,13 +32,13 @@ convertIEA_Ammonia <- function(x) {
   xCtry <- x[others, , invert = TRUE]
   
   # ---------------------------------------------------------------------------
-  # 3. Convert Country Names to ISO Codes
+  # Convert Country Names to ISO Codes
   #    - Convert the names in the country-level data (xCtry) to ISO codes.
   # ---------------------------------------------------------------------------
   getItems(xCtry, dim = 1) <- toolCountry2isocode(getItems(xCtry, dim = 1))
   
   # ---------------------------------------------------------------------------
-  # 4. Load Regional-to-Country Mapping
+  # Load Regional-to-Country Mapping
   #    - Retrieve mapping that converts IFA region codes (IFAReg) to ISO country codes.
   #    - Exclude regions labeled as "rest".
   # ---------------------------------------------------------------------------
@@ -46,13 +46,13 @@ convertIEA_Ammonia <- function(x) {
     dplyr::filter(.data$IFAReg != "rest")
   
   # ---------------------------------------------------------------------------
-  # 5. Retrieve Weighting Data
+  # Retrieve Weighting Data
   #    - Get the ammonia production data (IFA_Chem ammonia statistics) for 2020 to be used as weights.
   # ---------------------------------------------------------------------------
   Ammonia <- calcOutput("IFA_Chem", subtype = "ammonia_statistics_production", aggregate = FALSE)[, "y2020", ]
   
   # ---------------------------------------------------------------------------
-  # 6. Aggregate Regional Data to Country Level
+  # Aggregate Regional Data to Country Level
   #    - Aggregate the aggregated "others" regions (xReg) to country level using the mapping and weights.
   # ---------------------------------------------------------------------------
   xReg <- toolAggregate(
@@ -65,18 +65,18 @@ convertIEA_Ammonia <- function(x) {
   )
   
   # ---------------------------------------------------------------------------
-  # 7. Combine Aggregated Regional Data with Individual Country Data
+  # Combine Aggregated Regional Data with Individual Country Data
   # ---------------------------------------------------------------------------
   x <- mbind(xReg, xCtry)
   
   # ---------------------------------------------------------------------------
-  # 8. Fill Missing Country Data with 0
+  # Fill Missing Country Data with 0
   #    - Ensure completeness by replacing any missing values with 0.
   # ---------------------------------------------------------------------------
   x <- toolCountryFill(x, fill = 0)
   
   # ---------------------------------------------------------------------------
-  # 9. Return the Final Disaggregated MagPIE Object
+  # Return the Final Disaggregated MagPIE Object
   # ---------------------------------------------------------------------------
   return(x)
 }

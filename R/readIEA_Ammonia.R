@@ -22,7 +22,7 @@
 readIEA_Ammonia <- function(subtype) {
   
   # ---------------------------------------------------------------------------
-  # 1. Read Data from Excel
+  # Read Data from Excel
   #    - Define the file name and read the specified sheet and range.
   #    - The data is read without column names.
   # ---------------------------------------------------------------------------
@@ -31,7 +31,7 @@ readIEA_Ammonia <- function(subtype) {
                      skip = 0, col_names = FALSE)
 
   # ---------------------------------------------------------------------------
-  # 2. Transpose and Set Up Data Frame
+  # Transpose and Set Up Data Frame
   #    - Transpose the data so that rows become columns.
   #    - Set the first row as column names and make them syntactically valid.
   # ---------------------------------------------------------------------------
@@ -43,7 +43,7 @@ readIEA_Ammonia <- function(subtype) {
   colnames(data)[1] <- "Country"
   
   # ---------------------------------------------------------------------------
-  # 3. Filter Data Based on Subtype (Scenario)
+  # Filter Data Based on Subtype (Scenario)
   #    - Depending on the scenario specified in subtype, filter the rows by Year.
   # ---------------------------------------------------------------------------
   if (subtype == "BaseYear_2020") {
@@ -55,7 +55,7 @@ readIEA_Ammonia <- function(subtype) {
   }
   
   # ---------------------------------------------------------------------------
-  # 4. Clean and Reshape the Data
+  # Clean and Reshape the Data
   #    - Remove the "SUM" column.
   #    - Pivot the data from wide to long format with "Route" and "value" columns.
   # ---------------------------------------------------------------------------
@@ -69,7 +69,7 @@ readIEA_Ammonia <- function(subtype) {
   data$value <- as.numeric(data$value)
   
   # ---------------------------------------------------------------------------
-  # 5. Convert to Magpie Object and Finalize
+  # Convert to Magpie Object and Finalize
   #    - Convert the reshaped data frame to a magpie object.
   #    - Replace any NA values with 0.
   # ---------------------------------------------------------------------------
@@ -77,7 +77,7 @@ readIEA_Ammonia <- function(subtype) {
   data[is.na(data)] <- 0
   
   # ---------------------------------------------------------------------------
-  # 6. Return the Processed Magpie Object
+  # Return the Processed Magpie Object
   #    - The function returns the final magpie object.
   # ---------------------------------------------------------------------------
   return(data)

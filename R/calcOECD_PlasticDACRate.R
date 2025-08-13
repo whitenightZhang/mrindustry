@@ -9,7 +9,7 @@
 #' 
 calcOECD_PlasticDACRate <- function() {
   # ---------------------------------------------------------------------------
-  # 1. Load sectoral mapping and define sectors
+  # Load sectoral mapping and define sectors
   #    - Retrieve sectoral targets from manufacturing mapping, excluding totals.
   # ---------------------------------------------------------------------------
   sector_map <- toolGetMapping(
@@ -19,7 +19,7 @@ calcOECD_PlasticDACRate <- function() {
   targets <- setdiff(targets, "Total")
   
   # ---------------------------------------------------------------------------
-  # 2. Load regional mapping and define regions
+  # Load regional mapping and define regions
   #    - Retrieve regional codes from mapping.
   # ---------------------------------------------------------------------------
   region_map <- toolGetMapping(
@@ -28,7 +28,7 @@ calcOECD_PlasticDACRate <- function() {
   regions <- unique(region_map$RegionCode)
   
   # ---------------------------------------------------------------------------
-  # 3. Define time horizon and DAC-based share bounds
+  # Define time horizon and DAC-based share bounds
   #    - Years: 1990–2100
   #    - Starting share (2020): 0%
   #    - End share (2050): 1%
@@ -41,7 +41,7 @@ calcOECD_PlasticDACRate <- function() {
   )
   
   # ---------------------------------------------------------------------------
-  # 4. Build full data frame of trajectories
+  # Build full data frame of trajectories
   #    - Expand grid of Year × Sector × Region
   #    - Merge with share bounds and interpolate linearly
   # ---------------------------------------------------------------------------
@@ -63,7 +63,7 @@ calcOECD_PlasticDACRate <- function() {
   traj_df <- dplyr::select(traj_df, Region, Year, Target, value)
   
   # ---------------------------------------------------------------------------
-  # 5. Convert to MagPIE and aggregate to country level
+  # Convert to MagPIE and aggregate to country level
   #    - Map regional trajectories to countries (equal weights)
   # ---------------------------------------------------------------------------
   x <- as.magpie(traj_df, spatial = 1, temporal = 2)
@@ -73,7 +73,7 @@ calcOECD_PlasticDACRate <- function() {
   )
   
   # ---------------------------------------------------------------------------
-  # 6. Prepare weight object and return
+  # Prepare weight object and return
   #    - Equal weights (1) for all entries
   # ---------------------------------------------------------------------------
   weight <- x

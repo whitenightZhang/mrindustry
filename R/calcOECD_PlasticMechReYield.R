@@ -9,7 +9,7 @@
 #' 
 calcOECD_PlasticMechReYield <- function() {
   # ---------------------------------------------------------------------------
-  # 1. Define sectors and regions
+  # Define sectors and regions
   #    - Retrieve manufacturing sectors (excluding 'Total') and regional codes.
   # ---------------------------------------------------------------------------
   sector_map <- toolGetMapping(
@@ -22,7 +22,7 @@ calcOECD_PlasticMechReYield <- function() {
   regions <- unique(region_map$RegionCode)
   
   # ---------------------------------------------------------------------------
-  # 2. Define time horizon and yield bounds
+  # Define time horizon and yield bounds
   #    - Years: 1990–2100
   #    - Start and end yield fixed at 79% for all sectors.
   #      Source: weighted average (based on waste generation) of yields for different polymers, see POSTED
@@ -36,7 +36,7 @@ calcOECD_PlasticMechReYield <- function() {
   )
   
   # ---------------------------------------------------------------------------
-  # 3. Construct full dataset and compute yield trajectories
+  # Construct full dataset and compute yield trajectories
   #    - Expand grid Year × Target × Region
   #    - Merge bounds and linearly interpolate beyond 2020 to 2100
   # ---------------------------------------------------------------------------
@@ -55,7 +55,7 @@ calcOECD_PlasticMechReYield <- function() {
   traj_df <- dplyr::select(traj_df, Region, Year, Target, value)
   
   # ---------------------------------------------------------------------------
-  # 4. Convert to MagPIE and aggregate to countries
+  # Convert to MagPIE and aggregate to countries
   # ---------------------------------------------------------------------------
   x <- as.magpie(traj_df, spatial = 1, temporal = 2)
   x <- toolAggregate(
@@ -64,7 +64,7 @@ calcOECD_PlasticMechReYield <- function() {
   )
   
   # ---------------------------------------------------------------------------
-  # 5. Prepare weight object and return
+  # Prepare weight object and return
   # ---------------------------------------------------------------------------
   weight <- x
   weight[,] <- 1

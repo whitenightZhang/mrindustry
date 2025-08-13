@@ -13,7 +13,7 @@
 #' @export
 calcUNCTAD_PlasticWaste <- function(subtype) {
   # ---------------------------------------------------------------------------
-  # 1. Load regional plastic waste trade data
+  # Load regional plastic waste trade data
   # ---------------------------------------------------------------------------
   region_df <- calcOutput(
     "UNCTAD_PlasticTrade", subtype = "Waste_Region"
@@ -23,7 +23,7 @@ calcUNCTAD_PlasticWaste <- function(subtype) {
     dplyr::select(Region, Year, Data2, Data1, Value)
   
   # ---------------------------------------------------------------------------
-  # 2. Filter for exports or imports
+  # Filter for exports or imports
   # ---------------------------------------------------------------------------
   if (subtype == "export") {
     flow_df <- region_df %>% dplyr::filter(Data2 == "Exports") %>% dplyr::select(-Data2)
@@ -34,7 +34,7 @@ calcUNCTAD_PlasticWaste <- function(subtype) {
   }
   
   # ---------------------------------------------------------------------------
-  # 3. Fill missing historical years (1990–2004) with 2005 values
+  # Fill missing historical years (1990–2004) with 2005 values
   # ---------------------------------------------------------------------------
   base_2005 <- flow_df %>% dplyr::filter(Year == 2005) %>% dplyr::select(-Year)
   hist_years <- 1990:2004
@@ -46,7 +46,7 @@ calcUNCTAD_PlasticWaste <- function(subtype) {
     dplyr::left_join(base_2005, by = c("Region", "Data1"))
   
   # ---------------------------------------------------------------------------
-  # 4. Fill future years (2023–2100) with 2022 values
+  # Fill future years (2023–2100) with 2022 values
   # ---------------------------------------------------------------------------
   base_2022 <- flow_df %>% dplyr::filter(Year == 2022) %>% dplyr::select(-Year)
   future_years <- 2023:2100
@@ -58,7 +58,7 @@ calcUNCTAD_PlasticWaste <- function(subtype) {
     dplyr::left_join(base_2022, by = c("Region", "Data1"))
   
   # ---------------------------------------------------------------------------
-  # 5. Combine core, historical, and future data, and compute share
+  # Combine core, historical, and future data, and compute share
   # ---------------------------------------------------------------------------
   core_df <- flow_df %>%
     dplyr::filter(!(Year %in% c(hist_years, future_years))) %>%
@@ -69,7 +69,7 @@ calcUNCTAD_PlasticWaste <- function(subtype) {
     dplyr::arrange(Region, Year)
   
   # ---------------------------------------------------------------------------
-  # 6. Convert to MagPIE and aggregate to country level
+  # Convert to MagPIE and aggregate to country level
   # ---------------------------------------------------------------------------
   x <- as.magpie(full_df %>% dplyr::select(Region, Year, Data1, Value), spatial = 1, temporal = 2)
   region_map <- toolGetMapping("regionmappingH12.csv", type = "regional", where = "mrindustry")
@@ -78,7 +78,7 @@ calcUNCTAD_PlasticWaste <- function(subtype) {
   x <- toolAggregate(x, rel = region_map, dim = 1, from = "RegionCode", to = "CountryCode", weight = gdp_ssp2[unique(region_map$CountryCode), , ])
   
   # ---------------------------------------------------------------------------
-  # 7. Return results
+  # Return results
   # ---------------------------------------------------------------------------
   return(list(
     x           = x,
