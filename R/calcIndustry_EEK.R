@@ -46,7 +46,8 @@ calcIndustry_EEK <- function(kap, scenarios) {
     madrat_mule()
 
   ## industry subsector activity and FE projections ----
-  feDem <- calcOutput("FeDemandIndustry", scenario = unique(c(scenarios, "SSP2")), aggregate = FALSE)
+  feDem <- calcOutput("FeDemandIndustry", scenarios = unique(c(scenarios, "SSP2")),
+                      warnNA = FALSE, aggregate = FALSE)
 
   # calculate EEK ----
   ## split industry VA into IEA investment sectors ----
