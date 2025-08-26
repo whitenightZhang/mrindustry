@@ -46,7 +46,7 @@ calcIndustry_EEK <- function(kap, scenarios) {
     madrat_mule()
 
   ## industry subsector activity and FE projections ----
-  FEdemand <- calcOutput("FEdemand", scenario = unique(c(scenarios, "SSP2")), aggregate = FALSE)
+  feDem <- calcOutput("FeDemandIndustry", scenario = unique(c(scenarios, "SSP2")), aggregate = FALSE)
 
   # calculate EEK ----
   ## split industry VA into IEA investment sectors ----
@@ -87,7 +87,7 @@ calcIndustry_EEK <- function(kap, scenarios) {
     # split steel EEK based on primary/secondary steel FE shares (higher FE
     # shares should lead to higher EEK shares)
     left_join(
-      FEdemand %>%
+      feDem %>%
         `[`(,base_year,'SSP2.fe', pmatch = 'left') %>%
         `[`(,,'steel', pmatch = TRUE) %>%
         quitte::magclass_to_tibble() %>%
@@ -161,7 +161,7 @@ calcIndustry_EEK <- function(kap, scenarios) {
   # EEK is assumed to stay constant in relation to subsector output, so it
   # grows/shrinks as the output grows/shrinks.  Shrinking of EEK is limited by
   # the depreciation rate i.
-  EEK_change <- FEdemand %>%
+  EEK_change <- feDem %>%
     # select relevant subsector outputs, transform into usable format
     `[`(,,'ue_', pmatch = 'left') %>%
     quitte::magclass_to_tibble(c('iso3c', 'year', 'scenario', 'subsector', 'value')) %>%
