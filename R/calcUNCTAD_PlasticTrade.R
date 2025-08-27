@@ -21,7 +21,7 @@
 #' @export
 calcUNCTAD_PlasticTrade <- function(subtype) {
   # ---------------------------------------------------------------------------
-  # 1. Setup: file paths, mappings, and weights
+  # Setup: file paths, mappings, and weights
   # ---------------------------------------------------------------------------
   trade_file     <- "C:/Users/leoniesc/madrat/sources/UNCTAD/US_PlasticsTradebyPartner.csv"
   map_file       <- "regionmappingH12.csv"
@@ -43,7 +43,7 @@ calcUNCTAD_PlasticTrade <- function(subtype) {
   gdp_ssp2 <- calcOutput("GDP", scenario="SSP2",average2020 = FALSE, naming = "scenario", aggregate = FALSE)[,paste0("y", 2005:2022), "SSP2"]
   
   # ---------------------------------------------------------------------------
-  # 2. Helper: aggregate MagPIE object to country level
+  # Helper: aggregate MagPIE object to country level
   # ---------------------------------------------------------------------------
   agg_to_country <- function(m) {
     toolAggregate(m, rel = map_df, dim = 1,
@@ -52,7 +52,7 @@ calcUNCTAD_PlasticTrade <- function(subtype) {
   }
   
   # ---------------------------------------------------------------------------
-  # 3. Helper: build region-level flows for given product and tag
+  # Helper: build region-level flows for given product and tag
   # ---------------------------------------------------------------------------
   build_region_flow <- function(prod_label, data2_tag) {
     # get data on country level and aggregate to region
@@ -93,7 +93,7 @@ calcUNCTAD_PlasticTrade <- function(subtype) {
   }
   
   # ---------------------------------------------------------------------------
-  # 4. Dispatch region-level subtypes
+  # Dispatch region-level subtypes
   # ---------------------------------------------------------------------------
   if (subtype == "Final_Region") {
     return(list(
@@ -129,7 +129,7 @@ calcUNCTAD_PlasticTrade <- function(subtype) {
   }
   
   # ---------------------------------------------------------------------------
-  # 5. Helper: build country-level flows for given product
+  # Helper: build country-level flows for given product
   # ---------------------------------------------------------------------------
   build_country_flow <- function(prod_label) {
     df <- raw_data %>%
@@ -147,7 +147,7 @@ calcUNCTAD_PlasticTrade <- function(subtype) {
   }
   
   # ---------------------------------------------------------------------------
-  # 6. Dispatch country-level subtypes
+  # Dispatch country-level subtypes
   # ---------------------------------------------------------------------------
   if (subtype == "Final_Country") {
     return(list(
@@ -183,7 +183,7 @@ calcUNCTAD_PlasticTrade <- function(subtype) {
   }
   
   # ---------------------------------------------------------------------------
-  # 7. Dispatch waste subtypes
+  # Dispatch waste subtypes
   # ---------------------------------------------------------------------------
   if (subtype == "Waste_Region") {
     x <- build_region_flow("Plastic waste", "Plastic Waste")
@@ -214,7 +214,7 @@ calcUNCTAD_PlasticTrade <- function(subtype) {
   }
   
   # ---------------------------------------------------------------------------
-  # 8. Error handling for unknown subtype
+  # Error handling for unknown subtype
   # ---------------------------------------------------------------------------
   stop("Unknown subtype: ", subtype)
 }

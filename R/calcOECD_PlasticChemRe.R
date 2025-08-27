@@ -9,7 +9,7 @@
 #' 
 calcOECD_PlasticChemRe <- function(target = NULL) {
   # ---------------------------------------------------------------------------
-  # 1. Define sectors and regions
+  # Define sectors and regions
   #    - Retrieve manufacturing sectors (excluding 'Total'), optionally filter by 'target'.
   # ---------------------------------------------------------------------------
   sector_map <- toolGetMapping("structuremappingPlasticManu.csv", type = "sectoral", where = "mrindustry")
@@ -19,7 +19,7 @@ calcOECD_PlasticChemRe <- function(target = NULL) {
   regions <- unique(region_map$RegionCode)
   
   # ---------------------------------------------------------------------------
-  # 2. Define time horizon and share bounds
+  # Define time horizon and share bounds
   #    - Years: 1990–2100
   #    - Start share (pre-2020): 0%
   #    - End share (2050 & beyond): 10%
@@ -33,7 +33,7 @@ calcOECD_PlasticChemRe <- function(target = NULL) {
   )
   
   # ---------------------------------------------------------------------------
-  # 3. Construct full dataset and interpolate
+  # Construct full dataset and interpolate
   #    - Expand grid Year × Target × Region
   #    - Merge share bounds and compute piecewise trajectories
   # ---------------------------------------------------------------------------
@@ -55,7 +55,7 @@ calcOECD_PlasticChemRe <- function(target = NULL) {
   traj_df <- dplyr::select(traj_df, Region, Year, Target, value)
   
   # ---------------------------------------------------------------------------
-  # 4. Convert to MagPIE and aggregate to countries
+  # Convert to MagPIE and aggregate to countries
   # ---------------------------------------------------------------------------
   x <- as.magpie(traj_df, spatial = 1, temporal = 2)
   x <- toolAggregate(
@@ -64,7 +64,7 @@ calcOECD_PlasticChemRe <- function(target = NULL) {
   )
   
   # ---------------------------------------------------------------------------
-  # 5. Prepare weight object and return
+  # Prepare weight object and return
   # ---------------------------------------------------------------------------
   weight <- x
   weight[,] <- 1

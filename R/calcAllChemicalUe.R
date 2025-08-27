@@ -1,11 +1,15 @@
-#'
+#' Calculates UE shares for all chemicals (including OtherChem) in 2020 from 
+#' final product flows (methFinal, ammoFinal, HVC, fertilizer), 
+#' material prices (mat2ue) and the total UE of chemicals (from FeDemandIndustry).
+#' Shares are aggregated to the country level.
+#' 
 #' @author Qianzhi Zhang
 #'
 #' @export
 calcAllChemicalUe <- function() {
   
   # ---------------------------------------------------------------------------
-  # 1. Define Material-to-UE Conversion Factors
+  # Define Material-to-UE Conversion Factors
   #    - p37_mat2ue: Conversion factors (mat2ue) for selected products.
   #      The conversion factors are expressed in 2017$/kg or 2017$/kgN.
   # ---------------------------------------------------------------------------
@@ -24,7 +28,7 @@ calcAllChemicalUe <- function() {
   #p37_mat2ue("ammoFinal","ue_chemicals") = 0.69; !!2017$/kg Source: https://businessanalytiq.com/procurementanalytics/index/ammonia-price-index/ 2020 Global Average
   
   # ---------------------------------------------------------------------------
-  # 2. Calculate Chemical Flow UE for 2020
+  # Calculate Chemical Flow UE for 2020
   #    - Retrieve AllChemicalFlow data for 2020, remove unwanted columns, and filter out 
   #      rows for 'ammonia' and 'methanol' (since these are not processed here).
   #    - Join with the conversion factors and calculate the material-to-UE value.
@@ -38,7 +42,7 @@ calcAllChemicalUe <- function() {
   
   
   # ---------------------------------------------------------------------------
-  # 3. Retrieve Industrial Demand Data for Chemicals
+  # Retrieve Industrial Demand Data for Chemicals
   #    - Get the feIndustry data from the FeDemandIndustry output for 2020.
   # ---------------------------------------------------------------------------
   feIndustry <- calcOutput("FeDemandIndustry", warnNA = FALSE, aggregate = TRUE, scenarios=c("SSP2"))[, "y2020", "SSP2.ue_chemicals"] %>%
@@ -47,7 +51,7 @@ calcAllChemicalUe <- function() {
   
   
   # ---------------------------------------------------------------------------
-  # 4. Calculate UE Share for Each Chemical Product
+  # Calculate UE Share for Each Chemical Product
   #    - Join the chemical flow data with industry demand data (by Region).
   #    - Compute the share (ue_share) by dividing the ue_material by the corresponding industry demand.
   # ---------------------------------------------------------------------------
@@ -58,7 +62,7 @@ calcAllChemicalUe <- function() {
   
   
   # ---------------------------------------------------------------------------
-  # 5. Account for Residual ("OtherChem") Share
+  # Account for Residual ("OtherChem") Share
   #    - For each region and year, sum the ue_share of existing products.
   #    - Create a new row for "OtherChem" representing the remaining share (1 minus the sum).
   # ---------------------------------------------------------------------------
@@ -82,7 +86,7 @@ calcAllChemicalUe <- function() {
   
   
   # ---------------------------------------------------------------------------
-  # 6. Convert to Magpie Object and Aggregate to Country Level
+  # Convert to Magpie Object and Aggregate to Country Level
   #    - Retrieve regional mapping.
   #    - Convert the UE data to a magpie object and aggregate from regions to countries.
   # ---------------------------------------------------------------------------
@@ -91,7 +95,7 @@ calcAllChemicalUe <- function() {
   x <- toolAggregate(x, rel = map, dim = 1, from = "RegionCode", to = "CountryCode")
   
   # ---------------------------------------------------------------------------
-  # 7. Set Weighting and Return Final Output
+  # Set Weighting and Return Final Output
   #    - Create a weight object with the same dimensions as 'x' (all values set to 1).
   #    - Return the aggregated magpie object along with metadata.
   # ---------------------------------------------------------------------------
@@ -101,8 +105,8 @@ calcAllChemicalUe <- function() {
   return(list(
     x = x,
     weight = weight,
-    unit = "2017$/kg or 2017$/kgN",  # Specify units based on conversion factors
-    description = "Calculates the unit energy (UE) share of chemicals by applying material-to-UE conversion factors to chemical flows and comparing them to industry demand. The result, including a residual 'OtherChem' share, is aggregated to the country level for 2020."
+    unit = "share",  
+    description = "Unit energy (UE) share of chemicals including OtherChem in 2020."
   ))
 }
 

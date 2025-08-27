@@ -17,7 +17,7 @@
 #' @importFrom magpiesets findset
 convertIEA_Petrochem <- function(x) {
   # ---------------------------------------------------------------------------
-  # 1. Extract Subtype Information
+  # Extract Subtype Information
   #    - The subtype is extracted from the comment attached to x.
   #    - This string is then split by "_" to determine which processing branch to use.
   # ---------------------------------------------------------------------------
@@ -28,7 +28,7 @@ convertIEA_Petrochem <- function(x) {
   )
   
   # ---------------------------------------------------------------------------
-  # 2. Process "production3type" Data
+  # Process "production3type" Data
   #    - When the subtype indicates "production3type", the data are disaggregated
   #      by extracting separate chemical components (Ammonia, Methanol, HVCs).
   #    - Weighting data are retrieved from corresponding IFA_Chem, IHS_Meth, and ChemicalTotal datasets.
@@ -62,7 +62,7 @@ convertIEA_Petrochem <- function(x) {
     x <- mbind(x_Ammonia, x_Methanol, x_HVCs)
     
     # ---------------------------------------------------------------------------
-    # 3. Process "production5type" Data
+    # Process "production5type" Data
     #    - When the subtype indicates "production5type", a specific weight is chosen based on
     #      the second component (e.g., "Ammonia", "Methanol", "Ethylene", etc.).
     #    - The entire x object is then aggregated to the country level using that specific weight.
@@ -92,7 +92,7 @@ convertIEA_Petrochem <- function(x) {
     x <- toolAggregate(x, rel = map, dim = 1, from = "IFAReg", to = "CountryCode", specific_weight)
     
     # ---------------------------------------------------------------------------
-    # 4. Process Feedstock and Route Data
+    # Process Feedstock and Route Data
     #    - For subtypes "Feedstock", "RouteRTS", or "RouteCTS", use a 5-region mapping.
     #    - Weighting is done using the total chemical energy data.
     # ---------------------------------------------------------------------------
@@ -110,7 +110,7 @@ convertIEA_Petrochem <- function(x) {
                        weight = ChemFE_TOT[unique(map$CountryCode), , ])
   } else {
     # -------------------------------------------------------------------------
-    # 5. Error Handling
+    # Error Handling
     #    - Stop if the subtype combination is invalid.
     # -------------------------------------------------------------------------
     stop("Invalid subtype combination")

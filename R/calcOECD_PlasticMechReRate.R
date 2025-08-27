@@ -9,7 +9,7 @@
 #' 
 calcOECD_PlasticMechReRate <- function() {
   # ---------------------------------------------------------------------------
-  # 1. Define sectors and regions
+  # Define sectors and regions
   #    - Retrieve manufacturing sectors (excluding 'Total') and regional codes.
   # ---------------------------------------------------------------------------
   sector_map <- toolGetMapping("structuremappingPlasticManu.csv", type = "sectoral", where = "mrindustry")
@@ -18,7 +18,7 @@ calcOECD_PlasticMechReRate <- function() {
   regions    <- unique(region_map$RegionCode)
   
   # ---------------------------------------------------------------------------
-  # 2. Load OECD mechanical recycling data and extend to 2020
+  # Load OECD mechanical recycling data and extend to 2020
   #    - Filter 'Recycled' fate and replicate 2019 to 2020.
   # ---------------------------------------------------------------------------
   mech_df <- calcOutput("OECD_PlasticEoL", aggregate = TRUE) %>%
@@ -34,7 +34,7 @@ calcOECD_PlasticMechReRate <- function() {
   )
   
   # ---------------------------------------------------------------------------
-  # 3. Incorporate external EoL share data (2005–2020)
+  # Incorporate external EoL share data (2005–2020)
   #    - Load EU, CNBS, US EPA datasets, compute mechanical recycling share.
   # ---------------------------------------------------------------------------
   eu <- read.csv("C:/Users/leoniesc/madrat/sources/PlasticEurope/PlasticEol.csv") %>%
@@ -62,7 +62,7 @@ calcOECD_PlasticMechReRate <- function() {
     dplyr::select(Region, Year, share)
   
   # ---------------------------------------------------------------------------
-  # 4. Merge external shares into mech_ext, replacing where available
+  # Merge external shares into mech_ext, replacing where available
   # ---------------------------------------------------------------------------
   mech_hist <- mech_ext %>%
     dplyr::left_join(ext_combined, by=c("Region","Year")) %>%
@@ -70,7 +70,7 @@ calcOECD_PlasticMechReRate <- function() {
     dplyr::select(Region, Year, Value)
   
   # ---------------------------------------------------------------------------
-  # 5. Fill 1990–1999 with Year-2000 values and extend to 2100
+  # Fill 1990–1999 with Year-2000 values and extend to 2100
   #    - Copy 2000 value back to 1990–1999; interpolate 2021–2100 to target 40%.
   # ---------------------------------------------------------------------------
   base2000 <- mech_hist %>% dplyr::filter(Year==2000) %>% dplyr::select(Region, v2000=Value)
@@ -93,13 +93,13 @@ calcOECD_PlasticMechReRate <- function() {
   )
   
   # ---------------------------------------------------------------------------
-  # 6. Convert to MagPIE and aggregate to countries
+  # Convert to MagPIE and aggregate to countries
   # ---------------------------------------------------------------------------
   x <- as.magpie(final_df, spatial=1, temporal=2)
   x <- toolAggregate(x, rel=region_map, dim=1, from="RegionCode", to="CountryCode")
   
   # ---------------------------------------------------------------------------
-  # 7. Prepare weight object and return
+  # Prepare weight object and return
   # ---------------------------------------------------------------------------
   weight <- x; weight[,] <- 1
   return(list(

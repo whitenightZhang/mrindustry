@@ -1,0 +1,20 @@
+Source,Target,Type
+"Ammonia, fuel & steam",amSyCoal,fesos
+"Ammonia, fuel & steam",amSyLiq,fehos
+"Ammonia, fuel & steam",amSyNG,fegas
+"Methanol, fuel & steam",meSySol,fesos
+"Methanol, fuel & steam",meSyLiq,fehos
+"Methanol, fuel & steam",meSyNg,fegas
+"Steam cracking, fuel & steam",stCrLiq,fehos
+"Steam cracking, feedstock for NG",stCrNg,fehos
+"Steam cracking, fuel & steam for NG",stCrNg,fegas
+amSyCoal electricity,amSyCoal,feels
+amSyLiq electricity,amSyLiq,feels
+amSyNG electricity,amSyNG,feels
+meSySol electricity,meSySol,feels
+meSyLiq electricity,meSyLiq,feels
+meSyNg electricity,meSyNg,feels
+stCrLiq electricity,stCrLiq,feels
+stCrNg electricity,stCrNg,feels
+mtoMta electricity,mtoMta,feels
+fertProd electricity,fertProd,feels

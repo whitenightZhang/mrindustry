@@ -1,11 +1,13 @@
-#'
+#' Aggregates chemical flow data in 2020 from calcAllChemicalRoute into broader categories
+#' based on their outputs (ammonia, methanol, HVC, fertilizer and final ammonia/methanol).
+#' 
 #' @author Qianzhi Zhang
 #'
 #' @export
 calcAllChemicalFlow <- function() {
   
   # ---------------------------------------------------------------------------
-  # 1. Load All Chemical Route Data
+  # Load All Chemical Route Data
   #    - Retrieve the aggregated AllChemicalRoute data.
   #    - Remove the unwanted columns 'Cell' and 'Data2'.
   # ---------------------------------------------------------------------------
@@ -14,7 +16,7 @@ calcAllChemicalFlow <- function() {
     select(-Cell, -Data2)
   
   # ---------------------------------------------------------------------------
-  # 2. Re-categorize and Summarize Data
+  # Re-categorize and Summarize Data
   #    - Reclassify Data1 into broader categories:
   #       * 'ammonia' for ammonia-related routes,
   #       * 'methanol' for methanol-related routes,
@@ -39,14 +41,14 @@ calcAllChemicalFlow <- function() {
     summarise(Value = sum(Value, na.rm = TRUE), .groups = "drop")
   
   # ---------------------------------------------------------------------------
-  # 3. Load Total Chemical Production Data for Weighting
+  # Load Total Chemical Production Data for Weighting
   #    - Retrieve the ChemicalTotal data for 2020 to be used as weights.
   # ---------------------------------------------------------------------------
   Chemical_Total <- calcOutput("ChemicalTotal", aggregate = FALSE) %>%
     .[, "y2020", ]
   
   # ---------------------------------------------------------------------------
-  # 4. Convert Data to Magpie Object and Aggregate to Country Level
+  # Convert Data to Magpie Object and Aggregate to Country Level
   #    - Retrieve regional mapping information.
   #    - Convert the summarized data to a magpie object.
   #    - Aggregate the regional data to the country level using the mapping and weights.
@@ -58,7 +60,7 @@ calcAllChemicalFlow <- function() {
   x[is.na(x)] <- 0  # Replace any missing values with 0
   
   # ---------------------------------------------------------------------------
-  # 5. Return the Final Object with Metadata
+  # Return the Final Object with Metadata
   # ---------------------------------------------------------------------------
   return(list(
     x = x,

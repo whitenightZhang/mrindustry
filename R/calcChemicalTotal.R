@@ -1,4 +1,4 @@
-#' Calculate Total Chemical Energy consumption from IEA energy balances
+#' Calculate Total Chemical Energy consumption from IEA energy balances (Energy use + Feedstocks)
 #'
 #' @author Qianzhi Zhang
 #'

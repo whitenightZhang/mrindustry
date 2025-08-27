@@ -1,11 +1,16 @@
-#'
+#' Extrapolates Chemical Flows from 2020 to 2005-2020 based on total chemical UE in 2005-2020
+#' and assuming constant UE shares of the final chemical flows;
+#' intermediate ammonia and methanol flows are calculated from the final flows and 
+#' ammonia-to-fertilizer and methanol-to-hvc ratios.
+#' Flows are aggregated to the country level.
+#' 
 #' @author Qianzhi Zhang
 #'
 #' @export
 calcAllChemicalFlow2005_2020 <- function() {
   
   # ---------------------------------------------------------------------------
-  # 1. Define Conversion Factors (p37_mat2ue)
+  # Define Conversion Factors (p37_mat2ue)
   #    - Conversion factors (mat2ue) for each product in 2005$/kg (or 2005$/kgN)
   # ---------------------------------------------------------------------------
   
@@ -16,7 +21,7 @@ calcAllChemicalFlow2005_2020 <- function() {
   )
   
   # ---------------------------------------------------------------------------
-  # 2. Retrieve and Combine AllChemicalUe and Industry Demand Data
+  # Retrieve and Combine AllChemicalUe and Industry Demand Data
   #    - Get AllChemicalUe data (rounded to 8 digits) and remove extra columns.
   #    - Get industry demand (feIndustry) for selected years.
   #    - Join these datasets and calculate Material_Flow as:
@@ -36,7 +41,7 @@ calcAllChemicalFlow2005_2020 <- function() {
     mutate(Material_Flow = Value.x * Value.y / mat2ue)
   
   # ---------------------------------------------------------------------------
-  # 3. Calculate Ammonia Flow Based on fertilizer Conversion Ratio and ammoFinal Flow
+  # Calculate Ammonia Flow Based on fertilizer Conversion Ratio and ammoFinal Flow
   #    - Retrieve the NFert_ratio from FertilizerRoute (for year 2020).
   #    - Join the NFert_ratio to AllChemicalFlow (by Region).
   #    - For rows where Data1.x is "ammoFinal", adjust Material_Flow by dividing by (1 - NFert_ratio)
@@ -65,7 +70,7 @@ calcAllChemicalFlow2005_2020 <- function() {
     select(-NFert_ratio)
   
   # ---------------------------------------------------------------------------
-  # 4. Calculate ratio of methanol (MeFinalratio) that goes to methFinal in order to then calculate methanol flow based on methFinal flow
+  # Calculate ratio of methanol (MeFinalratio) that goes to methFinal in order to then calculate methanol flow based on methFinal flow
   #    - Retrieve AllChemicalRoute data for 2020 and remove extra columns.
   #    - From AllChemicalRoute, filter rows for "meToFinal" and "mtoMta".
   #    - Pivot these values wider to have separate columns for meToFinal and mtoMta.
@@ -85,7 +90,7 @@ calcAllChemicalFlow2005_2020 <- function() {
     select(Region, MeFinalratio)
   
   # ---------------------------------------------------------------------------
-  # 5. Calculate methanol flow based on methFinal flow and MeFinalratio
+  # Calculate methanol flow based on methFinal flow and MeFinalratio
   #    - Join the MeFinalratio with AllChemicalFlow (by Region).
   #    - For rows where Data1.x is "methFinal", adjust Material_Flow by dividing by MeFinalratio
   #      and rename Data1.x to "methanol".
@@ -107,7 +112,7 @@ calcAllChemicalFlow2005_2020 <- function() {
   
   
   # ---------------------------------------------------------------------------
-  # 6. Finalize Output and Aggregate Data to Country Level
+  # Finalize Output and Aggregate Data to Country Level
   #    - Select the required columns (Region, Year, Data1.x, Material_Flow).
   #    - Retrieve ChemicalTotal data for weighting.
   #    - Get the regional mapping and convert FinalOutput to a magpie object.
@@ -127,13 +132,13 @@ calcAllChemicalFlow2005_2020 <- function() {
   x[is.na(x)] <- 0
   
   # ---------------------------------------------------------------------------
-  # 7. Return the Final Output
+  # Return the Final Output
   # ---------------------------------------------------------------------------
   return(list(
     x = x,
     weight = NULL,
     unit = "Gt Chemical Flows",
-    description = "Calculates chemical material flow from 2005 to 2020 by applying conversion factors and adjusting ammonia and methanol flows using fertilizer and MeFinal ratios, then aggregating the flows to the country level."
+    description = "Chemical material flows from 2005 to 2020 extrapolated from 2020 based on total chemical UE and constant UE shares aggregated to the country level."
   ))
 }
 

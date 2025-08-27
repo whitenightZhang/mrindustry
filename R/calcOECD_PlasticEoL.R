@@ -9,7 +9,7 @@
 #' 
 calcOECD_PlasticEoL <- function() {
   # ---------------------------------------------------------------------------
-  # 1. Load and clean regional EoL data (1990–2019)
+  # Load and clean regional EoL data (1990–2019)
   #    - Read OECD waste end-of-life outputs by region.
   #    - Exclude totals and not applicable categories.
   # ---------------------------------------------------------------------------
@@ -22,7 +22,7 @@ calcOECD_PlasticEoL <- function() {
     dplyr::select(-Cell, -Data2)
   
   # ---------------------------------------------------------------------------
-  # 2. Calculate per-region fate ratios
+  # Calculate per-region fate ratios
   #    - Sum values per region-year and compute ratio for each fate category.
   # ---------------------------------------------------------------------------
   eol_df <- eol_df %>%
@@ -36,7 +36,7 @@ calcOECD_PlasticEoL <- function() {
     dplyr::rename(EoL_Ratio = ratio)
   
   # ---------------------------------------------------------------------------
-  # 3. Aggregate ratios to country level
+  # Aggregate ratios to country level
   #    - Convert to MagPIE and apply regional-to-country mapping.
   # ---------------------------------------------------------------------------
   region_map <- toolGetMapping(
@@ -49,14 +49,14 @@ calcOECD_PlasticEoL <- function() {
   )
   
   # ---------------------------------------------------------------------------
-  # 4. Prepare weight object
+  # Prepare weight object
   #    - Use equal weights (1) for all country-fate combinations.
   # ---------------------------------------------------------------------------
   weight <- x
   weight[,] <- 1
   
   # ---------------------------------------------------------------------------
-  # 5. Return results
+  # Return results
   # ---------------------------------------------------------------------------
   return(list(
     x           = x,

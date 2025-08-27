@@ -74,7 +74,7 @@ calcAllChemicalRoute <- function() {
   
   methanol_tofinal <- methanol_total %>%
     left_join(hvc_MTO, by = c("Region", "Year")) %>%   # Join by Region and Year
-    mutate(meToFinal = Total_Methanol - 2.624 * Value) %>%  # Adjust methanol using a fixed conversion factor (2.624) #Dutta2019 Figure 2, Page 196
+    mutate(meToFinal = Total_Methanol - 2.62 * Value) %>%  # Adjust methanol using a fixed conversion factor (2.62) #Dutta2019 Figure 2, Page 196
     select(Region, Year, meToFinal) %>%                  # Keep only relevant columns
     pivot_longer(cols = c(meToFinal), 
                  names_to = "Data1", 

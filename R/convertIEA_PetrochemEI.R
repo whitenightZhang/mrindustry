@@ -15,7 +15,7 @@
 
 convertIEA_PetrochemEI <- function(x) {
   # ---------------------------------------------------------------------------
-  # 1. Load and Apply Initial Mapping
+  # Load and Apply Initial Mapping
   #    - Load the mapping file "regionmappingIEA_PetrochemEI.csv" to convert 
   #      from IEA-specific country codes ("IEACountry") to a regional classification ("RegionCode").
   # ---------------------------------------------------------------------------
@@ -23,7 +23,7 @@ convertIEA_PetrochemEI <- function(x) {
   x <- toolAggregate(x, rel = map, dim = 1, from = "IEACountry", to = "RegionCode")
   
   # ---------------------------------------------------------------------------
-  # 2. Further Aggregate to ISO Country Level
+  # Further Aggregate to ISO Country Level
   #    - Load a broader mapping file "regionmappingH12.csv" to aggregate the data 
   #      from the regional level ("RegionCode") to the country level ("CountryCode").
   # ---------------------------------------------------------------------------
@@ -31,7 +31,7 @@ convertIEA_PetrochemEI <- function(x) {
   x <- toolAggregate(x, rel = map, dim = 1, from = "RegionCode", to = "CountryCode")
   
   # ---------------------------------------------------------------------------
-  # 3. Return the Final MagPIE Object
+  # Return the Final MagPIE Object
   # ---------------------------------------------------------------------------
   return(x)
 }

@@ -89,8 +89,8 @@ calcAllChemicalRoute2005_2020 <- function(CCS=FALSE) {
       group_by(Region, Year) %>%
       mutate(
         Routes_Flow = ifelse(Data1 == "amSyNG",
-                             Routes_Flow + sum(Routes_Flow[Data1 == "amSyNG_cc"], na.rm = TRUE), 
-                             Routes_Flow),
+                       Routes_Flow + sum(Routes_Flow[Data1 == "amSyNG_cc"], na.rm = TRUE), 
+                       Routes_Flow),
         Routes_Flow = ifelse(Data1 == "amSyNG_cc", 0, Routes_Flow)
       ) %>%
       ungroup() 

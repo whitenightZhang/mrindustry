@@ -1,4 +1,6 @@
-#'
+#' Calculates HVC production volumes per production route in Mt for 2015-2020
+#' based on IEA The Future of Petrochemicals (2018) 
+#' 
 #' @author Qianzhi Zhang
 #'
 #' @export
@@ -6,7 +8,7 @@
 calcHVCRoute <- function() {
   
   # ----------------------------------------------------------
-  # 1. Load IEA Petrochemical Production Data for BTX, Propylene, and Ethylene
+  # Load IEA Petrochemical Production Data for BTX, Propylene, and Ethylene
   #    - Retrieve production data for selected years.
   # ----------------------------------------------------------
   BTX_IEA <- calcOutput("IEA_Petrochem", subtype = "production5type_BTX", aggregate = TRUE) %>%
@@ -22,7 +24,7 @@ calcHVCRoute <- function() {
     as.data.frame()
   
   # ----------------------------------------------------------
-  # 2. Define a helper function to interpolate missing years and filter data
+  # Define a helper function to interpolate missing years and filter data
   #    - Fills in missing years (2015-2020) per Region and source using linear interpolation.
   # ----------------------------------------------------------
   interpolate_and_filter <- function(df) {
@@ -36,7 +38,7 @@ calcHVCRoute <- function() {
   }
   
   # ----------------------------------------------------------
-  # 3. Combine Production Data for HVCs and Interpolate
+  # Combine Production Data for HVCs and Interpolate
   #    - Combine the three datasets into one, remove the "X" prefix from year columns,
   #      interpolate missing values, and sum up production by Region and Year.
   # ----------------------------------------------------------
@@ -53,7 +55,7 @@ calcHVCRoute <- function() {
     mutate(source = "Total_HVCs")
   
   # ----------------------------------------------------------
-  # 4. Process IEA HVC Share Data for Routes (China-specific)
+  # Process IEA HVC Share Data for Routes (China-specific)
   #    - Retrieve route share data for 2017.
   #    - For rows with Data1 "MTO_MTA", assign the total to China (CHA) and zero for others.
   #    - Filter for China (CHA) and map the technology types to custom categories.
@@ -84,7 +86,7 @@ calcHVCRoute <- function() {
     select(-Value, -Year)
   
   # ----------------------------------------------------------
-  # 5. Process IEA HVC Feedstock Share Data
+  # Process IEA HVC Feedstock Share Data
   #    - Retrieve feedstock share data for 2017 and exclude China.
   #    - Map feedstock types to custom categories, normalize the data, and
   #      add zero entries for the "mtoMta" category where needed.
@@ -112,50 +114,28 @@ calcHVCRoute <- function() {
     )
   
   # ----------------------------------------------------------
-  # 6. Combine HVC Share Data from Routes and Feedstock
+  # Combine HVC Share Data from Routes and Feedstock
   # ----------------------------------------------------------
   HVC_share_all <- rbind(HVC_share_iea, HVC_Feedstockshare_iea)
   
   # ----------------------------------------------------------
-  # 7. Calculate Actual HVC Route Values
+  # Calculate Actual HVC Route Values
   #    - Join the combined share data with the total production data.
   #    - Compute the actual production values based on the normalized shares.
-  #    - Adjusting CAZ stCrNg share.
   # ----------------------------------------------------------
   HVC_route_value <- HVC_share_all %>%
     left_join(HVCs_total, by = "Region") %>%
     mutate(actual_value = normalized_value * value / 100) %>%
     select(-value, -normalized_value, -source)
-  
-  ### TODO REMOVE
-  HVC_route_value <- HVC_route_value %>%
-    group_by(Region, Year) %>%  # Ensure calculations happen per Year
-    mutate(
-      # Compute the amount to be reduced for stCrNg in the CAZ region, for each Year separately
-      # Adjustments for harmonization with IEA energy consumption data
-      adjustment = dplyr::if_else(Region == "CAZ" & Category == "stCrNg", actual_value * 0.5, 0),
-      
-      # Reduce actual_value by 50% for stCrNg in the CAZ region
-      actual_value = dplyr::if_else(Region == "CAZ" & Category == "stCrNg", actual_value * 0.5, actual_value)
-    ) %>%
-    
-    # Adjust stCrLiq within the same Region and Year
-    mutate(
-      actual_value = dplyr::if_else(Region == "CAZ" & Category == "stCrLiq", actual_value + sum(adjustment), actual_value)
-    ) %>%
-    
-    ungroup() %>%  # Remove grouping to avoid affecting further operations
-    select(-adjustment)  # Remove temporary column
-  
 
   # ----------------------------------------------------------
-  # 8. Load Non-Aggregated HVC Total Production Data for Weighting
+  # Load Non-Aggregated HVC Total Production Data for Weighting
   # ----------------------------------------------------------
   HVCs_total_all <- calcOutput("IEA_Petrochem", subtype = "production3type_All", aggregate = FALSE) %>%
     .[, "y2017", "HVCs"]
   
   # ----------------------------------------------------------
-  # 9. Aggregate Regional Data to the Country Level
+  # Aggregate Regional Data to the Country Level
   #    - Convert the data to a magpie object.
   #    - Aggregate regional data to country level using the provided mapping and production weights.
   # ----------------------------------------------------------
@@ -172,7 +152,7 @@ calcHVCRoute <- function() {
   x[is.na(x)] <- 0  # Replace any NA values with 0
   
   # ----------------------------------------------------------
-  # 10. Return Final Aggregated HVC Route Data and Metadata
+  # Return Final Aggregated HVC Route Data and Metadata
   # ----------------------------------------------------------
   return(list(
     x = x,
