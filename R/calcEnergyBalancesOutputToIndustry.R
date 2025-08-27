@@ -1,8 +1,8 @@
-#' Calculate Industry Subsectors Output
+#' Calculate Energy Balances Output to Industry
 #' Additional corrections are applied to the IEA data in [`mrindustry::tool_fix_IEA_data_for_Industry_subsectors`].
 #'
 #' @author Michaja Pehl, Falk Benke
-calcIndustrySubsectorsOutput <- function() {
+calcEnergyBalancesOutputToIndustry <- function() {
 
   ieamatch <- toolGetMapping(type = "sectoral",
                              name = "structuremappingIO_outputs_Industry_subsectors.csv",

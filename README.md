@@ -47,7 +47,7 @@ A BibTeX entry for LaTeX users is
 @Misc{,
   title = {mrindustry: input data generation for the REMIND industry module},
   author = {Falk Benke and Jakob Dürrwächter and Renato Rodrigues and Simón Moreno-Leiva and Lavinia Baumstark and Michaja Pehl and Bennet Weiss},
-  date = {2025-08-26},
+  date = {2025-08-27},
   year = {2025},
   url = {https://github.com/pik-piam/mrindustry},
   note = {Version: 0.24.4},

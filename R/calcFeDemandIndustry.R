@@ -489,7 +489,7 @@ calcFeDemandIndustry <- function(scenarios, use_ODYM_RECC = FALSE, last_empirica
 
   ## subsector FE shares ----
   ### get 1993-2020 industry FE ----
-  industry_subsectors_en <- calcOutput("IndustrySubsectorsOutput", aggregate = FALSE) %>%
+  industry_subsectors_en <- calcOutput("EnergyBalancesOutputToIndustry", aggregate = FALSE) %>%
     # convert to data frame
     as.data.frame() %>%
     as_tibble() %>%
