@@ -1,21 +1,27 @@
-#'
+#' Calculates chemical energy demand from 2005 to 2020 from chemical production per route (AllChemicalRoute2005_2020) 
+#' and specific energy consumption for the different routes (retrieved from IEA_PetrochemEI and other literature sources).
+#' The energy demand for OtherChem is calculated as the remaining share of total chemical industry energy demand. 
+#' Results are aggregated to the country level.
+#' 
 #' @author Qianzhi Zhang
 #'
 #' @export
-calcAllChemicalEnergy2005_2020 <- function() {
+#' @param CCS boolean parameter whether CCS technologies are considered as such in 2020 or assumed to be technologies without CCS
+#' 
+calcAllChemicalEnergy2005_2020 <- function(CCS=FALSE) {
   
   # ---------------------------------------------------------------------------
-  # 1. Define Conversion Factor
+  # Define Conversion Factor
   #    - Only the factor for MWh to GJ is used.
   # ---------------------------------------------------------------------------
   sm_Mwh_2_GJ <- 3.6  # Convert MWh to GJ
   
   # ---------------------------------------------------------------------------
-  # 2. Load Base Data
+  # Load Base Data
   #    a) Load chemical route data (2005-2020)
   #    b) Load energy intensity data (IEA_PetrochemEI), excluding "Cell" and "Year".
   # ---------------------------------------------------------------------------
-  AllChemicalRoute2005_2020 <- calcOutput("AllChemicalRoute2005_2020", warnNA = FALSE, aggregate = TRUE) %>% 
+  AllChemicalRoute2005_2020 <- calcOutput("AllChemicalRoute2005_2020", warnNA = FALSE, aggregate = TRUE, CCS=CCS) %>% 
     as.data.frame() %>% 
     select(-Cell)
   
@@ -24,7 +30,7 @@ calcAllChemicalEnergy2005_2020 <- function() {
     select(-Cell, -Year)
   
   # ---------------------------------------------------------------------------
-  # 3. Augment IEA_PetrochemEI with Additional Electricity-Related Data
+  # Augment IEA_PetrochemEI with Additional Electricity-Related Data
   #    - Add new rows for various electricity processes and adjust values
   #      where needed.
   # ---------------------------------------------------------------------------
@@ -47,7 +53,7 @@ calcAllChemicalEnergy2005_2020 <- function() {
         select(Region) %>% distinct() %>%
         mutate(
           Data1 = "Steam cracking, fuel & steam for NG",
-          Value = 21 * #Source: A. Boulamanti and J. A. Moya, Renew. Sustain. Energy Rev., 2017, 68, 1205–1212. Table 2, value for ethane as feedstock
+          Value = 21 * #Source: A. Boulamanti and J. A. Moya, Renew. Sustain. Energy Rev., 2017, 68, 1205–1212. Table 2, value for ethane as feedstock, Assumption of fuel oil as heating to balance excess oil inputs in the energy balance sheet
             (IEA_PetrochemEI %>% filter(Data1 == "Steam cracking, fuel & steam") %>% pull(Value)) /
             (IEA_PetrochemEI %>% filter(Region == "USA", Data1 == "Steam cracking, fuel & steam") %>% pull(Value) %>% unique())
         )
@@ -113,7 +119,7 @@ calcAllChemicalEnergy2005_2020 <- function() {
     distinct(Region, Data1, .keep_all = TRUE)
   
   # ---------------------------------------------------------------------------
-  # 4. Compute Energy Demand from Chemical Routes
+  # Compute Energy Demand from Chemical Routes
   #    - Load a mapping file (structuremappingIEA_PetrochemEI.csv) that links source and target Data1.
   #    - Join with IEA_PetrochemEI to compute energy demand as: Energy_demand = Value.x * Value.y.
   #    - Adjust specific values for certain regions and processes.
@@ -133,14 +139,14 @@ calcAllChemicalEnergy2005_2020 <- function() {
     mutate(Energy_demand = Value.x * Value.y)
   
   # ---------------------------------------------------------------------------
-  # 5. Summarize Energy Demand by Region, Year, and Process Type
+  # Summarize Energy Demand by Region, Year, and Energy carrier
   # ---------------------------------------------------------------------------
   energy_summary <- result %>%
     group_by(Region, Year, Type) %>%
     summarise(Total_Energy_Demand = sum(Energy_demand, na.rm = TRUE), .groups = "drop")
   
   # ---------------------------------------------------------------------------
-  # 6. Load Industry Demand Data for Chemicals
+  # Load Industry Demand Data for Chemicals
   # ---------------------------------------------------------------------------
   feIndustry <- calcOutput("FeDemandIndustry", scenarios=c("SSP2"), signif = 4, warnNA = FALSE, aggregate = TRUE)[, 
                                                                                              c("y2005", "y2010", "y2015", "y2020"),
@@ -152,7 +158,7 @@ calcAllChemicalEnergy2005_2020 <- function() {
     select(-Cell)
   
   # ---------------------------------------------------------------------------
-  # 7. Calculate "OtherChem" Energy Demand
+  # Calculate "OtherChem" Energy Demand
   #    - Rename "Type" to "Data2" in energy_summary.
   #    - Merge with feIndustry and calculate the difference between feIndustry Value and the total energy demand.
   #    - Rename the difference as Energy_demand, set Type accordingly, and mark Data1 as "OtherChem".
@@ -171,7 +177,7 @@ calcAllChemicalEnergy2005_2020 <- function() {
     mutate(Data1 = "OtherChem")
   
   # ---------------------------------------------------------------------------
-  # 8. Merge Main Energy Result with "OtherChem" and Summarize
+  # Merge Main Energy Result with "OtherChem" and Summarize
   # ---------------------------------------------------------------------------
   MainChem <- result %>% select(-Value.x, -Source, -Value.y)
   
@@ -197,12 +203,12 @@ calcAllChemicalEnergy2005_2020 <- function() {
     select(Region, Year, Data1, mode, Type, Energy_demand)
   
   # ---------------------------------------------------------------------------
-  # 9. Aggregate Data to Country Level
+  # Aggregate Data to Country Level
   #    - Load ChemicalTotal data for weighting.
   #    - Retrieve regional mapping.
   #    - Convert merged result to a magpie object and aggregate to country level.
   # ---------------------------------------------------------------------------
-  Chemcial_Total <- calcOutput("ChemicalTotal", aggregate = FALSE) %>%
+  Chemical_Total <- calcOutput("ChemicalTotal", aggregate = FALSE) %>%
     .[, c("y2005", "y2010", "y2015", "y2020"), ]
   
   map <- toolGetMapping("regionmappingH12.csv", type = "regional", where = "mrindustry")
@@ -214,17 +220,17 @@ calcAllChemicalEnergy2005_2020 <- function() {
     dim = 1,
     from = "RegionCode",
     to = "CountryCode",
-    weight = Chemcial_Total[unique(map$CountryCode), , ]
+    weight = Chemical_Total[unique(map$CountryCode), , ]
   )
   x[is.na(x)] <- 0
   
   # ---------------------------------------------------------------------------
-  # 10. Return Final Aggregated Object with Metadata
+  # Return Final Aggregated Object with Metadata
   # ---------------------------------------------------------------------------
   return(list(
     x = x,
     weight = NULL,
     unit = "EJ",
-    description = "Aggregates chemical energy demand from 2005 to 2020 by calculating energy intensities for various processes, adjusting values for specific regions, merging with industry demand data, and aggregating the results to the country level."
+    description = "Chemical energy demand from 2005 to 2020 per process and final energy carrier"
   ))
 }

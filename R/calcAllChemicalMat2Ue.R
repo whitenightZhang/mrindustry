@@ -99,7 +99,7 @@ calcAllChemicalMat2Ue <- function() {
     mutate(Data1 = "hvc") %>%
     filter(!Year %in% 2017)
   
-  MagPie_Fert <- readRDS("C:/Users/leoniesc/madrat/sources/MagPie_Result/v39kHRc1000_FSDP_reg.rds")%>% # "C:/Data/madrat/sources/MagPie_Result/v39kHRc1000_FSDP_reg.rds"
+  MagPie_Fert <- readRDS("F:/Data/madrat/sources/MagPie_Result/v39kHRc1000_FSDP_reg.rds")%>% # "C:/Data/madrat/sources/MagPie_Result/v39kHRc1000_FSDP_reg.rds"
     select(-model)%>%
     select(-version)%>%
     select(-scenset)%>%
