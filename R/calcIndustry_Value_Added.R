@@ -543,11 +543,7 @@ calcIndustry_Value_Added <- function(subtype = 'physical',
     complete(nesting(!!!syms(c('region', 'a', 'b'))),
              year = 2000:2100) %>%
     left_join(
-      readSource(type = 'ExpertGuess',
-                 subtype = 'cement_production_convergence_parameters',
-                 convert = FALSE) %>%
-        madrat_mule(),
-
+      toolGetCementConvergenceParameters(),
       'region'
     ) %>%
     mutate(a = .data$a
@@ -1377,4 +1373,37 @@ calcIndustry_Value_Added <- function(subtype = 'physical',
               unit = 'trillion US$2017/year',
               description = 'chemicals and other industry value added'))
 
+}
+
+#' convergence year and level (relative to global average) to which per-capita
+#' cement demand converges (Michaja Pehl)
+toolGetCementConvergenceParameters <- function() {
+
+  # when changing the data in the file, make sure to update the version number
+  # to trigger cache invalidation in madrat
+  out <- readr::read_csv(
+    file = system.file("extdata", "cement_production_convergence_parameters_v1.csv",
+      package = "mrindustry"
+    ),
+    col_types = "cdi",
+    comment = "#"
+  )
+
+  out <- bind_rows(
+    out %>%
+      filter(!is.na(.data$region)),
+    out %>%
+      utils::head(n = 1) %>%
+      filter(is.na(.data$region)) %>%
+      select(-"region") %>%
+      tidyr::expand_grid(region = toolGetMapping(
+        name = "regionmapping_21_EU11.csv",
+        type = "regional", where = "mappingfolder"
+      ) %>%
+        pull("RegionCode") %>%
+        unique() %>%
+        sort() %>%
+        setdiff(out$region))
+  )
+  return(out)
 }

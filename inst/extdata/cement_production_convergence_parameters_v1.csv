@@ -1,0 +1,9 @@
+# Convergence year and level (relative to global average) to which per-capita
+# cement demand converges.  <NA> entries apply to all regions and are
+# overwritten by specified entries.
+# Regions are from the 21_EU11 mapping.
+region,   convergence.level,   convergence.year
+NA,       1,                   2200
+CHA,      1,                   2100
+JPN,      0.85,                2200
+USA,      0.5,                 2200
