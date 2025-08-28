@@ -18,7 +18,7 @@
 #' @param save.plots `NULL` (default) if no plots are saved, or the path to save
 #'     directories to.
 #' @param do_use_expert_guess Whether or not to overwrite steel productions with
-#'     expert guesses from input data in the sources folder (for China), 
+#'     expert guesses from input data in the sources folder (for China),
 #'     and exempt India from IEA_ETP scaling, if applied
 #'
 #' @return A list with a [`magpie`][magclass::magclass] object `x`, `weight`,
@@ -337,15 +337,15 @@ calcSteel_Projections <- function(subtype = 'production',
                       Asym = .data$Asym, xmid = .data$xmid, scal = .data$scal),
       # quick fix for India in IndiaHigh/Medium scenarios:
       # multiply by a factor which ramps from 1 to 2, such that steel demand after the peak is higher
-      value = ifelse(.data$iso3c == 'IND' & .data$scenario %in% c('SSP2IndiaHigh', 'SSP2IndiaMedium'), 
-                     .data$value * (1.0 + SSlogis(input = .data$year, Asym = 0.8, xmid = 2050, scal = 20)), 
+      value = ifelse(.data$iso3c == 'IND' & .data$scenario %in% c('SSP2IndiaHigh', 'SSP2IndiaMedium'),
+                     .data$value * (1.0 + SSlogis(input = .data$year, Asym = 0.8, xmid = 2050, scal = 20)),
                      .data$value),
       source = 'computation') %>%
     select('scenario', 'iso3c', 'year', 'value', 'source') %>%
     assert(not_na, everything())
 
-  
-  
+
+
   steel_stock_estimates <- bind_rows(
     steel_stock_estimates,
 
@@ -1024,10 +1024,8 @@ calcSteel_Projections <- function(subtype = 'production',
 
   # match exogenous data for China ----
   if (do_use_expert_guess) {
-    prod_expert_guess <- readSource(type = "ExpertGuess",
-                                    subtype = "Steel_Production",
-                                    convert = FALSE) %>%
-      madrat_mule()
+
+    prod_expert_guess <- toolGetExpertGuessSteelProduction()
 
     expert_guess_china <- prod_expert_guess %>%
       filter('CHN' == .data$iso3c) %>%
@@ -1196,7 +1194,7 @@ calcSteel_Projections <- function(subtype = 'production',
         arrange('scenario', 'region', 'iso3c', 'year', 'variable')
     } else {
       IEA_ETP_matched <- tmp %>%
-        # filter out CHN (because expert guess is used) 
+        # filter out CHN (because expert guess is used)
         # and IND (because data without ETP scaling seems more plausible)
         filter(!(.data$iso3c %in% c('CHN', 'IND'))) %>%
         mutate(OECD.region = ifelse(.data$iso3c %in% OECD_iso3c,
@@ -1306,4 +1304,17 @@ calcSteel_Projections <- function(subtype = 'production',
               weight = NULL,
               unit = 'Gt steel/year',
               description = 'primary and secondary steel production'))
+}
+
+#' Steel production estimates (Michaja Pehl)
+toolGetExpertGuessSteelProduction <- function() {
+
+  # when changing the data in the file, make sure to update the version number
+  # to trigger cache invalidation in madrat
+  readr::read_csv(
+    file = system.file('extdata', 'expert_guess_steel_production_v1.csv',
+                       package = 'mrindustry'),
+    comment = "#",
+    show_col_types = FALSE
+  )
 }
