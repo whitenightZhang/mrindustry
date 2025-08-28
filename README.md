@@ -1,6 +1,6 @@
 # input data generation for the REMIND industry module
 
-R package **mrindustry**, version **0.24.4**
+R package **mrindustry**, version **0.24.5**
 
 [![CRAN status](https://www.r-pkg.org/badges/version/mrindustry)](https://cran.r-project.org/package=mrindustry) [![R build status](https://github.com/pik-piam/mrindustry/workflows/check/badge.svg)](https://github.com/pik-piam/mrindustry/actions) [![codecov](https://codecov.io/gh/pik-piam/mrindustry/branch/master/graph/badge.svg)](https://app.codecov.io/gh/pik-piam/mrindustry) [![r-universe](https://pik-piam.r-universe.dev/badges/mrindustry)](https://pik-piam.r-universe.dev/builds)
 
@@ -39,7 +39,7 @@ In case of questions / problems please contact Falk Benke <benke@pik-potsdam.de>
 
 To cite package **mrindustry** in publications use:
 
-Benke F, Dürrwächter J, Rodrigues R, Moreno-Leiva S, Baumstark L, Pehl M, Weiss B (2025). "mrindustry: input data generation for the REMIND industry module." Version: 0.24.4, <https://github.com/pik-piam/mrindustry>.
+Benke F, Dürrwächter J, Rodrigues R, Moreno-Leiva S, Baumstark L, Pehl M, Weiss B (2025). "mrindustry: input data generation for the REMIND industry module." Version: 0.24.5, <https://github.com/pik-piam/mrindustry>.
 
 A BibTeX entry for LaTeX users is
 
@@ -47,9 +47,9 @@ A BibTeX entry for LaTeX users is
 @Misc{,
   title = {mrindustry: input data generation for the REMIND industry module},
   author = {Falk Benke and Jakob Dürrwächter and Renato Rodrigues and Simón Moreno-Leiva and Lavinia Baumstark and Michaja Pehl and Bennet Weiss},
-  date = {2025-08-27},
+  date = {2025-08-28},
   year = {2025},
   url = {https://github.com/pik-piam/mrindustry},
-  note = {Version: 0.24.4},
+  note = {Version: 0.24.5},
 }
 ```
