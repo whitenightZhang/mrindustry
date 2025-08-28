@@ -1309,11 +1309,9 @@ calcSteel_Projections <- function(subtype = 'production',
 #' Steel production estimates (Michaja Pehl)
 toolGetExpertGuessSteelProduction <- function() {
 
-  # when changing the data in the file, make sure to update the version number
-  # to trigger cache invalidation in madrat
   readr::read_csv(
-    file = system.file('extdata', 'expert_guess_steel_production_v1.csv',
-                       package = 'mrindustry'),
+    file = toolGetMapping("expert_guess_steel_production.csv",
+                   where = "mrindustry", returnPathOnly = TRUE),
     comment = "#",
     show_col_types = FALSE
   )

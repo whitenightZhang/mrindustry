@@ -1379,12 +1379,9 @@ calcIndustry_Value_Added <- function(subtype = 'physical',
 #' cement demand converges (Michaja Pehl)
 toolGetCementConvergenceParameters <- function() {
 
-  # when changing the data in the file, make sure to update the version number
-  # to trigger cache invalidation in madrat
   out <- readr::read_csv(
-    file = system.file("extdata", "cement_production_convergence_parameters_v1.csv",
-      package = "mrindustry"
-    ),
+    file = toolGetMapping("cement_production_convergence_parameters.csv",
+                          where = "mrindustry", returnPathOnly = TRUE),
     col_types = "cdi",
     comment = "#"
   )

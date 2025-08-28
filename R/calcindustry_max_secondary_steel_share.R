@@ -39,13 +39,10 @@ calcindustry_max_secondary_steel_share <- function(scenarios = NULL,
 #' years between which a linear convergence from historic to target shares is
 #' to be applied. (Michaja Pehl)
 toolGetSecondarySteelShare <- function() {
-  out <- readr::read_csv(
-    file = system.file("extdata", "industry_max_secondary_steel_share_v1.csv",
-                       package = "mrindustry"
-    ),
+  readr::read_csv(
+    file = toolGetMapping("industry_max_secondary_steel_share.csv",
+                          where = "mrindustry", returnPathOnly = TRUE),
     comment = "#",
     show_col_types = FALSE
   )
-
-
 }
