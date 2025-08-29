@@ -1,0 +1,48 @@
+# - "Smooth" Chinese Steel Production,estimated by Chris Gong (2023) in Mt/year
+# - Indian Steel Production (only used for SSP2_IndiaHigh Scenario!) to match various source estimates:
+#   https://github.com/remindmodel/development_issues/issues/480#issuecomment-2656301948
+# iso3c has to be non-oecd,else there will be errors in IEA-ETP production matching
+iso3c,period,total.production
+CHN,2005,375
+CHN,2010,640
+CHN,2015,820
+CHN,2020,981
+CHN,2025,968
+CHN,2030,906
+CHN,2035,870
+CHN,2040,800
+CHN,2045,755
+CHN,2050,718
+IND,2005,46
+IND,2006,49
+IND,2007,53
+IND,2008,58
+IND,2009,63
+IND,2010,69
+IND,2011,73
+IND,2012,77
+IND,2013,81
+IND,2014,87
+IND,2015,89
+IND,2016,95
+IND,2017,101
+IND,2018,109
+IND,2019,111
+IND,2020,100
+IND,2021,118
+IND,2022,125
+IND,2023,140
+IND,2024,150
+IND,2030,255
+IND,2050,450
+IND,2055,400
+IND,2060,360
+IND,2070,325
+IND,2080,300
+IND,2090,275
+IND,2100,250
+IND,2110,225
+IND,2120,225
+IND,2130,200
+IND,2140,200
+IND,2150,175
