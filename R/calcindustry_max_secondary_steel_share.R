@@ -21,16 +21,28 @@ calcindustry_max_secondary_steel_share <- function(scenarios = NULL,
     stop('Region definitions missing.')
   }
 
+
+  x <- toolGetSecondarySteelShare() %>%
+    tool_expand_tibble(scenarios, regions) %>%
+    pivot_longer(
+      !all_of(names(which('character' == unlist(lapply(., typeof)))))) %>%
+    as.magpie(spatial = 0, temporal = 0, datacol = ncol(.))
+
   . <- NULL
 
   return(list(
-    x = readSource(type = 'ExpertGuess',
-                   subtype = 'industry_max_secondary_steel_share',
-                   convert = FALSE) %>%
-      madrat_mule() %>%
-      tool_expand_tibble(scenarios, regions) %>%
-      pivot_longer(
-        !all_of(names(which('character' == unlist(lapply(., typeof)))))) %>%
-      as.magpie(spatial = 0, temporal = 0, datacol = ncol(.)),
+    x = x,
     weight = NULL, unit = '', description = ''))
+}
+
+#' Maximum share of secondary steel production in total steel production and
+#' years between which a linear convergence from historic to target shares is
+#' to be applied. (Michaja Pehl)
+toolGetSecondarySteelShare <- function() {
+  readr::read_csv(
+    file = toolGetMapping("industry_max_secondary_steel_share.csv",
+                          where = "mrindustry", returnPathOnly = TRUE),
+    comment = "#",
+    show_col_types = FALSE
+  )
 }

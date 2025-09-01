@@ -1,0 +1,7 @@
+# Maximum share of secondary steel production and years between which a linear
+# convergence from historic to target shares is to be applied.  <NA> entries
+# apply to all scenarios/regions and are overwritten by specific entries.
+# Regions are from the 21_EU11 mapping.
+scenario,region,from,by,target
+NA,NA,2015,2050,0.9
+SSP2EU,DEU,2015,2100,0.81
